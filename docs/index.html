@@ -256,7 +256,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>Что значат цвета и номера у точек?</h3>
       <p>Зелёная линия — защита успевает, жёлтая — впритык, красная — не успевает. Номер и цвет кружка у точки — какой игрок должен брать волан.</p>
       <h3>Что за таблица «Наиболее вероятное развитие событий»?</h3>
-      <p>Это все удары, которые может сыграть бьющий из этой точки: как часто их играют, кто из защиты должен брать волан и сколько у него запаса времени (меньше нуля — не успевает). Нажмите на строку — на корте подсветится траектория этого удара. И наоборот: когда тянете волан и наводите его на точку удара, строка этого удара в таблице подсвечивается, а уберёте волан с точки — подсветка пропадёт.</p>
+      <p>Это все удары, которые может сыграть бьющий из этой точки: как часто их играют, кто из защиты должен брать волан или что никто не успевает. Нажмите на строку — на корте подсветится траектория этого удара. И наоборот: когда тянете волан и наводите его на точку удара, строка этого удара в таблице подсвечивается, а уберёте волан с точки — подсветка пропадёт.</p>
       <h3>Как работают «Авторозыгрыш» и «Пауза»?</h3>
       <p>«Авторозыгрыш» играет сам: удары выбираются случайно, самые частые и опасные — чаще. «Пауза» останавливает картинку в любой момент, даже когда волан в полёте. В паузе нажмите на точку — так выбирается следующий удар. «Продолжить» — розыгрыш идёт дальше. Обе кнопки есть и под кортом.</p>
       <h3>Что ещё показано на корте?</h3>
@@ -278,7 +278,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>What do the colours and numbers at the dots mean?</h3>
       <p>Green line: the defence gets there; yellow: only just; red: too late. The number and colour of the circle at a dot show which player should take the shuttle.</p>
       <h3>What is the “Most likely course of play” table?</h3>
-      <p>All the shots the hitter can play from this spot: how often they are played, which defender should take the shuttle and how much time they have to spare (below zero — too late). Tap a row to highlight that shot’s path on the court. It works the other way too: drag the shuttle onto a shot’s dot and that shot’s row lights up in the table; move it off the dot and the highlight goes.</p>
+      <p>All the shots the hitter can play from this spot: how often they are played, which defender should take the shuttle, or that nobody gets there. Tap a row to highlight that shot’s path on the court. It works the other way too: drag the shuttle onto a shot’s dot and that shot’s row lights up in the table; move it off the dot and the highlight goes.</p>
       <h3>How do “Auto rally” and “Pause” work?</h3>
       <p>“Auto rally” plays by itself: shots are picked at random, the most common and dangerous ones more often. “Pause” freezes the picture at any moment, even with the shuttle in the air. While paused, tap a dot to choose the next shot. “Resume” carries the rally on. Both buttons are also under the court.</p>
       <h3>What else is shown on the court?</h3>
@@ -300,7 +300,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>Apa arti warna dan nomor di titik?</h3>
       <p>Garis hijau: pertahanan sempat; kuning: pas-pasan; merah: terlambat. Nomor dan warna lingkaran di dekat titik menunjukkan pemain mana yang harus mengambil kok.</p>
       <h3>Apa itu tabel “Perkembangan yang paling mungkin”?</h3>
-      <p>Semua pukulan yang bisa dimainkan pemukul dari titik ini: seberapa sering dimainkan, pemain bertahan mana yang harus mengambil kok, dan berapa sisa waktunya (di bawah nol — terlambat). Ketuk sebuah baris untuk menyorot lintasan pukulan itu di lapangan. Sebaliknya juga bisa: seret kok ke titik sebuah pukulan, dan baris pukulan itu di tabel akan menyala; geser kok keluar dari titik, sorotannya hilang.</p>
+      <p>Semua pukulan yang bisa dimainkan pemukul dari titik ini: seberapa sering dimainkan, pemain bertahan mana yang harus mengambil kok, atau bahwa tidak ada yang sempat. Ketuk sebuah baris untuk menyorot lintasan pukulan itu di lapangan. Sebaliknya juga bisa: seret kok ke titik sebuah pukulan, dan baris pukulan itu di tabel akan menyala; geser kok keluar dari titik, sorotannya hilang.</p>
       <h3>Bagaimana “Reli otomatis” dan “Jeda” bekerja?</h3>
       <p>“Reli otomatis” bermain sendiri: pukulan dipilih acak, yang paling sering dan berbahaya lebih sering muncul. “Jeda” membekukan gambar kapan saja, bahkan saat kok di udara. Saat dijeda, ketuk sebuah titik untuk memilih pukulan berikutnya. “Lanjutkan” meneruskan reli. Kedua tombol juga ada di bawah lapangan.</p>
       <h3>Apa lagi yang terlihat di lapangan?</h3>
@@ -1270,11 +1270,11 @@ const TX={
     block:'Подставили к сетке — сопернику придётся брать низко и, скорее всего, поднимать. Можно идти вперёд и готовиться к атаке.',
     net:'После удара у сетки бьющий остаётся впереди, партнёр закрывает глубину.'},
   lost:(t,w)=>`Никто из ${TX.ru.team[t].gen} не успевает — очко ${TX.ru.team[w].dat}.`,
-  take:(n,m,h)=>`Принимает ${n}: запас времени ${m} с, волан на высоте ${h} м.`,
+  take:(n,m,h)=>`Принимает ${n}, волан на высоте ${h} м.`,
   forms:(b,r)=>`Синие: ${b}. Красные: ${r}.`,
   ready:(n,sit,cap,f)=>`<b>${n}</b> бьёт ${sit}. ${cap} ждут удара и стоят ${f}.`,
   miss:l=>`Не успевают к: ${l}.`,
-  allOk:(s,m)=>`Пара успевает ко всем ударам. Самый опасный — ${s} (запас ${m} с).`,
+  allOk:(s,m)=>`Пара успевает ко всем ударам. Самый опасный — ${s}.`,
   drag:(a,b)=>`Вы ведёте ${a}. ${b} встаёт туда, откуда закрывает то, до чего не успевает партнёр.`,
   takes:(n,l)=>`${n} берёт: ${l}.`,
   nobody:l=>`Никто не успевает к: ${l}.`,
@@ -1283,11 +1283,11 @@ const TX={
   stPaused:(s,n)=>`Пауза: летит <b>${s}</b>.`+(n?'<br>Выберите, куда пойдёт следующий удар: нажмите на точку на конце линии или перетащите большой волан в любое место. Или нажмите «Продолжить».':''),
   stHold:'Пауза. Нажмите на точку на конце линии или перетащите большой волан в любое место на половине соперника — туда и полетит удар. «Продолжить» — розыгрыш пойдёт дальше сам.',
   stReady:(n,sit,t,p)=>`Бьёт ${n} — ${sit}.<br>Ждут удара: <b>${TX.ru.team[t].nom}</b>, к ударам успевают на <b>${p}%</b>.`,
-  btnTitle:(s,m)=>`${s}: запас ${m} с`,
+  btnTitle:(s,m)=>s,
   tblWait:'Таблица появится, когда волан будет у бьющего.',
-  tblHead:t=>`<th>Удар</th><th>Часто</th><th>Берёт (${TX.ru.team[t].nom})</th><th>Запас</th>`,
+  tblHead:t=>`<th>Удар</th><th>Часто</th><th>Берёт (${TX.ru.team[t].nom})</th>`,
   tblNobody:'никто',
-  tblHint:'Запас — на сколько секунд игрок успевает раньше волана. Меньше нуля — не успевает.',
+  tblHint:'Нажмите на строку — на корте подсветится траектория этого удара.',
   bannerLost:w=>`Очко ${TX.ru.team[w].dat}: никто не успел к волану`,
   lsDone:'Урок окончен.', lsStep:(a,b)=>`шаг ${a} из ${b}`,
   qzTask:(n,sit,wt)=>`${n} сейчас бьёт ${sit}. Поставьте обоих ${TX.ru.team[wt].gen} туда, где им лучше всего ждать удар, и нажмите «Проверить».`,
@@ -1299,9 +1299,9 @@ const TX={
   qzAimOff:'Один из красных стоит не на своём месте.',
   qzNeedPick:'Сначала перетащите большой волан туда, куда хотите ударить.',
   qzAimYou:'Ваш удар:', qzAimBest:'Лучший по расчёту:',
-  qzAimTake:(sh,who,m)=>`${sh} — берёт ${who}, запас ${m} с.`,
+  qzAimTake:(sh,who,m)=>`${sh} — берёт ${who}.`,
   qzAimLost:sh=>`${sh} — никто не успевает, очко.`,
-  qzAimHint:'Оценка — какая доля всех точек на половине соперника хуже вашей. Жёлтый пунктир — лучший удар. Чем меньше у соперника запас времени, тем удар лучше.',
+  qzAimHint:'Оценка — какая доля всех точек на половине соперника хуже вашей. Жёлтый пунктир — лучший удар. Чем труднее сопернику успеть к волану, тем удар лучше.',
   qzDist2:l=>`Белые кружки — лучшие точки по расчёту. До них: ${l}.`,
   qzAllParts:(a,b)=>`Партнёр: ${a} из 100, красные: ${b} из 100.`,
   qzReply:sh=>`Партнёр готовится к самому вероятному ответу соперника — ${sh}.`,
@@ -1356,11 +1356,11 @@ const TX={
     block:'Blocked to the net — the opponents must take it low and will most likely lift. Time to move forward and get ready to attack.',
     net:'After a shot at the net the hitter stays in front, the partner covers the back.'},
   lost:(t,w)=>`No ${TX.en.team[t].gen} player gets there — point to ${TX.en.team[w].dat}.`,
-  take:(n,m,h)=>`Taken by ${n}: ${m} s to spare, shuttle at ${h} m.`,
+  take:(n,m,h)=>`Taken by ${n}, shuttle at ${h} m.`,
   forms:(b,r)=>`Blue: ${b}. Red: ${r}.`,
   ready:(n,sit,cap,f)=>`<b>${n}</b> hits ${sit}. ${cap} wait for the shot: ${f}.`,
   miss:l=>`They can't reach: ${l}.`,
-  allOk:(s,m)=>`The pair reaches every shot. Most dangerous: ${s} (${m} s to spare).`,
+  allOk:(s,m)=>`The pair reaches every shot. Most dangerous: ${s}.`,
   drag:(a,b)=>`You are moving ${a}. ${b} goes where they cover whatever the partner cannot reach.`,
   takes:(n,l)=>`${n} takes: ${l}.`,
   nobody:l=>`Nobody reaches: ${l}.`,
@@ -1369,11 +1369,11 @@ const TX={
   stPaused:(s,n)=>`Paused: <b>${s}</b> in flight.`+(n?'<br>Choose where the next shot goes: tap a dot at the end of a line or drag the big shuttle anywhere. Or press “Resume”.':''),
   stHold:'Paused. Tap a dot at the end of a line or drag the big shuttle anywhere on the opponent’s half — the shot goes there. “Resume” lets the rally carry on by itself.',
   stReady:(n,sit,t,p)=>`${n} is hitting — ${sit}.<br>Waiting: <b>${TX.en.team[t].nom}</b>, they reach <b>${p}%</b> of the shots.`,
-  btnTitle:(s,m)=>`${s}: ${m} s to spare`,
+  btnTitle:(s,m)=>s,
   tblWait:'The table appears when a player has the shuttle.',
-  tblHead:t=>`<th>Shot</th><th>How often</th><th>Taken by (${TX.en.team[t].nom})</th><th>Margin</th>`,
+  tblHead:t=>`<th>Shot</th><th>How often</th><th>Taken by (${TX.en.team[t].nom})</th>`,
   tblNobody:'nobody',
-  tblHint:'Margin — how many seconds the player arrives before the shuttle. Below zero means too late.',
+  tblHint:'Tap a row to highlight that shot’s path on the court.',
   bannerLost:w=>`Point to ${TX.en.team[w].dat}: nobody reached the shuttle`,
   lsDone:'End of lesson.', lsStep:(a,b)=>`step ${a} of ${b}`,
   qzTask:(n,sit,wt)=>`${n} is about to hit ${sit}. Place both ${TX.en.team[wt].cap} players where they should wait for the shot and press “Check”.`,
@@ -1385,9 +1385,9 @@ const TX={
   qzAimOff:'One of the Red players is out of position.',
   qzNeedPick:'First drag the big shuttle to where you want to hit.',
   qzAimYou:'Your shot:', qzAimBest:'Best by calculation:',
-  qzAimTake:(sh,who,m)=>`${sh} — ${who} takes it, ${m} s to spare.`,
+  qzAimTake:(sh,who,m)=>`${sh} — ${who} takes it.`,
   qzAimLost:sh=>`${sh} — nobody gets there, a point.`,
-  qzAimHint:'The score is the share of all spots on the opponent’s half that are worse than yours. Yellow dashes — the best shot. The less time the opponent has, the better the shot.',
+  qzAimHint:'The score is the share of all spots on the opponent’s half that are worse than yours. Yellow dashes — the best shot. The harder it is for the opponent to reach the shuttle, the better the shot.',
   qzDist2:l=>`White circles are the best spots by calculation. Distance to them: ${l}.`,
   qzAllParts:(a,b)=>`Partner: ${a} / 100, Red: ${b} / 100.`,
   qzReply:sh=>`The partner prepares for the opponent’s most likely reply — ${sh}.`,
@@ -1442,11 +1442,11 @@ const TX={
     block:'Diblok ke depan net — lawan harus mengambilnya rendah dan kemungkinan besar mengangkat. Saatnya maju dan bersiap menyerang.',
     net:'Setelah pukulan di depan net, pemukul tetap di depan, rekannya menjaga area belakang.'},
   lost:(t,w)=>`Tidak ada pemain ${TX.id.team[t].gen} yang sempat — poin untuk ${TX.id.team[w].dat}.`,
-  take:(n,m,h)=>`Diambil oleh ${n}: sisa waktu ${m} dtk, kok setinggi ${h} m.`,
+  take:(n,m,h)=>`Diambil oleh ${n}, kok setinggi ${h} m.`,
   forms:(b,r)=>`Biru: ${b}. Merah: ${r}.`,
   ready:(n,sit,cap,f)=>`<b>${n}</b> memukul ${sit}. ${cap} menunggu pukulan: ${f}.`,
   miss:l=>`Tidak sempat ke: ${l}.`,
-  allOk:(s,m)=>`Pasangan sempat ke semua pukulan. Paling berbahaya: ${s} (sisa ${m} dtk).`,
+  allOk:(s,m)=>`Pasangan sempat ke semua pukulan. Paling berbahaya: ${s}.`,
   drag:(a,b)=>`Anda menggeser ${a}. ${b} pindah ke tempat yang menutup apa pun yang tidak terjangkau rekannya.`,
   takes:(n,l)=>`${n} mengambil: ${l}.`,
   nobody:l=>`Tidak ada yang sempat ke: ${l}.`,
@@ -1455,11 +1455,11 @@ const TX={
   stPaused:(s,n)=>`Dijeda: <b>${s}</b> sedang melayang.`+(n?'<br>Pilih ke mana pukulan berikutnya: ketuk titik di ujung garis atau seret kok besar ke mana saja. Atau tekan “Lanjutkan”.':''),
   stHold:'Dijeda. Ketuk titik di ujung garis atau seret kok besar ke mana saja di sisi lawan — pukulan akan diarahkan ke situ. “Lanjutkan” — reli berjalan sendiri lagi.',
   stReady:(n,sit,t,p)=>`${n} memukul — ${sit}.<br>Menunggu: <b>${TX.id.team[t].nom}</b>, mereka sempat ke <b>${p}%</b> pukulan.`,
-  btnTitle:(s,m)=>`${s}: sisa ${m} dtk`,
+  btnTitle:(s,m)=>s,
   tblWait:'Tabel muncul saat ada pemain yang memegang kok.',
-  tblHead:t=>`<th>Pukulan</th><th>Seberapa sering</th><th>Diambil (${TX.id.team[t].nom})</th><th>Sisa waktu</th>`,
+  tblHead:t=>`<th>Pukulan</th><th>Seberapa sering</th><th>Diambil (${TX.id.team[t].nom})</th>`,
   tblNobody:'tidak ada',
-  tblHint:'Sisa waktu — berapa detik pemain tiba lebih dulu dari kok. Di bawah nol berarti terlambat.',
+  tblHint:'Ketuk sebuah baris untuk menyorot lintasan pukulan itu di lapangan.',
   bannerLost:w=>`Poin untuk ${TX.id.team[w].dat}: tidak ada yang sempat ke kok`,
   lsDone:'Pelajaran selesai.', lsStep:(a,b)=>`langkah ${a} dari ${b}`,
   qzTask:(n,sit,wt)=>`${n} akan memukul ${sit}. Tempatkan kedua pemain ${TX.id.team[wt].cap} di posisi terbaik untuk menunggu pukulan, lalu tekan “Periksa”.`,
@@ -1471,9 +1471,9 @@ const TX={
   qzAimOff:'Salah satu pemain Merah tidak berada di posisinya.',
   qzNeedPick:'Seret dulu kok besar ke tempat yang ingin Anda tuju.',
   qzAimYou:'Pukulan Anda:', qzAimBest:'Terbaik menurut perhitungan:',
-  qzAimTake:(sh,who,m)=>`${sh} — diambil ${who}, sisa waktu ${m} dtk.`,
+  qzAimTake:(sh,who,m)=>`${sh} — diambil ${who}.`,
   qzAimLost:sh=>`${sh} — tidak ada yang sempat, poin.`,
-  qzAimHint:'Nilai adalah bagian dari semua titik di sisi lawan yang lebih buruk dari pilihan Anda. Garis putus-putus kuning — pukulan terbaik. Makin sedikit sisa waktu lawan, makin baik pukulannya.',
+  qzAimHint:'Nilai adalah bagian dari semua titik di sisi lawan yang lebih buruk dari pilihan Anda. Garis putus-putus kuning — pukulan terbaik. Makin sulit lawan mencapai kok, makin baik pukulannya.',
   qzDist2:l=>`Lingkaran putih adalah titik terbaik menurut perhitungan. Jaraknya: ${l}.`,
   qzAllParts:(a,b)=>`Rekan: ${a} / 100, Merah: ${b} / 100.`,
   qzReply:sh=>`Rekan bersiap untuk balasan lawan yang paling mungkin — ${sh}.`,
@@ -1604,8 +1604,7 @@ function renderTable(box){
   let h=`<table><thead><tr>${T.tblHead(wt)}</tr></thead><tbody>`;
   S.ev.rows.forEach((r,i)=>{
     h+=`<tr data-i="${i}" class="${S.highlight===i?'hl':''}"><td>${r.shot.name}</td><td>${Math.round(r.w*100)}%</td>`+
-       `<td>${r.bm>=0?`<i class="dot" style="background:${COL[r.resp]}"></i> ${nm(r.resp)}`:`<span style="color:#fca5a5">${T.tblNobody}</span>`}</td>`+
-       `<td style="color:${statusColor(r.bm)}">${fmt(r.bm)} ${T.s}</td></tr>`;
+       `<td>${r.bm>=0?`<i class="dot" style="background:${COL[r.resp]}"></i> ${nm(r.resp)}`:`<span style="color:#fca5a5">${T.tblNobody}</span>`}</td></tr>`;
   });
   h+=`</tbody></table><p class="hint">${T.tblHint}</p>`;
   box.innerHTML=h;

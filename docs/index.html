@@ -50,6 +50,16 @@ label.chk{display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;f
 .legend span{display:inline-flex;align-items:center;gap:4px}
 .lessons button{display:block;width:100%;text-align:left;margin:5px 0;white-space:normal}
 .score{font-size:22px;font-weight:700}
+.qz-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:8px 0}
+.qz-grid button{padding:0;height:30px;font-size:11.5px;position:relative;border-radius:6px;color:#9fb3c8}
+.qz-grid button.g{background:#166534;border-color:#22c55e;color:#fff}
+.qz-grid button.y{background:#854d0e;border-color:#eab308;color:#fff}
+.qz-grid button.r{background:#7f1d1d;border-color:#ef4444;color:#fff}
+.qz-grid button.g::after,.qz-grid button.y::after,.qz-grid button.r::after{content:'✓';position:absolute;top:-1px;right:3px;font-size:10px;font-weight:700}
+.qz-grid button.cur{outline:2px solid #f8fafc;outline-offset:1px}
+.qz-grid button.dim{opacity:.3}
+.qz-prog{font-size:12.5px;color:var(--mut)}
+.qz-prog a{color:#93c5fd;cursor:pointer;text-decoration:underline}
 .basics h3{font-size:14.5px;margin:14px 0 4px;color:#cfe3f5}
 .basics p,.basics li{font-size:13.5px}
 .basics ul{padding-left:18px;margin:4px 0}
@@ -134,6 +144,8 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <div class="card" id="qz-task"></div>
       <div class="row"><button class="prim" id="qz-check" data-i18n="qz_check"></button><button id="qz-retry" data-i18n="qz_retry"></button><button id="qz-next" data-i18n="qz_next"></button></div>
       <div class="card" id="qz-result" hidden></div>
+      <div class="qz-prog" id="qz-prog"></div>
+      <div class="qz-grid" id="qz-grid"></div>
     </section>
 
     <section id="m-basics" hidden class="basics">
@@ -249,7 +261,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>Что делают остальные кнопки?</h3>
       <p>«сверху / на уровне груди / снизу» — на какой высоте бьющий встречает волан, от этого зависят возможные удары. «Случайный удар» — один удар наугад. «Назад» отменяет последний удар, «Сначала» возвращает начальную ситуацию, «Авторасстановка» ставит всех в лучшие точки.</p>
       <h3>Что в других вкладках?</h3>
-      <p>«Уроки» — пошаговые разборы типовых розыгрышей. «Тест» — задания четырёх видов, их переключают кнопки сверху: расставить пару, которая ждёт удара; найти место партнёру того, кто взял волан; расставить сразу партнёра и обоих соперников; выбрать, куда бить, в атаке или из защиты, — перетащив большой волан. «Проверить» покажет оценку и лучший вариант по расчёту, «Повторить» — та же ситуация заново. «Основы» — короткая теория: строи, кто какой удар берёт, как считаются позиции.</p>
+      <p>«Уроки» — пошаговые разборы типовых розыгрышей. «Тест» — задания четырёх видов, их переключают кнопки сверху: расставить пару, которая ждёт удара; найти место партнёру того, кто взял волан; расставить сразу партнёра и обоих соперников; выбрать, куда бить, в атаке или из защиты, — перетащив большой волан. «Проверить» покажет оценку и лучший вариант по расчёту, «Повторить» — та же ситуация заново. Всего 100 пронумерованных тестов, каждый всегда один и тот же. Квадратики под заданием показывают результат: зелёная галочка — 85 баллов и больше, жёлтая — от 55, красная — меньше. Нажмите на квадратик, чтобы пройти тест заново; «Следующий тест» ведёт к следующему, ещё не пройденному на зелёный. Результаты хранятся в этом браузере. «Основы» — короткая теория: строи, кто какой удар берёт, как считаются позиции.</p>
       <h3>Как сменить язык и скорость?</h3>
       <p>Язык — кнопки RU / EN / ID вверху. Скорость анимации — в «Настройках» внизу.</p>
      </div>
@@ -269,7 +281,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>What do the other buttons do?</h3>
       <p>“overhead / chest height / low” sets the height at which the hitter meets the shuttle; the possible shots depend on it. “Random shot” plays one shot at random. “Back” undoes the last shot, “Start over” returns to the starting situation, “Auto positions” puts everyone on their best spots.</p>
       <h3>What is in the other tabs?</h3>
-      <p>“Lessons”: step-by-step walkthroughs of typical rallies. “Quiz”: four kinds of tasks, switched with the buttons at the top — place the pair waiting for the shot; find the spot for the partner of the player who took the shuttle; place the partner and both opponents at once; choose where to hit, in attack or from defence, by dragging the big shuttle. “Check” shows your score and the best option by calculation; “Try again” repeats the same situation. “Basics”: a short theory — formations, who takes which shot, how positions are calculated.</p>
+      <p>“Lessons”: step-by-step walkthroughs of typical rallies. “Quiz”: four kinds of tasks, switched with the buttons at the top — place the pair waiting for the shot; find the spot for the partner of the player who took the shuttle; place the partner and both opponents at once; choose where to hit, in attack or from defence, by dragging the big shuttle. “Check” shows your score and the best option by calculation; “Try again” repeats the same situation. There are 100 numbered tests, each always the same. The squares under the task show your results: a green tick — 85 points or more, yellow — from 55, red — less. Tap a square to take that test again; “Next test” goes to the next one not yet passed green. Results are kept in this browser. “Basics”: a short theory — formations, who takes which shot, how positions are calculated.</p>
       <h3>How do I change the language or the speed?</h3>
       <p>Language: the RU / EN / ID buttons at the top. Animation speed: in “Settings” at the bottom.</p>
      </div>
@@ -289,7 +301,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>Apa fungsi tombol lainnya?</h3>
       <p>“di atas kepala / setinggi dada / rendah” menentukan ketinggian saat pemukul menyambut kok; pukulan yang mungkin bergantung padanya. “Pukulan acak” memainkan satu pukulan secara acak. “Kembali” membatalkan pukulan terakhir, “Ulang dari awal” kembali ke situasi awal, “Posisi otomatis” menempatkan semua pemain di titik terbaik.</p>
       <h3>Apa isi tab lainnya?</h3>
-      <p>“Pelajaran”: pembahasan langkah demi langkah reli yang khas. “Kuis”: empat jenis tugas, dipilih dengan tombol di atas — atur pasangan yang menunggu pukulan; cari posisi rekan pemain yang mengambil kok; atur rekan dan kedua lawan sekaligus; pilih ke mana memukul, saat menyerang atau bertahan, dengan menyeret kok besar. “Periksa” menampilkan nilai dan pilihan terbaik menurut perhitungan; “Ulangi” mengulang situasi yang sama. “Dasar”: teori singkat — formasi, siapa mengambil pukulan apa, bagaimana posisi dihitung.</p>
+      <p>“Pelajaran”: pembahasan langkah demi langkah reli yang khas. “Kuis”: empat jenis tugas, dipilih dengan tombol di atas — atur pasangan yang menunggu pukulan; cari posisi rekan pemain yang mengambil kok; atur rekan dan kedua lawan sekaligus; pilih ke mana memukul, saat menyerang atau bertahan, dengan menyeret kok besar. “Periksa” menampilkan nilai dan pilihan terbaik menurut perhitungan; “Ulangi” mengulang situasi yang sama. Ada 100 tes bernomor, masing-masing selalu sama. Kotak di bawah tugas menunjukkan hasil Anda: centang hijau — 85 poin atau lebih, kuning — mulai 55, merah — kurang. Ketuk kotak untuk mengulang tes itu; “Tes berikutnya” membuka tes berikutnya yang belum hijau. Hasil disimpan di browser ini. “Dasar”: teori singkat — formasi, siapa mengambil pukulan apa, bagaimana posisi dihitung.</p>
       <h3>Bagaimana mengganti bahasa atau kecepatan?</h3>
       <p>Bahasa: tombol RU / EN / ID di atas. Kecepatan animasi: di “Pengaturan” di bawah.</p>
      </div>
@@ -1210,7 +1222,10 @@ const TX={
   who_takes:'Кто какой удар берёт',
   play_hint:'Точки на концах линий — куда можно ударить: нажмите на любую. Большой волан у бьющего можно перетащить в любое место на половине соперника — удар полетит туда. «Пауза» останавливает розыгрыш в любой момент — можно рассмотреть расстановку и самому выбрать следующий удар. Пунктирный кружок — лучшая точка, если успеть до неё добежать. Тяните игрока той пары, которая ждёт удара, — партнёр сам займёт лучшую точку. Тяните игрока с воланом — поменяется, откуда бьёт соперник. Нажмите на строку таблицы — увидите траекторию удара.',
   ls_exit:'К списку уроков', ls_next:'Дальше', ls_again:'Повторить шаг',
-  qz_check:'Проверить', qz_retry:'Повторить', qz_next:'Новая ситуация',
+  qz_check:'Проверить', qz_retry:'Повторить', qz_next:'Следующий тест',
+  qzNum:(i,n)=>`Тест ${i} из ${n}`,
+  qzProg:(d,n,g,y,r)=>`Пройдено ${d} из ${n}: <span style="color:#4ade80">✓ ${g}</span> · <span style="color:#facc15">✓ ${y}</span> · <span style="color:#f87171">✓ ${r}</span>. Нажмите на квадратик, чтобы пройти тест заново.`,
+  qzReset:'сбросить', qzResetAsk:'Стереть все результаты тестов?', qzBest:s=>`лучший результат: ${s}`,
   settings:'Настройки', filters_lbl:'Какие удары может играть соперник:', layers_lbl:'Что показывать на корте:',
   ly_fan:'веер ударов', ly_zones:'зоны игроков', ly_ghosts:'лучшие точки', ly_trails:'следы перемещений', ly_side:'вид сбоку',
   speed_lbl:'Скорость анимации:',
@@ -1262,7 +1277,7 @@ const TX={
   bannerLost:w=>`Очко ${TX.ru.team[w].dat}: никто не успел к волану`,
   lsDone:'Урок окончен.', lsStep:(a,b)=>`шаг ${a} из ${b}`,
   qzTask:(n,sit,wt)=>`${n} сейчас бьёт ${sit}. Поставьте обоих ${TX.ru.team[wt].gen} туда, где им лучше всего ждать удар, и нажмите «Проверить».`,
-  qz_kinds:'Задания:', qzKind:{mix:'Любые',def:'Расставить пару',partner:'Где партнёр',all:'Все игроки',aim:'Куда бить'},
+  qz_kinds:'Задания:', qzKind:{mix:'Все',def:'Расставить пару',partner:'Где партнёр',all:'Все игроки',aim:'Куда бить'},
   qzPartner:(n,sh,mate)=>`Красный сыграл ${sh} — ${n} принимает волан здесь. Куда должен встать его партнёр, ${mate}, пока ${n} бьёт? Поставьте его и нажмите «Проверить».`,
   qzAll:(n,sh,mate)=>`Красный сыграл ${sh} — ${n} принимает волан здесь. Поставьте его партнёра, ${mate}, и обоих красных туда, где им лучше всего быть к следующему удару, и нажмите «Проверить».`,
   qzAimAtt:(n,sit)=>`${n} бьёт ${sit}, красные в защите. Куда ударить, чтобы им было труднее всего? Перетащите большой волан в эту точку и нажмите «Проверить».`,
@@ -1293,7 +1308,10 @@ const TX={
   who_takes:'Who takes which shot',
   play_hint:'The dots at the ends of the lines mark where the shot can go: tap one. The big shuttle at the hitter can be dragged anywhere on the opponent’s half — the shot goes there. “Pause” stops the rally at any moment — look at the positions and choose the next shot yourself. Dashed circle — the best spot, if there is time to get there. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player holding the shuttle to change where the opponent hits from. Tap a table row to see the shot\'s path.',
   ls_exit:'Back to lessons', ls_next:'Next', ls_again:'Repeat step',
-  qz_check:'Check', qz_retry:'Try again', qz_next:'New situation',
+  qz_check:'Check', qz_retry:'Try again', qz_next:'Next test',
+  qzNum:(i,n)=>`Test ${i} of ${n}`,
+  qzProg:(d,n,g,y,r)=>`Done ${d} of ${n}: <span style="color:#4ade80">✓ ${g}</span> · <span style="color:#facc15">✓ ${y}</span> · <span style="color:#f87171">✓ ${r}</span>. Tap a square to take that test again.`,
+  qzReset:'reset', qzResetAsk:'Erase all quiz results?', qzBest:s=>`best result: ${s}`,
   settings:'Settings', filters_lbl:'Shots the opponent may play:', layers_lbl:'Show on court:',
   ly_fan:'shot fan', ly_zones:'player zones', ly_ghosts:'best spots', ly_trails:'movement trails', ly_side:'side view',
   speed_lbl:'Animation speed:',
@@ -1345,7 +1363,7 @@ const TX={
   bannerLost:w=>`Point to ${TX.en.team[w].dat}: nobody reached the shuttle`,
   lsDone:'End of lesson.', lsStep:(a,b)=>`step ${a} of ${b}`,
   qzTask:(n,sit,wt)=>`${n} is about to hit ${sit}. Place both ${TX.en.team[wt].cap} players where they should wait for the shot and press “Check”.`,
-  qz_kinds:'Tasks:', qzKind:{mix:'Any',def:'Place the pair',partner:'Where’s the partner',all:'All players',aim:'Where to hit'},
+  qz_kinds:'Tasks:', qzKind:{mix:'All',def:'Place the pair',partner:'Where’s the partner',all:'All players',aim:'Where to hit'},
   qzPartner:(n,sh,mate)=>`Red played ${sh} — ${n} takes the shuttle here. Where should the partner, ${mate}, go while ${n} hits? Place them and press “Check”.`,
   qzAll:(n,sh,mate)=>`Red played ${sh} — ${n} takes the shuttle here. Place the partner, ${mate}, and both Red players where they should be for the next shot, and press “Check”.`,
   qzAimAtt:(n,sit)=>`${n} is hitting ${sit}, Red are defending. Where should the shot go to make it hardest for them? Drag the big shuttle to that spot and press “Check”.`,
@@ -1376,7 +1394,10 @@ const TX={
   who_takes:'Siapa mengambil pukulan apa',
   play_hint:'Titik di ujung garis menandai ke mana pukulan bisa diarahkan: ketuk salah satunya. Kok besar di pemukul bisa diseret ke mana saja di sisi lawan — pukulan akan diarahkan ke situ. “Jeda” menghentikan reli kapan saja — lihat posisi pemain dan pilih sendiri pukulan berikutnya. Lingkaran putus-putus — titik terbaik, jika sempat berlari ke sana. Geser pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Geser pemain yang memegang kok untuk mengubah dari mana lawan memukul. Ketuk baris tabel untuk melihat lintasan pukulan.',
   ls_exit:'Ke daftar pelajaran', ls_next:'Lanjut', ls_again:'Ulangi langkah',
-  qz_check:'Periksa', qz_retry:'Ulangi', qz_next:'Situasi baru',
+  qz_check:'Periksa', qz_retry:'Ulangi', qz_next:'Tes berikutnya',
+  qzNum:(i,n)=>`Tes ${i} dari ${n}`,
+  qzProg:(d,n,g,y,r)=>`Selesai ${d} dari ${n}: <span style="color:#4ade80">✓ ${g}</span> · <span style="color:#facc15">✓ ${y}</span> · <span style="color:#f87171">✓ ${r}</span>. Ketuk kotak untuk mengulang tes itu.`,
+  qzReset:'hapus', qzResetAsk:'Hapus semua hasil kuis?', qzBest:s=>`hasil terbaik: ${s}`,
   settings:'Pengaturan', filters_lbl:'Pukulan yang boleh dimainkan lawan:', layers_lbl:'Tampilkan di lapangan:',
   ly_fan:'kipas pukulan', ly_zones:'zona pemain', ly_ghosts:'titik terbaik', ly_trails:'jejak gerakan', ly_side:'tampak samping',
   speed_lbl:'Kecepatan animasi:',
@@ -1428,7 +1449,7 @@ const TX={
   bannerLost:w=>`Poin untuk ${TX.id.team[w].dat}: tidak ada yang sempat ke kok`,
   lsDone:'Pelajaran selesai.', lsStep:(a,b)=>`langkah ${a} dari ${b}`,
   qzTask:(n,sit,wt)=>`${n} akan memukul ${sit}. Tempatkan kedua pemain ${TX.id.team[wt].cap} di posisi terbaik untuk menunggu pukulan, lalu tekan “Periksa”.`,
-  qz_kinds:'Tugas:', qzKind:{mix:'Acak',def:'Atur pasangan',partner:'Di mana rekan',all:'Semua pemain',aim:'Ke mana memukul'},
+  qz_kinds:'Tugas:', qzKind:{mix:'Semua',def:'Atur pasangan',partner:'Di mana rekan',all:'Semua pemain',aim:'Ke mana memukul'},
   qzPartner:(n,sh,mate)=>`Merah memainkan ${sh} — ${n} mengambil kok di sini. Ke mana rekannya, ${mate}, harus bergerak saat ${n} memukul? Tempatkan dia lalu tekan “Periksa”.`,
   qzAll:(n,sh,mate)=>`Merah memainkan ${sh} — ${n} mengambil kok di sini. Tempatkan rekannya, ${mate}, dan kedua pemain Merah di posisi terbaik untuk pukulan berikutnya, lalu tekan “Periksa”.`,
   qzAimAtt:(n,sit)=>`${n} memukul ${sit}, Merah sedang bertahan. Ke mana pukulan diarahkan agar paling sulit bagi mereka? Seret kok besar ke titik itu lalu tekan “Periksa”.`,
@@ -1743,9 +1764,35 @@ function quizAimContact(att){
   const k=Math.random();
   return k<0.35?{x,y:rnd(3.0,4.3),h:0.6}:k<0.7?{x:rnd(-2,2),y:rnd(2.6,4.0),h:1.35}:{x,y:rnd(0.8,1.6),h:0.5};
 }
-function quizNew(){
-  const kinds=['def','def','partner','all','aim','aim'];
-  const kind=QZ_KIND==='mix'?kinds[Math.floor(Math.random()*kinds.length)]:QZ_KIND;
+// 100 постоянных тестов: тест №i всегда строится из одного и того же зерна случайности
+const QZ_N=100, QZ_SEQ=['def','aim','partner','def','aim','all','def','partner','aim','all'];
+const qzKindOf=i=>QZ_SEQ[i%QZ_SEQ.length];
+function seeded(seed,fn){
+  let a=seed>>>0; const orig=Math.random;
+  Math.random=()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};
+  try{return fn();} finally{Math.random=orig;}
+}
+let QZ_RES={}, QZ_CUR=0;
+try{QZ_RES=JSON.parse(localStorage.getItem('badm-quiz')||'{}')||{};QZ_CUR=+(localStorage.getItem('badm-quiz-cur')||0)||0;}catch(e){}
+const qzSave=()=>{try{localStorage.setItem('badm-quiz',JSON.stringify(QZ_RES));localStorage.setItem('badm-quiz-cur',String(QZ_CUR));}catch(e){}};
+const qzGrade=sc=>sc==null?'':sc>=85?'g':sc>=55?'y':'r';
+const qzInFilter=i=>QZ_KIND==='mix'||qzKindOf(i)===QZ_KIND;
+function quizOpen(i){
+  QZ_CUR=((i%QZ_N)+QZ_N)%QZ_N; qzSave();
+  seeded(1000+QZ_CUR*7919,()=>quizBuild(qzKindOf(QZ_CUR)));
+  S.quiz.idx=QZ_CUR;
+  updatePanel();
+}
+// следующий тест: сначала не пройденные на зелёный, по порядку, в выбранном виде заданий
+function quizNext(){
+  for(let k=1;k<=QZ_N;k++){const i=(QZ_CUR+k)%QZ_N;if(qzInFilter(i)&&qzGrade(QZ_RES[i])!=='g')return quizOpen(i);}
+  for(let k=1;k<=QZ_N;k++){const i=(QZ_CUR+k)%QZ_N;if(qzInFilter(i))return quizOpen(i);}
+}
+function quizStart(){
+  if(qzInFilter(QZ_CUR)&&qzGrade(QZ_RES[QZ_CUR])!=='g') return quizOpen(QZ_CUR);
+  quizNext();
+}
+function quizBuild(kind){
   S.highlight=null;S.lastPhase=null;L.prev.innerHTML='';
   let q={kind,checked:false};
   if(kind==='def'){
@@ -1755,7 +1802,7 @@ function quizNew(){
     q.movable=[...MATES[wt]];
   } else if(kind==='partner'||kind==='all'){
     const inc=quizIncoming();
-    if(!inc) return quizNew();
+    if(!inc) return quizBuild('def');
     const {ph,shot}=inc;
     setSituation(ph.R,ph.c2,ph.newPos,shot.type);
     const mate=partnerOf(ph.R);
@@ -1780,13 +1827,13 @@ function quizNew(){
   q.holder=S.holder;q.contact={...S.contact};q.incoming=S.incoming;q.start=JSON.parse(JSON.stringify(S.pos));
   S.quiz=q;S.history=[];
   if(q.inShot) S.lastPhase={shot:makeShot(q.inShot.hitter,q.inShot.from,q.inShot.type,q.inShot.dir),trails:null};
-  recomputeEval();drawStatic();S.dirty=true;updatePanel();
+  recomputeEval();drawStatic();S.dirty=true;
 }
 // та же ситуация заново: игроки на старте, ответ скрыт
 function quizRetry(){
   const q=S.quiz; if(!q||!q.start) return;
   setSituation(q.holder,q.contact,q.start,q.incoming);
-  S.quiz={kind:q.kind,checked:false,holder:q.holder,contact:q.contact,incoming:q.incoming,start:q.start,movable:q.movable,inShot:q.inShot,att:q.att,off:q.off};
+  S.quiz={kind:q.kind,idx:q.idx,checked:false,holder:q.holder,contact:q.contact,incoming:q.incoming,start:q.start,movable:q.movable,inShot:q.inShot,att:q.att,off:q.off};
   S.history=[];S.highlight=null;L.prev.innerHTML='';
   if(q.inShot) S.lastPhase={shot:makeShot(q.inShot.hitter,q.inShot.from,q.inShot.type,q.inShot.dir),trails:null}; else S.lastPhase=null;
   recomputeEval();drawStatic();S.dirty=true;updatePanel();
@@ -1839,7 +1886,24 @@ function quizCheck(){
     q.score=Math.round(100*g.filter(c=>c.v>=vu-1e-9).length/g.length);
     q.bestAim=g.reduce((a,b)=>b.v<a.v?b:a);
   }
+  if(q.idx!=null){QZ_RES[q.idx]=Math.max(QZ_RES[q.idx]??-1,q.score);qzSave();}
   recomputeEval();drawStatic();S.dirty=true;updatePanel();
+}
+function renderQuizGrid(){
+  const T=tx(), box=$('qz-grid');
+  if(box.children.length!==QZ_N){
+    box.innerHTML='';
+    for(let i=0;i<QZ_N;i++){const b=document.createElement('button');b.textContent=i+1;b.dataset.i=i;b.onclick=()=>quizOpen(i);box.appendChild(b);}
+  }
+  let g=0,y=0,r=0;
+  for(const b of box.children){
+    const i=+b.dataset.i, gr=qzGrade(QZ_RES[i]);
+    b.className=(gr||'')+(i===QZ_CUR?' cur':'')+(qzInFilter(i)?'':' dim');
+    b.title=T.qzNum(i+1,QZ_N)+' · '+T.qzKind[qzKindOf(i)]+(QZ_RES[i]!=null?' · '+T.qzBest(QZ_RES[i]):'');
+    if(gr==='g')g++;else if(gr==='y')y++;else if(gr==='r')r++;
+  }
+  $('qz-prog').innerHTML=T.qzProg(g+y+r,QZ_N,g,y,r)+(g+y+r?` <a id="qz-reset">${T.qzReset}</a>`:'');
+  const rs=$('qz-reset'); if(rs) rs.onclick=()=>{if(confirm(T.qzResetAsk)){QZ_RES={};qzSave();renderQuizGrid();}};
 }
 // отрисовка теста: лучшие точки, входящий удар, выбранный и лучший удар
 function drawQuizGhosts(){
@@ -1875,17 +1939,18 @@ function aimLine(row,name){
 function updateQuizPanel(){
   const q=S.quiz, T=tx(); if(!q) return;
   for(const b of document.querySelectorAll('#qz-kinds button')){b.textContent=T.qzKind[b.dataset.kind];b.classList.toggle('on',b.dataset.kind===QZ_KIND);}
+  renderQuizGrid();
   const who=id=>`<b style="color:${COL[id]}">${nm(id)}</b>`;
   let task='';
   if(q.kind==='def') task=T.qzTask(who(S.holder),situationText(),waitingTeam());
   else if(q.kind==='partner') task=T.qzPartner(who(S.holder),shotLow(makeShot(q.inShot.hitter,q.inShot.from,q.inShot.type,q.inShot.dir)),who(partnerOf(S.holder)));
   else if(q.kind==='all') task=T.qzAll(who(S.holder),shotLow(makeShot(q.inShot.hitter,q.inShot.from,q.inShot.type,q.inShot.dir)),who(partnerOf(S.holder)));
   else task=(q.att?T.qzAimAtt:T.qzAimDef)(who(S.holder),situationText())+(q.off?' '+T.qzAimOff:'');
-  $('qz-task').innerHTML=`<div class="lbl">${T.qzKind[q.kind]}</div>`+task+(q.needPick&&!q.checked?`<p style="color:#fca5a5;margin:6px 0 0">${T.qzNeedPick}</p>`:'');
+  $('qz-task').innerHTML=`<div class="lbl">${q.idx!=null?T.qzNum(q.idx+1,QZ_N)+' · ':''}${T.qzKind[q.kind]}</div>`+task+(q.needPick&&!q.checked?`<p style="color:#fca5a5;margin:6px 0 0">${T.qzNeedPick}</p>`:'');
   const r=$('qz-result');
   if(!q.checked){r.hidden=true;return;}
   r.hidden=false;
-  const verdict=q.score>=90?T.qzVerdict[0]:q.score>=70?T.qzVerdict[1]:T.qzVerdict[2];
+  const verdict=q.score>=85?T.qzVerdict[0]:q.score>=55?T.qzVerdict[1]:T.qzVerdict[2];
   let h=`<div class="score">${T.qzScore(q.score)}</div><p>${verdict}</p>`;
   if(q.kind==='aim'){
     h+=`<p>${T.qzAimYou} ${aimLine(q.pick.row,shotLow(q.pick.shot))}</p>`;
@@ -1913,7 +1978,7 @@ function setMode(m){
   setBanner('');
   if(m==='play'){defaultStart();}
   else if(m==='lessons'){S.lesson=null;$('ls-list').hidden=false;$('ls-run').hidden=true;defaultStart();S.desc=null;}
-  else if(m==='quiz'){quizNew();}
+  else if(m==='quiz'){quizStart();}
   drawStatic();S.dirty=true;updatePanel();
 }
 
@@ -1935,8 +2000,8 @@ function bindUI(){
   $('ls-next').onclick=lessonNext;$('ls-prev').onclick=lessonPrev;$('ls-again').onclick=lessonAgain;
   $('ls-restart').onclick=()=>{if(S.lesson&&!S.anim)lessonStart(S.lesson.i);};
   $('ls-exit').onclick=()=>{S.anim=null;S.lesson=null;$('ls-list').hidden=false;$('ls-run').hidden=true;defaultStart();S.desc=null;drawStatic();S.dirty=true;};
-  $('qz-check').onclick=quizCheck;$('qz-retry').onclick=quizRetry;$('qz-next').onclick=quizNew;
-  for(const b of document.querySelectorAll('#qz-kinds button')) b.onclick=()=>{QZ_KIND=b.dataset.kind;quizNew();};
+  $('qz-check').onclick=quizCheck;$('qz-retry').onclick=quizRetry;$('qz-next').onclick=quizNext;
+  for(const b of document.querySelectorAll('#qz-kinds button')) b.onclick=()=>{QZ_KIND=b.dataset.kind;if(qzInFilter(QZ_CUR))updatePanel();else quizNext();};
   const fbox=$('st-filters');
   for(const [g] of GROUPS){const l=document.createElement('label');l.className='chk';l.innerHTML=`<input type="checkbox" data-g="${g}" checked><span data-g-label="${g}"></span>`;fbox.appendChild(l);}
   for(const i of fbox.querySelectorAll('input')) i.onchange=()=>{

@@ -40,7 +40,8 @@ button.prim{background:#075985;border-color:#0ea5e9}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 td,th{padding:4px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
 th{color:var(--mut);font-weight:500}
-tr.hl td{background:#20364c}
+tr.hl td{background:rgba(253,230,138,.16)}
+tr.hl td:first-child{box-shadow:inset 3px 0 0 #fde68a;font-weight:700;color:#fde68a}
 tbody tr{cursor:pointer}
 details{margin:10px 0}
 summary{cursor:pointer;color:#bcd0e3;font-weight:600;margin-bottom:6px}
@@ -255,7 +256,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>Что значат цвета и номера у точек?</h3>
       <p>Зелёная линия — защита успевает, жёлтая — впритык, красная — не успевает. Номер и цвет кружка у точки — какой игрок должен брать волан.</p>
       <h3>Что за таблица «Наиболее вероятное развитие событий»?</h3>
-      <p>Это все удары, которые может сыграть бьющий из этой точки: как часто их играют, кто из защиты должен брать волан и сколько у него запаса времени (меньше нуля — не успевает). Нажмите на строку — на корте подсветится траектория этого удара.</p>
+      <p>Это все удары, которые может сыграть бьющий из этой точки: как часто их играют, кто из защиты должен брать волан и сколько у него запаса времени (меньше нуля — не успевает). Нажмите на строку — на корте подсветится траектория этого удара. И наоборот: когда тянете волан и наводите его на точку удара, строка этого удара в таблице подсвечивается, а уберёте волан с точки — подсветка пропадёт.</p>
       <h3>Как работают «Авторозыгрыш» и «Пауза»?</h3>
       <p>«Авторозыгрыш» играет сам: удары выбираются случайно, самые частые и опасные — чаще. «Пауза» останавливает картинку в любой момент, даже когда волан в полёте. В паузе нажмите на точку — так выбирается следующий удар. «Продолжить» — розыгрыш идёт дальше. Обе кнопки есть и под кортом.</p>
       <h3>Что ещё показано на корте?</h3>
@@ -277,7 +278,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>What do the colours and numbers at the dots mean?</h3>
       <p>Green line: the defence gets there; yellow: only just; red: too late. The number and colour of the circle at a dot show which player should take the shuttle.</p>
       <h3>What is the “Most likely course of play” table?</h3>
-      <p>All the shots the hitter can play from this spot: how often they are played, which defender should take the shuttle and how much time they have to spare (below zero — too late). Tap a row to highlight that shot’s path on the court.</p>
+      <p>All the shots the hitter can play from this spot: how often they are played, which defender should take the shuttle and how much time they have to spare (below zero — too late). Tap a row to highlight that shot’s path on the court. It works the other way too: drag the shuttle onto a shot’s dot and that shot’s row lights up in the table; move it off the dot and the highlight goes.</p>
       <h3>How do “Auto rally” and “Pause” work?</h3>
       <p>“Auto rally” plays by itself: shots are picked at random, the most common and dangerous ones more often. “Pause” freezes the picture at any moment, even with the shuttle in the air. While paused, tap a dot to choose the next shot. “Resume” carries the rally on. Both buttons are also under the court.</p>
       <h3>What else is shown on the court?</h3>
@@ -299,7 +300,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>Apa arti warna dan nomor di titik?</h3>
       <p>Garis hijau: pertahanan sempat; kuning: pas-pasan; merah: terlambat. Nomor dan warna lingkaran di dekat titik menunjukkan pemain mana yang harus mengambil kok.</p>
       <h3>Apa itu tabel “Perkembangan yang paling mungkin”?</h3>
-      <p>Semua pukulan yang bisa dimainkan pemukul dari titik ini: seberapa sering dimainkan, pemain bertahan mana yang harus mengambil kok, dan berapa sisa waktunya (di bawah nol — terlambat). Ketuk sebuah baris untuk menyorot lintasan pukulan itu di lapangan.</p>
+      <p>Semua pukulan yang bisa dimainkan pemukul dari titik ini: seberapa sering dimainkan, pemain bertahan mana yang harus mengambil kok, dan berapa sisa waktunya (di bawah nol — terlambat). Ketuk sebuah baris untuk menyorot lintasan pukulan itu di lapangan. Sebaliknya juga bisa: seret kok ke titik sebuah pukulan, dan baris pukulan itu di tabel akan menyala; geser kok keluar dari titik, sorotannya hilang.</p>
       <h3>Bagaimana “Reli otomatis” dan “Jeda” bekerja?</h3>
       <p>“Reli otomatis” bermain sendiri: pukulan dipilih acak, yang paling sering dan berbahaya lebih sering muncul. “Jeda” membekukan gambar kapan saja, bahkan saat kok di udara. Saat dijeda, ketuk sebuah titik untuk memilih pukulan berikutnya. “Lanjutkan” meneruskan reli. Kedua tombol juga ada di bawah lapangan.</p>
       <h3>Apa lagi yang terlihat di lapangan?</h3>
@@ -893,7 +894,7 @@ function drawFan(){
       if(choose){
         // наведение подсвечивает без перерисовки: иначе щелчок теряется
         g.addEventListener('click',()=>chooseRow(i));
-        g.addEventListener('mouseenter',()=>{if(!S.shDrag)setHL(i);});
+        g.addEventListener('mouseenter',()=>{if(!S.shDrag&&canChoose())setHL(i);});
         g.addEventListener('mouseleave',()=>{if(!S.shDrag&&S.highlight===i)setHL(null);});
       }
     } else {
@@ -908,8 +909,11 @@ function setHL(i){
   S.highlight=i;
   for(const pl of L.fan.querySelectorAll('polyline[data-i]')){const on=+pl.dataset.i===i;pl.setAttribute('stroke-width',on?0.08:0.035);pl.setAttribute('opacity',on?1:0.75);}
   for(const g of L.tgt.querySelectorAll('.tgt')) g.classList.toggle('hl',+g.dataset.i===i);
+  markRow(i);
   drawSidePath();
 }
+// подсветить строку таблицы, не перерисовывая её (таблица со строками есть, только пока волан не в полёте)
+function markRow(i){for(const tr of document.querySelectorAll('#pl-table tbody tr')) tr.classList.toggle('hl',i!=null&&+tr.dataset.i===i);}
 function nearestTarget(p,maxd){
   if(S.mode!=='play') return null;
   const rows=curRows(); if(!rows) return null;
@@ -980,7 +984,9 @@ function startShDrag(ev){
     S.shDrag.x=p.x;S.shDrag.y=p.y;
     if(S.shDrag.moved){
       // без притягивания к точкам: волан летит ровно туда, где его отпустили
-      S.shDrag.pv=previewAt(p); drawPreview(S.shDrag.pv,S.mode==='quiz'); drawSidePath();
+      S.shDrag.pv=previewAt(p); drawPreview(S.shDrag.pv,S.mode==='quiz');
+      // волан над точкой удара — подсвечиваем её и строку в таблице; притягивания нет
+      setHL(S.shDrag.pv?nearestTarget(p,0.35):null); drawSidePath();
       if(S.mode==='quiz'&&!S.shDrag.pv) drawQuizAim();
     }
     S.dirty=true;
@@ -988,7 +994,7 @@ function startShDrag(ev){
   const up=e=>{
     g.removeEventListener('pointermove',move);g.removeEventListener('pointerup',up);g.removeEventListener('pointercancel',up);
     const ok=S.shDrag&&S.shDrag.moved&&e.type==='pointerup', i=null, pv=ok?previewAt(svgPoint(e)):null;
-    S.shDrag=null;S.highlight=null;
+    S.shDrag=null;S.highlight=null;markRow(null);
     if(S.mode==='quiz'){if(pv){S.quiz.pick=pv;S.quiz.needPick=false;S.lastPhase={shot:pv.shot,trails:null};}drawQuizAim();drawSidePath();updatePanel();S.dirty=true;return;}
     if(i!=null){L.prev.innerHTML='';chooseRow(i);}
     else if(pv) chooseCustom(pv);
@@ -1095,7 +1101,7 @@ function playShot(type,dir,o={}){
   S.anim={ph,t:0,last:performance.now(),onEnd:o.onEnd,note:o.note};
   if(!S.queued||!S.queued.custom) L.prev.innerHTML='';
   S.lastPhase={shot,trails:ph.tracks,shotKey:{hitter:shot.hitter,from:shot.from,type:shot.type,dir:shot.dir,custom:shot.custom}};
-  L.fan.innerHTML='';L.ghosts.innerHTML='';L.zones.innerHTML='';
+  L.fan.innerHTML='';L.tgt.innerHTML='';L.ghosts.innerHTML='';L.zones.innerHTML='';
   drawTrails();drawSidePath();
   setBanner(shot.name+' — '+nm(shot.hitter));
   updatePanel(true);
@@ -1112,7 +1118,7 @@ function stepAnim(now){
   if(a.t>=tEndShow) finishPhase();
 }
 function finishPhase(){
-  const a=S.anim, ph=a.ph; S.anim=null;S.next=null;
+  const a=S.anim, ph=a.ph; S.anim=null;S.next=null;S.highlight=null; // новые удары — старый номер строки ничего не значит
   const q=S.queued; S.queued=null;
   for(const id in ph.newPos) S.pos[id]={...ph.newPos[id]};
   S.desc={kind:'phase',d:phaseDesc(ph)};

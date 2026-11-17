@@ -67,6 +67,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .langsw button{padding:4px 8px;font-size:12px}
 .stage-lang{position:absolute;right:8px;top:6px;display:none;z-index:2}
 .stage-ctl{position:absolute;left:8px;bottom:6px;display:flex;gap:6px;z-index:2}
+.stage-ctl[hidden]{display:none}
 .stage-ctl button{padding:6px 12px;font-size:13px;background:#0b1620e6}
 .stage-ctl button.on{background:#0c4a6e}
 .tgt{cursor:pointer}
@@ -93,6 +94,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <button data-mode="lessons" data-i18n="tab_lessons"></button>
       <button data-mode="quiz" data-i18n="tab_quiz"></button>
       <button data-mode="basics" data-i18n="tab_basics"></button>
+      <button data-mode="faq" data-i18n="tab_faq"></button>
     </nav>
 
     <section id="m-play">
@@ -225,6 +227,69 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <p>Posisi tidak diambil dari templat. Untuk setiap pukulan yang bisa dimainkan lawan dari titik itu, aplikasi menghitung lintasan kok dan waktu terbangnya. Lalu aplikasi mencari titik-titik di lapangan tempat pasangan sempat menjangkau sebanyak mungkin pukulan dan mengambil kok setinggi mungkin — kok yang tinggi bisa dipukul ke bawah.</p>
       <p>Model pemain: reaksi sekitar 0,2 detik, lari ke depan dan ke samping sekitar 3,6 m/detik, ke belakang lebih lambat (sekitar 2,5 m/detik), jangkauan raket sekitar 1 m, lebih jauh saat lunge. Kecepatan pukulan setara pemain klub. Ini penyederhanaan: dalam permainan nyata cara memegang raket, tangan kidal atau kanan, dan kebiasaan lawan juga berpengaruh.</p>
       <p>Formasi sejajar muncul sendiri dari perhitungan. Formasi depan-belakang ketika lawan mengambil kok dari bawah ditetapkan oleh aturan menyerang, sedangkan titik-titik di dalam formasi dihitung.</p>
+     </div>
+    </section>
+
+    <section id="m-faq" hidden class="basics">
+     <div data-lang-block="ru">
+      <h3>Что это за приложение?</h3>
+      <p>Тренажёр перемещений в парном бадминтоне. Корт виден сверху: синие внизу, красные вверху. После каждого удара видно, кто берёт волан и куда должны встать оба игрока пары.</p>
+      <h3>Как двигать игроков?</h3>
+      <p>Перетащите любого игрока пальцем или мышью. Двигаете игрока пары, которая ждёт удара, — партнёр сам перейдёт в лучшую точку. Двигаете игрока с воланом — меняется место, откуда бьёт соперник.</p>
+      <h3>Как выбрать, куда полетит волан?</h3>
+      <p>Линии на корте — удары, которые может сыграть бьющий. Нажмите на точку на конце линии или перетащите на неё большой волан у бьющего — удар полетит туда. Удар можно выбрать и кнопкой в списке справа (на телефоне — под кортом).</p>
+      <h3>Что значат цвета и номера у точек?</h3>
+      <p>Зелёная линия — защита успевает, жёлтая — впритык, красная — не успевает. Номер и цвет кружка у точки — какой игрок должен брать волан.</p>
+      <h3>Как работают «Авторозыгрыш» и «Пауза»?</h3>
+      <p>«Авторозыгрыш» играет сам: удары выбираются случайно, самые частые и опасные — чаще. «Пауза» останавливает картинку в любой момент, даже когда волан в полёте. В паузе нажмите на точку — так выбирается следующий удар. «Продолжить» — розыгрыш идёт дальше. Обе кнопки есть и под кортом.</p>
+      <h3>Что ещё показано на корте?</h3>
+      <p>Пунктирный кружок — лучшая точка для игрока, если он успеет до неё добежать. Цветные зоны — какую часть корта закрывает каждый игрок. Стрелки — как игроки переместились после удара. Справа — вид сбоку: на какой высоте летит волан. Лишнее можно выключить в «Настройках» внизу.</p>
+      <h3>Что делают остальные кнопки?</h3>
+      <p>«сверху / на уровне груди / снизу» — на какой высоте бьющий встречает волан, от этого зависят возможные удары. «Случайный удар» — один удар наугад. «Назад» отменяет последний удар, «Сначала» возвращает начальную ситуацию, «Авторасстановка» ставит всех в лучшие точки.</p>
+      <h3>Что в других вкладках?</h3>
+      <p>«Уроки» — пошаговые разборы типовых розыгрышей. «Тест» — расставьте синих сами и нажмите «Проверить»; «Повторить» — та же ситуация заново. «Основы» — короткая теория: строи, кто какой удар берёт, как считаются позиции.</p>
+      <h3>Как сменить язык и скорость?</h3>
+      <p>Язык — кнопки RU / EN / ID вверху. Скорость анимации — в «Настройках» внизу.</p>
+     </div>
+     <div data-lang-block="en">
+      <h3>What is this app?</h3>
+      <p>A movement trainer for badminton doubles. The court is seen from above: Blue at the bottom, Red at the top. After every shot you see who takes the shuttle and where both players of the pair should stand.</p>
+      <h3>How do I move the players?</h3>
+      <p>Drag any player with a finger or the mouse. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player with the shuttle — that changes where the opponent hits from.</p>
+      <h3>How do I choose where the shuttle goes?</h3>
+      <p>The lines on the court are the shots the hitter can play. Tap the dot at the end of a line, or drag the big shuttle at the hitter onto it — the shot goes there. You can also pick a shot from the list on the right (on a phone — below the court).</p>
+      <h3>What do the colours and numbers at the dots mean?</h3>
+      <p>Green line: the defence gets there; yellow: only just; red: too late. The number and colour of the circle at a dot show which player should take the shuttle.</p>
+      <h3>How do “Auto rally” and “Pause” work?</h3>
+      <p>“Auto rally” plays by itself: shots are picked at random, the most common and dangerous ones more often. “Pause” freezes the picture at any moment, even with the shuttle in the air. While paused, tap a dot to choose the next shot. “Resume” carries the rally on. Both buttons are also under the court.</p>
+      <h3>What else is shown on the court?</h3>
+      <p>Dashed circle: the best spot for a player, if there is time to get there. Coloured zones: the part of the court each player covers. Arrows: how the players moved after the shot. On the right, the side view shows how high the shuttle flies. Anything you don't need can be switched off in “Settings” at the bottom.</p>
+      <h3>What do the other buttons do?</h3>
+      <p>“overhead / chest height / low” sets the height at which the hitter meets the shuttle; the possible shots depend on it. “Random shot” plays one shot at random. “Back” undoes the last shot, “Start over” returns to the starting situation, “Auto positions” puts everyone on their best spots.</p>
+      <h3>What is in the other tabs?</h3>
+      <p>“Lessons”: step-by-step walkthroughs of typical rallies. “Quiz”: place the Blue players yourself and press “Check”; “Try again” repeats the same situation. “Basics”: a short theory — formations, who takes which shot, how positions are calculated.</p>
+      <h3>How do I change the language or the speed?</h3>
+      <p>Language: the RU / EN / ID buttons at the top. Animation speed: in “Settings” at the bottom.</p>
+     </div>
+     <div data-lang-block="id">
+      <h3>Aplikasi apa ini?</h3>
+      <p>Pelatih gerakan untuk bulu tangkis ganda. Lapangan terlihat dari atas: Biru di bawah, Merah di atas. Setelah setiap pukulan terlihat siapa yang mengambil kok dan di mana kedua pemain pasangan harus berdiri.</p>
+      <h3>Bagaimana cara memindahkan pemain?</h3>
+      <p>Seret pemain mana pun dengan jari atau mouse. Seret pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Seret pemain yang memegang kok — tempat lawan memukul akan berubah.</p>
+      <h3>Bagaimana memilih ke mana kok terbang?</h3>
+      <p>Garis di lapangan adalah pukulan yang bisa dimainkan pemukul. Ketuk titik di ujung garis, atau seret kok besar di pemukul ke sana — pukulan akan diarahkan ke situ. Pukulan juga bisa dipilih dari daftar di kanan (di ponsel — di bawah lapangan).</p>
+      <h3>Apa arti warna dan nomor di titik?</h3>
+      <p>Garis hijau: pertahanan sempat; kuning: pas-pasan; merah: terlambat. Nomor dan warna lingkaran di dekat titik menunjukkan pemain mana yang harus mengambil kok.</p>
+      <h3>Bagaimana “Reli otomatis” dan “Jeda” bekerja?</h3>
+      <p>“Reli otomatis” bermain sendiri: pukulan dipilih acak, yang paling sering dan berbahaya lebih sering muncul. “Jeda” membekukan gambar kapan saja, bahkan saat kok di udara. Saat dijeda, ketuk sebuah titik untuk memilih pukulan berikutnya. “Lanjutkan” meneruskan reli. Kedua tombol juga ada di bawah lapangan.</p>
+      <h3>Apa lagi yang terlihat di lapangan?</h3>
+      <p>Lingkaran putus-putus: titik terbaik bagi pemain, jika sempat berlari ke sana. Zona berwarna: bagian lapangan yang dijaga tiap pemain. Panah: bagaimana pemain bergerak setelah pukulan. Di kanan, tampak samping menunjukkan ketinggian kok. Yang tidak perlu bisa dimatikan di “Pengaturan” di bawah.</p>
+      <h3>Apa fungsi tombol lainnya?</h3>
+      <p>“di atas kepala / setinggi dada / rendah” menentukan ketinggian saat pemukul menyambut kok; pukulan yang mungkin bergantung padanya. “Pukulan acak” memainkan satu pukulan secara acak. “Kembali” membatalkan pukulan terakhir, “Ulang dari awal” kembali ke situasi awal, “Posisi otomatis” menempatkan semua pemain di titik terbaik.</p>
+      <h3>Apa isi tab lainnya?</h3>
+      <p>“Pelajaran”: pembahasan langkah demi langkah reli yang khas. “Kuis”: atur sendiri pemain Biru lalu tekan “Periksa”; “Ulangi” mengulang situasi yang sama. “Dasar”: teori singkat — formasi, siapa mengambil pukulan apa, bagaimana posisi dihitung.</p>
+      <h3>Bagaimana mengganti bahasa atau kecepatan?</h3>
+      <p>Bahasa: tombol RU / EN / ID di atas. Kecepatan animasi: di “Pengaturan” di bawah.</p>
      </div>
     </section>
 
@@ -1066,7 +1131,7 @@ const TX={
  ru:{
   title:'Парный бадминтон — тренажёр перемещений',
   h1:'Парный бадминтон', sub:'как двигаться паре на корте при разных ударах соперника',
-  tab_play:'Игра', tab_lessons:'Уроки', tab_quiz:'Тест', tab_basics:'Основы',
+  tab_play:'Игра', tab_lessons:'Уроки', tab_quiz:'Тест', tab_basics:'Основы', tab_faq:'ЧаВо',
   band_lbl:'На какой высоте бьющий встречает волан:', band_high:'сверху', band_mid:'на уровне груди', band_low:'снизу',
   shots_lbl:'Сыграть удар (точка — успевает ли защита: <span style="color:var(--ok)">успевает</span>, <span style="color:var(--warn)">впритык</span>, <span style="color:var(--bad)">нет</span>):',
   rand:'Случайный удар', auto:'Авторозыгрыш', stop:'Стоп', pause:'Пауза', resume:'Продолжить', back:'Назад', reset:'Сначала', relax:'Авторасстановка',
@@ -1135,7 +1200,7 @@ const TX={
  en:{
   title:'Badminton doubles — movement trainer',
   h1:'Badminton doubles', sub:'how a pair should move on court against different shots',
-  tab_play:'Play', tab_lessons:'Lessons', tab_quiz:'Quiz', tab_basics:'Basics',
+  tab_play:'Play', tab_lessons:'Lessons', tab_quiz:'Quiz', tab_basics:'Basics', tab_faq:'FAQ',
   band_lbl:'Height at which the hitter meets the shuttle:', band_high:'overhead', band_mid:'chest height', band_low:'low',
   shots_lbl:'Play a shot (dot — can the defence get there: <span style="color:var(--ok)">yes</span>, <span style="color:var(--warn)">just</span>, <span style="color:var(--bad)">no</span>):',
   rand:'Random shot', auto:'Auto rally', stop:'Stop', pause:'Pause', resume:'Resume', back:'Back', reset:'Start over', relax:'Auto positions',
@@ -1204,7 +1269,7 @@ const TX={
  id:{
   title:'Bulu tangkis ganda — latihan pergerakan',
   h1:'Bulu tangkis ganda', sub:'cara pasangan bergerak di lapangan menghadapi berbagai pukulan lawan',
-  tab_play:'Main', tab_lessons:'Pelajaran', tab_quiz:'Kuis', tab_basics:'Dasar',
+  tab_play:'Main', tab_lessons:'Pelajaran', tab_quiz:'Kuis', tab_basics:'Dasar', tab_faq:'FAQ',
   band_lbl:'Ketinggian saat pemukul menyambut kok:', band_high:'di atas kepala', band_mid:'setinggi dada', band_low:'rendah',
   shots_lbl:'Mainkan pukulan (titik — apakah pertahanan sempat: <span style="color:var(--ok)">sempat</span>, <span style="color:var(--warn)">pas-pasan</span>, <span style="color:var(--bad)">tidak</span>):',
   rand:'Pukulan acak', auto:'Reli otomatis', stop:'Berhenti', pause:'Jeda', resume:'Lanjutkan', back:'Kembali', reset:'Ulang dari awal', relax:'Posisi otomatis',
@@ -1601,7 +1666,7 @@ function setMode(m){
   S.anim=null;S.mode=m;S.auto=false;S.highlight=null;S.paused=false;S.queued=null;S.next=null;S.shDrag=null;
   $('stage-ctl').hidden=m!=='play';
   for(const b of document.querySelectorAll('#tabs button')) b.classList.toggle('on',b.dataset.mode===m);
-  for(const k of ['play','lessons','quiz','basics']) $('m-'+k).hidden=k!==m;
+  for(const k of ['play','lessons','quiz','basics','faq']) $('m-'+k).hidden=k!==m;
   setBanner('');
   if(m==='play'){defaultStart();}
   else if(m==='lessons'){S.lesson=null;$('ls-list').hidden=false;$('ls-run').hidden=true;defaultStart();S.desc=null;}

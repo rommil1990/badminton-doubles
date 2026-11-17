@@ -66,6 +66,13 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .langsw{display:flex;gap:3px;flex:none}
 .langsw button{padding:4px 8px;font-size:12px}
 .stage-lang{position:absolute;right:8px;top:6px;display:none;z-index:2}
+.stage-ctl{position:absolute;left:8px;bottom:6px;display:flex;gap:6px;z-index:2}
+.stage-ctl button{padding:6px 12px;font-size:13px;background:#0b1620e6}
+.stage-ctl button.on{background:#0c4a6e}
+.tgt{cursor:pointer}
+.tgt .halo{fill:transparent}
+.tgt.hl .halo,.tgt:hover .halo{fill:#fde68a;fill-opacity:.3}
+.bigsh{cursor:grab}
 </style>
 </head>
 <body>
@@ -74,6 +81,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
     <svg id="court" xmlns="http://www.w3.org/2000/svg"></svg>
     <div class="banner" id="banner"></div>
     <div class="langsw stage-lang"><button data-lang="ru">RU</button><button data-lang="en">EN</button><button data-lang="id">ID</button></div>
+    <div class="stage-ctl" id="stage-ctl"><button id="sc-auto"></button><button id="sc-pause"></button></div>
   </div>
   <aside id="panel">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
@@ -98,6 +106,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <div class="row">
         <button id="pl-rand" data-i18n="rand"></button>
         <button id="pl-auto"></button>
+        <button id="pl-pause"></button>
         <button id="pl-back" data-i18n="back"></button>
         <button id="pl-reset" data-i18n="reset"></button>
         <button id="pl-relax" data-i18n="relax"></button>
@@ -561,7 +570,8 @@ const S={
   filters:{smash:true,drop:true,high:true,drive:true,push:true,net:true},
   layers:{fan:true,zones:true,ghosts:true,trails:true,side:true},speed:0.5,
   anim:null,history:[],auto:false,over:null,lastPhase:null,highlight:null,ev:null,rep:null,
-  lesson:null,quiz:null,desc:null,dragging:null,dirty:true
+  lesson:null,quiz:null,desc:null,dragging:null,dirty:true,
+  paused:false,queued:null,next:null,shDrag:null
 };
 const waitingTeam=()=>S.holder?other(teamOf(S.holder)):null;
 
@@ -596,6 +606,7 @@ function buildCourt(){
   L.form=el('g',{},svg);
   L.marks=el('g',{},svg);
   L.players=el('g',{},svg);
+  L.tgt=el('g',{},svg);
   L.shuttle=el('g',{},svg);
   // вид сбоку
   L.side=el('g',{},svg);
@@ -626,6 +637,14 @@ function buildCourt(){
   L.shShadow=el('ellipse',{rx:0.11,ry:0.07,fill:'#000',opacity:0.35},L.shuttle);
   L.shStem=el('line',{stroke:'#fff','stroke-width':0.015,opacity:0.5},L.shuttle);
   L.shIcon=el('circle',{r:0.09,fill:'#fff',stroke:'#f59e0b','stroke-width':0.035},L.shuttle);
+  // большой волан у бьющего: его тянут на маленький волан-цель
+  L.grab=el('g',{class:'bigsh'},svg);
+  L.grabLine=el('line',{stroke:'#fde68a','stroke-width':0.04,'stroke-dasharray':'0.1 0.07',opacity:0.9},L.grab);
+  el('circle',{cx:0,cy:0,r:0.42,fill:'#fde68a',opacity:0.16},L.grab);
+  L.grabIcon=el('g',{},L.grab);
+  shuttleIcon(L.grabIcon,0,0,0.62,0,'#fde68a');
+  L.grabIcon.insertBefore(el('circle',{cx:-0.3,cy:0,r:0.45,fill:'transparent'}),L.grabIcon.firstChild);
+  L.grab.addEventListener('pointerdown',startShDrag);
   applyView();
 }
 function applyView(){
@@ -696,22 +715,126 @@ function drawZones(){
     el('rect',{x:x,y:s>0?d:-(d+cs),width:cs+0.003,height:cs+0.003,fill:COL[id],opacity:op.toFixed(3)},L.zones);
   }
 }
+// маленький волан: пробка в точке (x,y), юбка сзади, по направлению полёта ang
+function shuttleIcon(parent,x,y,len,ang,cork){
+  const g=el('g',{transform:`translate(${x.toFixed(3)} ${y.toFixed(3)}) rotate(${(ang*180/Math.PI).toFixed(1)}) scale(${len})`},parent);
+  el('path',{d:'M-0.14,-0.17 L-1,-0.43 Q-1.12,0 -1,0.43 L-0.14,0.17 Z',fill:'#f8fafc',stroke:'#64748b','stroke-width':0.05},g);
+  el('path',{d:'M-0.14,0 L-1.06,0 M-0.14,-0.09 L-1.02,-0.27 M-0.14,0.09 L-1.02,0.27',stroke:'#94a3b8','stroke-width':0.035},g);
+  el('circle',{cx:0,cy:0,r:0.21,fill:cork||'#fde68a',stroke:'#1f2937','stroke-width':0.05},g);
+  return g;
+}
+// удары, которые сейчас можно выбрать на корте: волан у бьющего или пауза в полёте
+function canChoose(){
+  if(S.mode!=='play'||S.over||S.dragging) return false;
+  if(S.anim) return !!(S.paused&&S.next);
+  return !!(S.holder&&S.ev);
+}
+// номер игрока, который должен брать этот волан, — рядом с точкой, сбоку от линии полёта
+function respBadge(parent,t,id,dim){
+  let nx=-Math.sin(t.ang), ny=Math.cos(t.ang);
+  if(nx*t.x>0){nx=-nx;ny=-ny;}
+  const x=t.x+nx*0.32, y=t.y+ny*0.32;
+  const g=el('g',{opacity:dim?0.55:1},parent);
+  el('circle',{cx:x.toFixed(3),cy:y.toFixed(3),r:0.15,fill:COL[id],stroke:'#fff','stroke-width':0.03},g);
+  const tt=el('text',{x:x.toFixed(3),y:(y+0.066).toFixed(3),'text-anchor':'middle','font-size':0.19,'font-weight':700,fill:'#0b1220'},g);tt.textContent=id[1];
+  return g;
+}
+function curRows(){
+  if(S.anim) return S.next?S.next.rows:null;
+  return S.ev?S.ev.rows:null;
+}
+function targetOf(r){
+  const sh=r.shot, reach=r.bm>=0&&r.j>=0;
+  const k=reach?sh.hit[r.j].k:sh.samples.length-1;
+  const e=reach?sh.hit[r.j]:sh.land, pr=sh.samples[Math.max(0,k-1)], q=sh.samples[k];
+  return {x:e.x,y:e.y,k,reach,ang:Math.atan2(q.y-pr.y,q.x-pr.x)};
+}
+function grabPoint(){
+  const c=S.anim?S.next.c2:S.contact, team=teamOf(S.anim?S.next.R:S.holder);
+  return {x:c.x,y:c.y,dir:-sideOf(team)};
+}
 function drawFan(){
-  L.fan.innerHTML='';
-  if(!S.holder||S.over||!S.ev) return;
-  const showAll=S.layers.fan&&!(S.mode==='quiz'&&!(S.quiz&&S.quiz.checked));
-  S.ev.rows.forEach((r,i)=>{
-    const hl=S.highlight===i;
+  L.fan.innerHTML='';L.tgt.innerHTML='';
+  let rows=null, only=null;
+  if(S.anim){
+    if(S.mode!=='play'||!S.next) return;
+    if(S.paused) rows=S.next.rows;
+    else if(S.queued){rows=S.next.rows;only=S.next.rows.findIndex(r=>r.type===S.queued.type&&r.dir===S.queued.dir);}
+    else return;
+  } else {
+    if(!S.holder||S.over||!S.ev) return;
+    rows=S.ev.rows;
+  }
+  const choose=canChoose();
+  const showAll=(S.layers.fan||choose)&&!(S.mode==='quiz'&&!(S.quiz&&S.quiz.checked));
+  rows.forEach((r,i)=>{
+    const hl=S.highlight===i||only===i;
+    if(only!=null&&only!==i) return;
     if(!showAll&&!hl) return;
-    const sh=r.shot; const reach=r.bm>=0&&r.j>=0;
-    const endK=reach?sh.hit[r.j].k:sh.samples.length-1;
-    const pts=sh.samples.slice(0,endK+1).map(q=>q.x.toFixed(3)+','+q.y.toFixed(3)).join(' ');
+    const sh=r.shot, t=targetOf(r);
+    const pts=sh.samples.slice(0,t.k+1).map(q=>q.x.toFixed(3)+','+q.y.toFixed(3)).join(' ');
     const col=statusColor(r.bm);
-    el('polyline',{points:pts,fill:'none',stroke:col,'stroke-width':hl?0.08:0.035,opacity:hl?1:0.75,'stroke-dasharray':isUp(sh.type)?'0.18 0.1':'none'},L.fan);
-    const e=reach?sh.hit[r.j]:sh.land;
-    if(reach) el('circle',{cx:e.x,cy:e.y,r:hl?0.11:0.075,fill:COL[r.resp],stroke:col,'stroke-width':0.03},L.fan);
-    else {const c=0.11;el('path',{d:`M${e.x-c},${e.y-c} L${e.x+c},${e.y+c} M${e.x-c},${e.y+c} L${e.x+c},${e.y-c}`,stroke:col,'stroke-width':0.05},L.fan);}
+    el('polyline',{points:pts,fill:'none',stroke:col,'stroke-width':hl?0.08:0.035,opacity:hl?1:0.75,'stroke-dasharray':isUp(sh.type)?'0.18 0.1':'none','data-i':i},L.fan);
+    const c=0.11, cross=`M${t.x-c},${t.y-c} L${t.x+c},${t.y+c} M${t.x-c},${t.y+c} L${t.x+c},${t.y-c}`;
+    if(choose||only!=null){
+      const g=el('g',{class:'tgt'+(hl?' hl':''),'data-i':i},L.tgt);
+      el('circle',{cx:t.x,cy:t.y,r:0.27,class:'halo'},g);
+      shuttleIcon(g,t.x,t.y,0.36,t.ang,t.reach?COL[r.resp]:'#f8fafc');
+      if(!t.reach) el('path',{d:cross,stroke:col,'stroke-width':0.05},g);
+      respBadge(g,t,r.resp,!t.reach);
+      if(choose){
+        // наведение подсвечивает без перерисовки: иначе щелчок теряется
+        g.addEventListener('click',()=>chooseRow(i));
+        g.addEventListener('mouseenter',()=>{if(!S.shDrag)setHL(i);});
+        g.addEventListener('mouseleave',()=>{if(!S.shDrag&&S.highlight===i)setHL(null);});
+      }
+    } else {
+      if(t.reach) el('circle',{cx:t.x,cy:t.y,r:hl?0.11:0.075,fill:COL[r.resp],stroke:col,'stroke-width':0.03},L.fan);
+      else el('path',{d:cross,stroke:col,'stroke-width':0.05},L.fan);
+      respBadge(L.fan,t,r.resp,!t.reach);
+    }
   });
+}
+function setHL(i){
+  if(S.highlight===i) return;
+  S.highlight=i;
+  for(const pl of L.fan.querySelectorAll('polyline[data-i]')){const on=+pl.dataset.i===i;pl.setAttribute('stroke-width',on?0.08:0.035);pl.setAttribute('opacity',on?1:0.75);}
+  for(const g of L.tgt.querySelectorAll('.tgt')) g.classList.toggle('hl',+g.dataset.i===i);
+  drawSidePath();
+}
+function nearestTarget(p,maxd){
+  const rows=curRows(); if(!rows) return null;
+  let bi=null,bd=maxd;
+  rows.forEach((r,i)=>{const t=targetOf(r),d=Math.hypot(t.x-p.x,t.y-p.y);if(d<bd){bd=d;bi=i;}});
+  return bi;
+}
+// выбрать удар на корте: волан у бьющего — бьём сразу; пауза в полёте — этот удар будет следующим
+function chooseRow(i){
+  if(!canChoose()) return;
+  const rows=curRows(), r=rows&&rows[i]; if(!r) return;
+  S.highlight=null;
+  if(S.anim){S.queued={type:r.type,dir:r.dir};resumeGame();}
+  else playShot(r.type,r.dir);
+}
+function startShDrag(ev){
+  if(!canChoose()) return;
+  ev.preventDefault();ev.stopPropagation();
+  const g=L.grab; g.setPointerCapture(ev.pointerId);
+  const o=grabPoint(); S.shDrag={x:o.x,y:o.y,moved:false};
+  const move=e=>{
+    const p=svgPoint(e); if(Math.hypot(p.x-o.x,p.y-o.y)>0.2) S.shDrag.moved=true;
+    S.shDrag.x=p.x;S.shDrag.y=p.y;
+    setHL(S.shDrag.moved?nearestTarget(p,1.3):null);
+    S.dirty=true;
+  };
+  const up=e=>{
+    g.removeEventListener('pointermove',move);g.removeEventListener('pointerup',up);g.removeEventListener('pointercancel',up);
+    const moved=S.shDrag&&S.shDrag.moved, i=moved&&e.type==='pointerup'?nearestTarget(svgPoint(e),1.3):null;
+    S.shDrag=null;S.highlight=null;
+    if(i!=null) chooseRow(i); else {drawFan();drawSidePath();}
+    S.dirty=true;
+  };
+  g.addEventListener('pointermove',move);g.addEventListener('pointerup',up);g.addEventListener('pointercancel',up);
 }
 function drawGhosts(){
   L.ghosts.innerHTML='';
@@ -746,7 +869,7 @@ function drawForm(){
 function drawSidePath(){
   let sh=null;
   if(S.anim) sh=S.anim.ph.shot;
-  else if(S.highlight!=null&&S.ev) sh=S.ev.rows[S.highlight].shot;
+  else if(S.highlight!=null&&curRows()&&curRows()[S.highlight]) sh=curRows()[S.highlight].shot;
   else if(S.lastPhase&&S.lastPhase.shot) sh=S.lastPhase.shot;
   if(!sh){L.sidePath.setAttribute('points','');return;}
   let end=sh.samples.length-1;
@@ -781,6 +904,17 @@ function drawDynamic(){
     L.shIcon.setAttribute('cx',sp.x+ox);L.shIcon.setAttribute('cy',sp.y+oy);L.shIcon.setAttribute('r',(0.085+0.014*sp.h).toFixed(3));
     L.sideShuttle.setAttribute('cx',SIDE_X0+sp.h*SIDE_K);L.sideShuttle.setAttribute('cy',sp.y);
   } else L.shuttle.style.display='none';
+  if(canChoose()||S.shDrag){
+    const o=grabPoint(), base={x:o.x,y:o.y+o.dir*0.85};
+    const at=S.shDrag&&S.shDrag.moved?{x:S.shDrag.x,y:S.shDrag.y}:base;
+    const ang=S.shDrag&&S.shDrag.moved?Math.atan2(at.y-o.y,at.x-o.x):Math.atan2(o.dir,0);
+    L.grab.style.display='';
+    L.grabIcon.setAttribute('transform',`translate(${at.x.toFixed(3)} ${at.y.toFixed(3)}) rotate(${(ang*180/Math.PI).toFixed(1)})`);
+    L.grab.children[1].setAttribute('cx',at.x);L.grab.children[1].setAttribute('cy',at.y);
+    const dr=S.shDrag&&S.shDrag.moved;
+    L.grabLine.style.display=dr?'':'none';
+    if(dr){L.grabLine.setAttribute('x1',o.x);L.grabLine.setAttribute('y1',o.y);L.grabLine.setAttribute('x2',at.x);L.grabLine.setAttribute('y2',at.y);}
+  } else L.grab.style.display='none';
   // игроки на виде сбоку
   L.sidePlayers.innerHTML='';
   for(const id of ['b1','b2','r1','r2']) el('rect',{x:SIDE_X0,y:S.pos[id].y-0.1,width:1.75*SIDE_K,height:0.2,rx:0.06,fill:COL[id],opacity:0.85},L.sidePlayers);
@@ -793,8 +927,8 @@ function playShot(type,dir,o={}){
   S.history.push(snapshot());
   const shot=o.shot||makeShot(S.holder,S.contact,type,dir);
   const ph=planPhase(S.pos,shot,{filters:S.filters,hitterTo:o.hitterTo,late:o.late});
-  S.highlight=null;S.locked=null;
-  S.anim={ph,t:0,start:performance.now(),onEnd:o.onEnd,note:o.note};
+  S.highlight=null;S.locked=null;S.paused=false;S.next=null;
+  S.anim={ph,t:0,last:performance.now(),onEnd:o.onEnd,note:o.note};
   S.lastPhase={shot,trails:ph.tracks,shotKey:{hitter:shot.hitter,from:shot.from,type:shot.type,dir:shot.dir}};
   L.fan.innerHTML='';L.ghosts.innerHTML='';L.zones.innerHTML='';
   drawTrails();drawSidePath();
@@ -803,7 +937,8 @@ function playShot(type,dir,o={}){
 }
 function stepAnim(now){
   const a=S.anim; if(!a) return;
-  a.t=Math.min(a.ph.lost?a.ph.shot.T:a.ph.tEnd,(now-a.start)/1000*S.speed);
+  if(S.paused){a.last=now;return;}
+  a.t=Math.min(a.ph.lost?a.ph.shot.T:a.ph.tEnd,a.t+Math.max(0,now-a.last)/1000*S.speed); a.last=now;
   for(const id in a.ph.tracks){
     const tr=a.ph.tracks[id]; const f=clamp((a.t-tr.t0)/(tr.t1-tr.t0),0,1); const e=f<0.5?2*f*f:1-2*(1-f)*(1-f);
     S.pos[id]={x:lerp(tr.from.x,tr.to.x,e),y:lerp(tr.from.y,tr.to.y,e)};
@@ -812,7 +947,8 @@ function stepAnim(now){
   if(a.t>=tEndShow) finishPhase();
 }
 function finishPhase(){
-  const a=S.anim, ph=a.ph; S.anim=null;
+  const a=S.anim, ph=a.ph; S.anim=null;S.next=null;
+  const q=S.queued; S.queued=null;
   for(const id in ph.newPos) S.pos[id]={...ph.newPos[id]};
   S.desc={kind:'phase',d:phaseDesc(ph)};
   if(ph.lost){
@@ -826,8 +962,32 @@ function finishPhase(){
   }
   recomputeEval();drawStatic();updatePanel();
   if(a.onEnd) a.onEnd(ph);
-  if(S.auto) setTimeout(autoStep,ph.lost?1800:450);
+  if(q&&!ph.lost&&S.mode==='play') setTimeout(()=>{if(S.mode==='play'&&!S.anim&&!S.over&&!S.paused&&S.ev&&S.ev.rows.some(r=>r.type===q.type&&r.dir===q.dir))playShot(q.type,q.dir);},350);
+  else if(S.auto) setTimeout(autoStep,ph.lost?1800:450);
 }
+// ---------- пауза ----------
+// следующий удар считаем от того, где игроки будут к приёму
+function computeNext(){
+  S.next=null;
+  const ph=S.anim&&S.anim.ph; if(!ph||ph.lost||!ph.nextRep) return;
+  const T=ph.shot.team, pos={...S.pos};
+  for(const id of MATES[T]) pos[id]=ph.newPos[id];
+  S.next={R:ph.R,c2:ph.c2,rows:evalTeam(pos,T,ph.nextRep).rows};
+}
+function pauseGame(){
+  if(S.paused||S.mode!=='play'||!(S.anim||S.auto)) return;
+  S.paused=true;S.highlight=null;S.queued=null;
+  if(S.anim) computeNext();
+  drawFan();drawSidePath();updatePanel();S.dirty=true;
+}
+function resumeGame(){
+  if(!S.paused) return;
+  S.paused=false;S.highlight=null;
+  if(S.anim){S.anim.last=performance.now();drawFan();drawSidePath();}
+  else if(S.auto) setTimeout(autoStep,250);
+  updatePanel(!!S.anim);S.dirty=true;
+}
+function togglePause(){if(S.paused)resumeGame();else pauseGame();}
 let bannerTimer=null;
 function setBanner(t){const b=$('banner');if(!t){b.style.display='none';return;}b.textContent=t;b.style.display='block';clearTimeout(bannerTimer);bannerTimer=setTimeout(()=>{if(!S.over)b.style.display='none';},2600);}
 
@@ -851,7 +1011,7 @@ let dragRaf=null;
 function startDrag(ev,id){
   if(!canDragId(id)) return;
   ev.preventDefault();
-  S.dragging=id; S.auto=false;
+  S.dragging=id; S.auto=false; S.paused=false;
   const g=L.pl[id].g; g.setPointerCapture(ev.pointerId);
   const move=e=>{
     const p=svgPoint(e), s=sideOf(teamOf(id));
@@ -896,9 +1056,9 @@ const TX={
   tab_play:'Игра', tab_lessons:'Уроки', tab_quiz:'Тест', tab_basics:'Основы',
   band_lbl:'На какой высоте бьющий встречает волан:', band_high:'сверху', band_mid:'на уровне груди', band_low:'снизу',
   shots_lbl:'Сыграть удар (точка — успевает ли защита: <span style="color:var(--ok)">успевает</span>, <span style="color:var(--warn)">впритык</span>, <span style="color:var(--bad)">нет</span>):',
-  rand:'Случайный удар', auto:'Авторозыгрыш', stop:'Стоп', back:'Назад', reset:'Сначала', relax:'Авторасстановка',
+  rand:'Случайный удар', auto:'Авторозыгрыш', stop:'Стоп', pause:'Пауза', resume:'Продолжить', back:'Назад', reset:'Сначала', relax:'Авторасстановка',
   who_takes:'Кто какой удар берёт',
-  play_hint:'Пунктирный кружок — лучшая точка, если успеть до неё добежать. Тяните игрока той пары, которая ждёт удара, — партнёр сам займёт лучшую точку. Тяните игрока с воланом — поменяется, откуда бьёт соперник. Нажмите на строку таблицы — увидите траекторию удара.',
+  play_hint:'Маленькие воланы — куда можно ударить: нажмите на любой или перетащите на него большой волан у бьющего. «Пауза» останавливает розыгрыш в любой момент — можно рассмотреть расстановку и самому выбрать следующий удар. Пунктирный кружок — лучшая точка, если успеть до неё добежать. Тяните игрока той пары, которая ждёт удара, — партнёр сам займёт лучшую точку. Тяните игрока с воланом — поменяется, откуда бьёт соперник. Нажмите на строку таблицы — увидите траекторию удара.',
   ls_exit:'К списку уроков', ls_next:'Дальше', ls_again:'Повторить шаг',
   qz_check:'Проверить', qz_retry:'Повторить', qz_next:'Новая ситуация',
   settings:'Настройки', filters_lbl:'Какие удары может играть соперник:', layers_lbl:'Что показывать на корте:',
@@ -941,6 +1101,8 @@ const TX={
   nobody:l=>`Никто не успевает к: ${l}.`,
   stOver:w=>`Розыгрыш окончен: очко <b>${TX.ru.team[w].dat}</b>. Нажмите «Сначала», «Назад» или «Авторозыгрыш».`,
   stFly:s=>`Летит: <b>${s}</b>…`,
+  stPaused:(s,n)=>`Пауза: летит <b>${s}</b>.`+(n?'<br>Выберите, куда пойдёт следующий удар: нажмите на маленький волан или перетащите на него большой. Или нажмите «Продолжить».':''),
+  stHold:'Пауза. Нажмите на маленький волан или перетащите на него большой — туда и полетит удар. «Продолжить» — розыгрыш пойдёт дальше сам.',
   stReady:(n,sit,t,p)=>`Бьёт ${n} — ${sit}.<br>Ждут удара: <b>${TX.ru.team[t].nom}</b>, к ударам успевают на <b>${p}%</b>.`,
   btnTitle:(s,m)=>`${s}: запас ${m} с`,
   tblWait:'Таблица появится, когда волан будет у бьющего.',
@@ -963,9 +1125,9 @@ const TX={
   tab_play:'Play', tab_lessons:'Lessons', tab_quiz:'Quiz', tab_basics:'Basics',
   band_lbl:'Height at which the hitter meets the shuttle:', band_high:'overhead', band_mid:'chest height', band_low:'low',
   shots_lbl:'Play a shot (dot — can the defence get there: <span style="color:var(--ok)">yes</span>, <span style="color:var(--warn)">just</span>, <span style="color:var(--bad)">no</span>):',
-  rand:'Random shot', auto:'Auto rally', stop:'Stop', back:'Back', reset:'Start over', relax:'Auto positions',
+  rand:'Random shot', auto:'Auto rally', stop:'Stop', pause:'Pause', resume:'Resume', back:'Back', reset:'Start over', relax:'Auto positions',
   who_takes:'Who takes which shot',
-  play_hint:'Dashed circle — the best spot, if there is time to get there. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player holding the shuttle to change where the opponent hits from. Tap a table row to see the shot\'s path.',
+  play_hint:'Small shuttles mark where the shot can go: tap one, or drag the big shuttle at the hitter onto it. “Pause” stops the rally at any moment — look at the positions and choose the next shot yourself. Dashed circle — the best spot, if there is time to get there. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player holding the shuttle to change where the opponent hits from. Tap a table row to see the shot\'s path.',
   ls_exit:'Back to lessons', ls_next:'Next', ls_again:'Repeat step',
   qz_check:'Check', qz_retry:'Try again', qz_next:'New situation',
   settings:'Settings', filters_lbl:'Shots the opponent may play:', layers_lbl:'Show on court:',
@@ -1008,6 +1170,8 @@ const TX={
   nobody:l=>`Nobody reaches: ${l}.`,
   stOver:w=>`Rally over: point to <b>${TX.en.team[w].dat}</b>. Press “Start over”, “Back” or “Auto rally”.`,
   stFly:s=>`In flight: <b>${s}</b>…`,
+  stPaused:(s,n)=>`Paused: <b>${s}</b> in flight.`+(n?'<br>Choose where the next shot goes: tap a small shuttle or drag the big one onto it. Or press “Resume”.':''),
+  stHold:'Paused. Tap a small shuttle or drag the big one onto it — the shot goes there. “Resume” lets the rally carry on by itself.',
   stReady:(n,sit,t,p)=>`${n} is hitting — ${sit}.<br>Waiting: <b>${TX.en.team[t].nom}</b>, they reach <b>${p}%</b> of the shots.`,
   btnTitle:(s,m)=>`${s}: ${m} s to spare`,
   tblWait:'The table appears when a player has the shuttle.',
@@ -1030,9 +1194,9 @@ const TX={
   tab_play:'Main', tab_lessons:'Pelajaran', tab_quiz:'Kuis', tab_basics:'Dasar',
   band_lbl:'Ketinggian saat pemukul menyambut kok:', band_high:'di atas kepala', band_mid:'setinggi dada', band_low:'rendah',
   shots_lbl:'Mainkan pukulan (titik — apakah pertahanan sempat: <span style="color:var(--ok)">sempat</span>, <span style="color:var(--warn)">pas-pasan</span>, <span style="color:var(--bad)">tidak</span>):',
-  rand:'Pukulan acak', auto:'Reli otomatis', stop:'Berhenti', back:'Kembali', reset:'Ulang dari awal', relax:'Posisi otomatis',
+  rand:'Pukulan acak', auto:'Reli otomatis', stop:'Berhenti', pause:'Jeda', resume:'Lanjutkan', back:'Kembali', reset:'Ulang dari awal', relax:'Posisi otomatis',
   who_takes:'Siapa mengambil pukulan apa',
-  play_hint:'Lingkaran putus-putus — titik terbaik, jika sempat berlari ke sana. Geser pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Geser pemain yang memegang kok untuk mengubah dari mana lawan memukul. Ketuk baris tabel untuk melihat lintasan pukulan.',
+  play_hint:'Kok kecil menandai ke mana pukulan bisa diarahkan: ketuk salah satunya, atau seret kok besar di pemukul ke sana. “Jeda” menghentikan reli kapan saja — lihat posisi pemain dan pilih sendiri pukulan berikutnya. Lingkaran putus-putus — titik terbaik, jika sempat berlari ke sana. Geser pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Geser pemain yang memegang kok untuk mengubah dari mana lawan memukul. Ketuk baris tabel untuk melihat lintasan pukulan.',
   ls_exit:'Ke daftar pelajaran', ls_next:'Lanjut', ls_again:'Ulangi langkah',
   qz_check:'Periksa', qz_retry:'Ulangi', qz_next:'Situasi baru',
   settings:'Pengaturan', filters_lbl:'Pukulan yang boleh dimainkan lawan:', layers_lbl:'Tampilkan di lapangan:',
@@ -1075,6 +1239,8 @@ const TX={
   nobody:l=>`Tidak ada yang sempat ke: ${l}.`,
   stOver:w=>`Reli selesai: poin untuk <b>${TX.id.team[w].dat}</b>. Tekan “Ulang dari awal”, “Kembali” atau “Reli otomatis”.`,
   stFly:s=>`Sedang melayang: <b>${s}</b>…`,
+  stPaused:(s,n)=>`Dijeda: <b>${s}</b> sedang melayang.`+(n?'<br>Pilih ke mana pukulan berikutnya: ketuk kok kecil atau seret kok besar ke sana. Atau tekan “Lanjutkan”.':''),
+  stHold:'Dijeda. Ketuk kok kecil atau seret kok besar ke sana — pukulan akan diarahkan ke situ. “Lanjutkan” — reli berjalan sendiri lagi.',
   stReady:(n,sit,t,p)=>`${n} memukul — ${sit}.<br>Menunggu: <b>${TX.id.team[t].nom}</b>, mereka sempat ke <b>${p}%</b> pukulan.`,
   btnTitle:(s,m)=>`${s}: sisa ${m} dtk`,
   tblWait:'Tabel muncul saat ada pemain yang memegang kok.',
@@ -1164,10 +1330,10 @@ function updatePanel(busy){
   if(mode==='play'){
     const st=$('pl-status');
     if(S.over) st.innerHTML=T.stOver(S.over.winner);
-    else if(S.anim) st.innerHTML=T.stFly(shotLow(S.anim.ph.shot));
+    else if(S.anim) st.innerHTML=S.paused?T.stPaused(shotLow(S.anim.ph.shot),!!S.next):T.stFly(shotLow(S.anim.ph.shot));
     else if(S.holder){
       const wt=waitingTeam();
-      st.innerHTML=T.stReady(`<b style="color:${COL[S.holder]}">${nm(S.holder)}</b>`,situationText(),wt,Math.round(S.ev.cover*100));
+      st.innerHTML=T.stReady(`<b style="color:${COL[S.holder]}">${nm(S.holder)}</b>`,situationText(),wt,Math.round(S.ev.cover*100))+(S.paused?`<br><b>${T.stHold}</b>`:'');
     }
     for(const b of document.querySelectorAll('#pl-band button')){b.classList.toggle('on',b.dataset.band===S.band);b.disabled=!!(S.anim||S.over||!S.holder);}
     renderShotButtons($('pl-shots'),busy);
@@ -1175,8 +1341,8 @@ function updatePanel(busy){
     renderTable($('pl-table'));
     $('pl-back').disabled=!S.history.length||!!S.anim;
     $('pl-rand').disabled=!!(S.anim||S.over);
-    $('pl-auto').classList.toggle('on',S.auto);
-    $('pl-auto').textContent=S.auto?T.stop:T.auto;
+    for(const b of [$('pl-auto'),$('sc-auto')]){b.classList.toggle('on',S.auto);b.textContent=S.auto?T.stop:T.auto;}
+    for(const b of [$('pl-pause'),$('sc-pause')]){b.classList.toggle('on',S.paused);b.textContent=S.paused?T.resume:T.pause;b.disabled=!(S.anim||S.auto||S.paused);}
     $('pl-relax').disabled=!!(S.anim||S.over);
   } else if(mode==='lessons') updateLessonPanel();
   else if(mode==='quiz') updateQuizPanel();
@@ -1227,7 +1393,7 @@ function weightedPick(rows){
   return rows[rows.length-1];
 }
 function autoStep(){
-  if(!S.auto||S.anim||S.mode!=='play') return;
+  if(!S.auto||S.anim||S.paused||S.mode!=='play') return;
   if(S.over){randomStart();S.desc={kind:'ready'};updatePanel();setTimeout(autoStep,700);return;}
   const r=weightedPick(S.ev.rows);
   playShot(r.type,r.dir);
@@ -1419,7 +1585,8 @@ function updateQuizPanel(){
 
 // ---------- режимы ----------
 function setMode(m){
-  S.anim=null;S.mode=m;S.auto=false;S.highlight=null;
+  S.anim=null;S.mode=m;S.auto=false;S.highlight=null;S.paused=false;S.queued=null;S.next=null;S.shDrag=null;
+  $('stage-ctl').hidden=m!=='play';
   for(const b of document.querySelectorAll('#tabs button')) b.classList.toggle('on',b.dataset.mode===m);
   for(const k of ['play','lessons','quiz','basics']) $('m-'+k).hidden=k!==m;
   setBanner('');
@@ -1438,7 +1605,9 @@ function bindUI(){
     arrangeHolderPartner();arrangeWaiting(false);recomputeIdeal();recomputeEval();S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();
   };
   $('pl-rand').onclick=()=>{if(S.anim||S.over)return;S.auto=false;const r=weightedPick(S.ev.rows);playShot(r.type,r.dir);};
-  $('pl-auto').onclick=()=>{S.auto=!S.auto;updatePanel();if(S.auto)autoStep();};
+  const toggleAuto=()=>{S.auto=!S.auto;if(S.auto){if(S.paused)resumeGame();else autoStep();}else if(S.paused&&!S.anim)S.paused=false;updatePanel(!!S.anim);};
+  $('pl-auto').onclick=toggleAuto;$('sc-auto').onclick=toggleAuto;
+  $('pl-pause').onclick=togglePause;$('sc-pause').onclick=togglePause;
   $('pl-back').onclick=()=>{if(S.anim||!S.history.length)return;S.auto=false;restore(S.history.pop());};
   $('pl-reset').onclick=()=>{if(S.anim)return;S.auto=false;defaultStart();drawStatic();updatePanel();};
   $('pl-relax').onclick=()=>{if(S.anim||S.over)return;S.locked=null;arrangeWaiting(false);arrangeHolderPartner();recomputeIdeal();recomputeEval();S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();};

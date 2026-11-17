@@ -9,7 +9,7 @@ with sync_playwright() as p:
     pg.on("console", lambda m: errs.append(m.text) if m.type=="error" else None)
     pg.goto(url); pg.wait_for_timeout(600)
     print("default lang:", pg.evaluate("LANG"))
-    pg.click(".langsw button[data-lang=en]"); pg.wait_for_timeout(300)
+    pg.click(".langsw button[data-lang=en]:visible"); pg.wait_for_timeout(300)
     def cyr(tag):
         t=pg.evaluate("()=>document.body.innerText")+" "+pg.evaluate("()=>[...document.querySelectorAll('svg text')].map(e=>e.textContent).join(' ')")
         bad=sorted(set(m.group(0) for m in re.finditer(r'\S*[А-Яа-яЁё]\S*',t)))
@@ -29,9 +29,9 @@ with sync_playwright() as p:
     cyr("lesson4-end"); print("EN lesson:", pg.inner_text("#ls-text")[:300], "|", pg.inner_text("#ls-step"))
     pg.screenshot(path=out+"/en-2-lesson.png")
     # switch to RU in the middle of a lesson and back
-    pg.click(".langsw button[data-lang=ru]"); pg.wait_for_timeout(300)
+    pg.click(".langsw button[data-lang=ru]:visible"); pg.wait_for_timeout(300)
     print("RU lesson:", pg.inner_text("#ls-text")[:120], "|", pg.inner_text("#ls-step"), "|", pg.inner_text("#ls-comment")[:120])
-    pg.click(".langsw button[data-lang=en]"); pg.wait_for_timeout(300)
+    pg.click(".langsw button[data-lang=en]:visible"); pg.wait_for_timeout(300)
     pg.click("#tabs button[data-mode=quiz]"); pg.wait_for_timeout(500)
     pg.click("#qz-check"); pg.wait_for_timeout(400)
     cyr("quiz"); print("EN quiz:", pg.inner_text("#qz-result")[:300])

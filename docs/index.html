@@ -58,12 +58,14 @@ label.chk{display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;f
   #app{flex-direction:column;height:auto}
   #stage{height:72vh;flex:none;padding:2px}
   #panel{width:100%;border-left:0;border-top:1px solid var(--line)}
+  #stage .stage-lang{display:flex}
 }
 svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .pl{cursor:grab}
 .pl.nodrag{cursor:default}
 .langsw{display:flex;gap:3px;flex:none}
 .langsw button{padding:4px 8px;font-size:12px}
+.stage-lang{position:absolute;right:8px;top:6px;display:none;z-index:2}
 </style>
 </head>
 <body>
@@ -71,6 +73,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   <div id="stage">
     <svg id="court" xmlns="http://www.w3.org/2000/svg"></svg>
     <div class="banner" id="banner"></div>
+    <div class="langsw stage-lang"><button data-lang="ru">RU</button><button data-lang="en">EN</button><button data-lang="id">ID</button></div>
   </div>
   <aside id="panel">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">

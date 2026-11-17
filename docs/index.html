@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Badminton doubles / Парный бадминтон</title>
+<title>Badminton doubles / Парный бадминтон / Bulu tangkis ganda</title>
 <style>
 :root{--bg:#0e151d;--panel:#152130;--card:#1b2a3b;--line:#26384c;--ink:#e7eef5;--mut:#93a5b8;--acc:#38bdf8;
 --b1:#3b82f6;--b2:#22d3ee;--r1:#ef4444;--r2:#f59e0b;--ok:#22c55e;--warn:#eab308;--bad:#ef4444}
@@ -75,7 +75,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   <aside id="panel">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
       <div><h1 data-i18n="h1"></h1><div class="sub" data-i18n="sub"></div></div>
-      <div class="langsw"><button data-lang="ru">RU</button><button data-lang="en">EN</button></div>
+      <div class="langsw"><button data-lang="ru">RU</button><button data-lang="en">EN</button><button data-lang="id">ID</button></div>
     </div>
     <nav id="tabs">
       <button data-mode="play" class="on" data-i18n="tab_play"></button>
@@ -183,6 +183,37 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <p>Player model: reaction about 0.2 s, running forward and sideways about 3.6 m/s, backwards slower (about 2.5 m/s), racket reach about 1 m, more in a lunge. Shot speeds are club level. This is a simplification: in a real game grip, handedness and the opponents' habits matter too.</p>
       <p>The side-by-side formation comes out of the calculation by itself. Front-and-back when the opponent takes the shuttle from below is set by the attacking rule, and the spots inside the formation are calculated.</p>
      </div>
+     <div data-lang-block="id">
+      <h3>Dua formasi pasangan</h3>
+      <ul>
+        <li><b>Depan-belakang — menyerang.</b> Pemain belakang memukul dari atas (smes, dropshot); pemain depan berdiri di garis servis dengan raket terangkat dan menyelesaikan semua bola pendek.</li>
+        <li><b>Sejajar — bertahan.</b> Masing-masing menjaga separuh lebar lapangan, keduanya kira-kira di tengah kedalaman, raket di depan badan.</li>
+      </ul>
+      <h3>Aturan utama</h3>
+      <p>Memukul ke <b>atas</b> (lob atas, lob bawah, servis flick) — beralih ke <b>bertahan</b>, sejajar. Memukul ke <b>bawah</b> (smes, dropshot, blok, netting) — pertahankan <b>serangan</b>, depan-belakang.</p>
+      <h3>Menyerang</h3>
+      <ul>
+        <li>Setelah smes, pemukul tetap di belakang dan bergeser ke tengah — bola tinggi berikutnya kembali miliknya.</li>
+        <li>Pemain depan menjaga net di garis servis: semua bola pendek adalah miliknya.</li>
+        <li>Pemain depan tidak mundur dan tidak menoleh ke belakang untuk melihat rekannya.</li>
+      </ul>
+      <h3>Bertahan</h3>
+      <ul>
+        <li>Pasangan bergeser ke sisi penyerang: smes lurus paling cepat, jadi harus paling dekat.</li>
+        <li>Pemain bertahan di sisi lurus berdiri lebih dekat ke garis samping; yang lain lebih dekat ke tengah — pukulan silang melayang lebih lama, dan ia juga menjaga tengah.</li>
+        <li>Pukulan ke tengah di antara dua pemain bertahan paling merepotkan: sepakati sebelumnya siapa yang mengambilnya.</li>
+      </ul>
+      <h3>Peralihan</h3>
+      <ul>
+        <li><b>Bertahan → menyerang.</b> Blok ke depan net atau drive datar yang memaksa lawan mengangkat. Siapa yang maju mengikuti pukulannya menjadi pemain depan; rekannya mundur.</li>
+        <li><b>Menyerang → bertahan.</b> Pemain depan terpaksa mengangkat — pemain yang mengangkat mundur di sisinya, pemain belakang bergeser ke separuh yang lain.</li>
+        <li><b>Rotasi.</b> Setelah dropshot pelan, pemain belakang bisa mengikuti kok ke net sementara pemain depan berputar mundur — formasi sama, peran bertukar.</li>
+      </ul>
+      <h3>Cara aplikasi menghitung posisi</h3>
+      <p>Posisi tidak diambil dari templat. Untuk setiap pukulan yang bisa dimainkan lawan dari titik itu, aplikasi menghitung lintasan kok dan waktu terbangnya. Lalu aplikasi mencari titik-titik di lapangan tempat pasangan sempat menjangkau sebanyak mungkin pukulan dan mengambil kok setinggi mungkin — kok yang tinggi bisa dipukul ke bawah.</p>
+      <p>Model pemain: reaksi sekitar 0,2 detik, lari ke depan dan ke samping sekitar 3,6 m/detik, ke belakang lebih lambat (sekitar 2,5 m/detik), jangkauan raket sekitar 1 m, lebih jauh saat lunge. Kecepatan pukulan setara pemain klub. Ini penyederhanaan: dalam permainan nyata cara memegang raket, tangan kidal atau kanan, dan kebiasaan lawan juga berpengaruh.</p>
+      <p>Formasi sejajar muncul sendiri dari perhitungan. Formasi depan-belakang ketika lawan mengambil kok dari bawah ditetapkan oleh aturan menyerang, sedangkan titik-titik di dalam formasi dihitung.</p>
+     </div>
     </section>
 
     <details id="settings"><summary data-i18n="settings"></summary>
@@ -246,9 +277,10 @@ const SHOT={
 let LANG='ru';
 const SHOT_N={
   ru:{smash:'Смэш',kill:'Добивание',drop:'Укороченный',clear:'Высокий',lift:'Свеча',flick:'Высокая подача',drive:'Драйв',push:'Толчок',net:'Сетка',block:'Подставка',serve:'Короткая подача'},
-  en:{smash:'Smash',kill:'Kill',drop:'Drop',clear:'Clear',lift:'Lift',flick:'Flick serve',drive:'Drive',push:'Push',net:'Net shot',block:'Block',serve:'Short serve'}};
-const DIR_N={ru:{line:'по линии',mid:'в центр',cross:'кроссом'},en:{line:'straight',mid:'down the middle',cross:'cross-court'}};
-const SDIR_N={ru:{mid:'к центру',cross:'в угол',line:'в глубину'},en:{mid:'to the centre',cross:'to the corner',line:'deep'}};
+  en:{smash:'Smash',kill:'Kill',drop:'Drop',clear:'Clear',lift:'Lift',flick:'Flick serve',drive:'Drive',push:'Push',net:'Net shot',block:'Block',serve:'Short serve'},
+  id:{smash:'Smes',kill:'Kill',drop:'Dropshot',clear:'Lob atas',lift:'Lob bawah',flick:'Servis flick',drive:'Drive',push:'Dorongan',net:'Netting',block:'Blok',serve:'Servis pendek'}};
+const DIR_N={ru:{line:'по линии',mid:'в центр',cross:'кроссом'},en:{line:'straight',mid:'down the middle',cross:'cross-court'},id:{line:'lurus',mid:'ke tengah',cross:'silang'}};
+const SDIR_N={ru:{mid:'к центру',cross:'в угол',line:'в глубину'},en:{mid:'to the centre',cross:'to the corner',line:'deep'},id:{mid:'ke tengah',cross:'ke sudut',line:'ke belakang'}};
 const DIR=DIR_N.ru, SERVE_DIR=SDIR_N.ru;
 const GROUPS=[['smash','смэш и добивание'],['drop','укороченный'],['high','высокие: клир, свеча'],['drive','драйв'],['push','толчок в середину'],['net','сетка и подставка']];
 function shotName(t,d){const n=SHOT_N[LANG][t]; if(t==='serve'||t==='flick') return n+' '+(SDIR_N[LANG][d]||''); return n+' '+DIR_N[LANG][d];}
@@ -515,7 +547,7 @@ const COL={b1:'#3b82f6',b2:'#22d3ee',r1:'#ef4444',r2:'#f59e0b'};
 const svg=document.getElementById('court');
 function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
 const $=id=>document.getElementById(id);
-const num=(v,n)=>{const t=v.toFixed(n);return LANG==='ru'?t.replace('.',','):t;};
+const num=(v,n)=>{const t=v.toFixed(n);return LANG==='en'?t:t.replace('.',',');};
 const fmt=(v,n=2)=>(v>=0?'+':'−')+num(Math.abs(v),n);
 const statusColor=m=>m>=0.12?'#22c55e':m>=0?'#eab308':'#ef4444';
 const SIDE_X0=4.15, SIDE_K=0.38;
@@ -988,13 +1020,80 @@ const TX={
   qzCover:(a,b)=>`Your pair reaches ${a}% of the opponent's shots; the best setup reaches ${b}%.`,
   qzMiss:l=>`You can't reach: ${l}.`,
   qzHint:'Coloured lines are the opponent\'s shots: green — you get there, yellow — just, red — no.'
+ },
+ id:{
+  title:'Bulu tangkis ganda — latihan pergerakan',
+  h1:'Bulu tangkis ganda', sub:'cara pasangan bergerak di lapangan menghadapi berbagai pukulan lawan',
+  tab_play:'Main', tab_lessons:'Pelajaran', tab_quiz:'Kuis', tab_basics:'Dasar',
+  band_lbl:'Ketinggian saat pemukul menyambut kok:', band_high:'di atas kepala', band_mid:'setinggi dada', band_low:'rendah',
+  shots_lbl:'Mainkan pukulan (titik — apakah pertahanan sempat: <span style="color:var(--ok)">sempat</span>, <span style="color:var(--warn)">pas-pasan</span>, <span style="color:var(--bad)">tidak</span>):',
+  rand:'Pukulan acak', auto:'Reli otomatis', stop:'Berhenti', back:'Kembali', reset:'Ulang dari awal', relax:'Posisi otomatis',
+  who_takes:'Siapa mengambil pukulan apa',
+  play_hint:'Lingkaran putus-putus — titik terbaik, jika sempat berlari ke sana. Geser pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Geser pemain yang memegang kok untuk mengubah dari mana lawan memukul. Ketuk baris tabel untuk melihat lintasan pukulan.',
+  ls_exit:'Ke daftar pelajaran', ls_next:'Lanjut', ls_again:'Ulangi langkah',
+  qz_check:'Periksa', qz_next:'Situasi baru',
+  settings:'Pengaturan', filters_lbl:'Pukulan yang boleh dimainkan lawan:', layers_lbl:'Tampilkan di lapangan:',
+  ly_fan:'kipas pukulan', ly_zones:'zona pemain', ly_ghosts:'titik terbaik', ly_trails:'jejak gerakan', ly_side:'tampak samping',
+  speed_lbl:'Kecepatan animasi:',
+  n_b1:'Biru 1', n_b2:'Biru 2', n_r1:'Merah 1', n_r2:'Merah 2',
+  acc:{b1:'Biru 1',b2:'Biru 2',r1:'Merah 1',r2:'Merah 2'},
+  team:{blue:{nom:'Biru',cap:'Biru',dat:'Biru',gen:'Biru'},red:{nom:'Merah',cap:'Merah',dat:'Merah',gen:'Merah'}},
+  form:{fb:'depan-belakang (menyerang)',sb:'sejajar (bertahan)',diag:'diagonal (peralihan)'},
+  groups:{smash:'smes dan kill',drop:'dropshot',high:'bola tinggi: lob atas, lob bawah',drive:'drive',push:'dorongan ke tengah lapangan',net:'netting dan blok'},
+  m:'m', s:'dtk', side_lbl:'tampak samping: tinggi',
+  ht:['dari atas','setinggi dada','dari bawah'], dt:{serve:'saat servis',deep:'dari belakang',mid:'dari tengah lapangan',net:'di depan net'},
+  tipRecv:{
+    smash:'Menghadapi smes, berdiri sejajar: masing-masing menjaga separuh lapangan, raket di depan badan. Pemain bertahan di sisi lurus berdiri lebih dekat ke garis samping — smes lurus datang paling cepat.',
+    kill:'Kill di depan net hampir mustahil dikembalikan. Kesalahannya terjadi sebelumnya: kok dikembalikan pendek dan tanggung.',
+    drop:'Dropshot jatuh di depan garis servis. Pemain terdekat maju mengambilnya, rekannya menjaga area belakang di belakangnya.',
+    clear:'Bola tinggi adalah kesempatan menyerang: pemain yang lebih dekat mundur ke bawah kok, rekannya maju ke garis servis. Posisi depan-belakang.',
+    lift:'Lob dari bawah adalah kesempatan menyerang: pemain yang lebih dekat mundur ke bawah kok, rekannya maju ke garis servis. Posisi depan-belakang.',
+    flick:'Servis flick: penerima mundur ke bawah kok, rekannya maju — pasangan langsung menyerang.',
+    drive:'Drive adalah pukulan datar yang cepat. Sambut sedini mungkin dengan raket setinggi dada; pasangan berdiri sejajar, sedikit ke depan.',
+    push:'Dorongan diarahkan ke celah "tak bertuan" di antara kedua pemain. Yang lebih dekat mengambilnya, rekannya segera menutup separuh lapangan miliknya.',
+    net:'Permainan net: sambut kok setinggi mungkin dekat pita net, supaya bisa memukul ke bawah. Rekan menjaga area belakang.',
+    block:'Blok ke depan net adalah santapan pemain depan yang menyerang: itulah sebabnya ia berdiri di garis servis dengan raket terangkat.',
+    serve:'Servis pendek: penerima menyerang kok sedini mungkin, rekannya sudah berada di belakang.'},
+  tipHit:{
+    up:'Mereka mengangkat kok — jadi sekarang mereka bertahan: keduanya mundur dan berdiri sejajar.',
+    serve:'Pemain yang servis tetap di depan net, rekannya di belakang — posisi menyerang sejak pukulan pertama.',
+    rear:'Mereka memukul ke bawah — serangan berlanjut: pemukul tetap di belakang dan bergeser ke tengah, rekannya di depan net.',
+    drive:'Setelah drive, pasangan tetap sejajar, sedikit lebih dekat ke net.',
+    block:'Diblok ke depan net — lawan harus mengambilnya rendah dan kemungkinan besar mengangkat. Saatnya maju dan bersiap menyerang.',
+    net:'Setelah pukulan di depan net, pemukul tetap di depan, rekannya menjaga area belakang.'},
+  lost:(t,w)=>`Tidak ada pemain ${TX.id.team[t].gen} yang sempat — poin untuk ${TX.id.team[w].dat}.`,
+  take:(n,m,h)=>`Diambil oleh ${n}: sisa waktu ${m} dtk, kok setinggi ${h} m.`,
+  forms:(b,r)=>`Biru: ${b}. Merah: ${r}.`,
+  ready:(n,sit,cap,f)=>`<b>${n}</b> memukul ${sit}. ${cap} menunggu pukulan: ${f}.`,
+  miss:l=>`Tidak sempat ke: ${l}.`,
+  allOk:(s,m)=>`Pasangan sempat ke semua pukulan. Paling berbahaya: ${s} (sisa ${m} dtk).`,
+  drag:(a,b)=>`Anda menggeser ${a}. ${b} pindah ke tempat yang menutup apa pun yang tidak terjangkau rekannya.`,
+  takes:(n,l)=>`${n} mengambil: ${l}.`,
+  nobody:l=>`Tidak ada yang sempat ke: ${l}.`,
+  stOver:w=>`Reli selesai: poin untuk <b>${TX.id.team[w].dat}</b>. Tekan “Ulang dari awal”, “Kembali” atau “Reli otomatis”.`,
+  stFly:s=>`Sedang melayang: <b>${s}</b>…`,
+  stReady:(n,sit,t,p)=>`${n} memukul — ${sit}.<br>Menunggu: <b>${TX.id.team[t].nom}</b>, mereka sempat ke <b>${p}%</b> pukulan.`,
+  btnTitle:(s,m)=>`${s}: sisa ${m} dtk`,
+  tblWait:'Tabel muncul saat ada pemain yang memegang kok.',
+  tblHead:t=>`<th>Pukulan</th><th>Seberapa sering</th><th>Diambil (${TX.id.team[t].nom})</th><th>Sisa waktu</th>`,
+  tblNobody:'tidak ada',
+  tblHint:'Sisa waktu — berapa detik pemain tiba lebih dulu dari kok. Di bawah nol berarti terlambat.',
+  bannerLost:w=>`Poin untuk ${TX.id.team[w].dat}: tidak ada yang sempat ke kok`,
+  lsDone:'Pelajaran selesai.', lsStep:(a,b)=>`langkah ${a} dari ${b}`,
+  qzTask:(n,sit)=>`${n} akan memukul ${sit}. Tempatkan kedua pemain Biru di posisi terbaik untuk menunggu pukulan, lalu tekan “Periksa”.`,
+  qzScore:s=>`${s} / 100`,
+  qzVerdict:['Luar biasa — hampir persis seperti perhitungan.','Bagus, tapi bisa lebih tepat.','Masih perlu diperbaiki.'],
+  qzDist:(a,b)=>`Lingkaran putih adalah titik terbaik menurut perhitungan. Biru 1 berjarak ${a} m dari titiknya, Biru 2 — ${b} m.`,
+  qzCover:(a,b)=>`Pasangan Anda sempat ke ${a}% pukulan lawan; posisi terbaik sempat ke ${b}%.`,
+  qzMiss:l=>`Anda tidak sempat ke: ${l}.`,
+  qzHint:'Garis berwarna adalah pukulan lawan: hijau — sempat, kuning — pas-pasan, merah — tidak.'
  }
 };
 const tx=()=>TX[LANG];
 const nm=id=>tx()['n_'+id];
 const nmAcc=id=>tx().acc[id];
 const tm=(t,k)=>tx().team[t][k];
-const lo=x=>typeof x==='string'?x:(x[LANG]||x.ru);
+const lo=x=>typeof x==='string'?x:(x[LANG]||x.en||x.ru);
 const shotLow=sh=>LANG==='ru'?sh.name.toLowerCase():sh.name.charAt(0).toLowerCase()+sh.name.slice(1);
 const listShots=rows=>rows.map(r=>shotLow(r.shot)).join(', ');
 function tipHit(shot){
@@ -1149,74 +1248,74 @@ function defaultStart(){setSituation('r1',{x:1.3,y:-5.1,h:2.7});S.history=[];S.d
 
 // ---------- уроки ----------
 const LESSONS=[
-  {title:{ru:'Атака: высокий мяч, смэш и добивание',en:'Attack: high shuttle, smash and kill'},start:{holder:'r1',contact:{x:-0.8,d:1.0,h:0.45}},
+  {title:{ru:'Атака: высокий мяч, смэш и добивание',en:'Attack: high shuttle, smash and kill',id:'Serangan: bola tinggi, smes, dan kill'},start:{holder:'r1',contact:{x:-0.8,d:1.0,h:0.45}},
    intro:{ru:'Красный у сетки, волан низко. Синие стоят «спереди-сзади»: передний давит у сетки, задний ждёт подъёма. Нажмите «Дальше».',
-          en:'Red is at the net with the shuttle low. Blue stand front-and-back: the front player presses at the net, the rear one waits for the lift. Press “Next”.'},
+          en:'Red is at the net with the shuttle low. Blue stand front-and-back: the front player presses at the net, the rear one waits for the lift. Press “Next”.',id:'Merah ada di depan net dengan kok rendah. Biru berdiri depan-belakang: pemain depan menekan di net, pemain belakang menunggu lob. Tekan “Lanjut”.'},
    steps:[
     {type:'lift',dir:'line',text:{ru:'Красный вынужден поднять волан в глубину. Высокий волан — сигнал к атаке: кто ближе, уходит под волан назад, второй выходит вперёд к линии подачи.',
-      en:'Red has to lift the shuttle deep. A high shuttle is the signal to attack: the nearer player goes back under it, the other steps up to the service line.'}},
+      en:'Red has to lift the shuttle deep. A high shuttle is the signal to attack: the nearer player goes back under it, the other steps up to the service line.',id:'Merah terpaksa mengangkat kok jauh ke belakang. Bola tinggi adalah tanda untuk menyerang: pemain yang lebih dekat mundur ke bawah kok, yang lain maju ke garis servis.'}},
     {type:'smash',dir:'line',text:{ru:'Смэш по линии. Бьющий остаётся сзади и смещается к центру — следующий высокий снова его. Передний держит сетку и ждёт короткий ответ.',
-      en:'Straight smash. The hitter stays at the back and drifts to the centre — the next high shuttle is theirs again. The front player holds the net and waits for a short reply.'}},
+      en:'Straight smash. The hitter stays at the back and drifts to the centre — the next high shuttle is theirs again. The front player holds the net and waits for a short reply.',id:'Smes lurus. Pemukul tetap di belakang dan bergeser ke tengah — bola tinggi berikutnya kembali miliknya. Pemain depan menjaga net dan menunggu balasan pendek.'}},
     {type:'block',dir:'cross',text:{ru:'Защитник подставил кроссом к сетке. Передний стоит у линии подачи и встречает волан высоко, у самого троса, — ещё до того, как волан опустится.',
-      en:'The defender blocks cross-court to the net. The front player is at the service line and meets the shuttle high, right at the tape, before it drops.'}},
+      en:'The defender blocks cross-court to the net. The front player is at the service line and meets the shuttle high, right at the tape, before it drops.',id:'Pemain bertahan memblok silang ke depan net. Pemain depan berdiri di garis servis dan menyambut kok tinggi, tepat di pita net, sebelum kok turun.'}},
     {type:'kill',dir:'mid',text:{ru:'Добивание вниз, в центр между защитниками. Очко выиграно построением: задний давит, передний ловит короткое.',
-      en:'Kill down the middle, between the defenders. The point is won by the formation: the rear player presses, the front player catches everything short.'}}]},
-  {title:{ru:'Защита: подняли — встали бок о бок',en:'Defence: lifted — go side-by-side'},start:{holder:'b1',contact:{x:1.1,d:0.9,h:0.4}},
+      en:'Kill down the middle, between the defenders. The point is won by the formation: the rear player presses, the front player catches everything short.',id:'Kill ke bawah, ke tengah di antara dua pemain bertahan. Poin dimenangkan oleh posisi: pemain belakang menekan, pemain depan menyambar semua bola pendek.'}}]},
+  {title:{ru:'Защита: подняли — встали бок о бок',en:'Defence: lifted — go side-by-side',id:'Bertahan: setelah mengangkat — berdiri sejajar'},start:{holder:'b1',contact:{x:1.1,d:0.9,h:0.4}},
    intro:{ru:'Синего утянули к сетке укороченным, волан низко — придётся поднимать. Смотрите, как пара переходит в защиту.',
-          en:'A drop has pulled Blue to the net and the shuttle is low — they will have to lift. Watch the pair switch to defence.'},
+          en:'A drop has pulled Blue to the net and the shuttle is low — they will have to lift. Watch the pair switch to defence.',id:'Dropshot menarik pemain Biru ke depan net dan kok sudah rendah — ia harus mengangkat. Perhatikan bagaimana pasangan beralih ke bertahan.'},
    steps:[
     {type:'lift',dir:'cross',text:{ru:'Синие подняли волан. Подняли — значит, защищаются: поднявший отходит назад на свою половину, партнёр встаёт рядом на другую. Строй «бок о бок».',
-      en:'Blue lift the shuttle. Lifted means defend: the lifter moves back on their half, the partner takes the other half. Side-by-side.'}},
+      en:'Blue lift the shuttle. Lifted means defend: the lifter moves back on their half, the partner takes the other half. Side-by-side.',id:'Biru mengangkat kok. Mengangkat berarti bertahan: pemain yang mengangkat mundur di separuh lapangannya, rekannya mengambil separuh yang lain. Posisi sejajar.'}},
     {type:'smash',dir:'line',text:{ru:'Смэш по линии. Его берёт защитник со стороны удара: он заранее стоит ближе к боковой — прямой смэш долетает быстрее всего.',
-      en:'Straight smash. The defender on that side takes it: they already stand nearer the sideline, because the straight smash arrives fastest.'}},
+      en:'Straight smash. The defender on that side takes it: they already stand nearer the sideline, because the straight smash arrives fastest.',id:'Smes lurus. Pemain bertahan di sisi itu yang mengambilnya: ia sudah berdiri lebih dekat ke garis samping, karena smes lurus datang paling cepat.'}},
     {type:'lift',dir:'line',text:{ru:'Защитник снова поднимает в глубину. Пара остаётся бок о бок и смещается вслед за атакующим.',
-      en:'The defender lifts deep again. The pair stays side-by-side and shifts with the attacker.'}},
+      en:'The defender lifts deep again. The pair stays side-by-side and shifts with the attacker.',id:'Pemain bertahan kembali mengangkat jauh ke belakang. Pasangan tetap sejajar dan bergeser mengikuti penyerang.'}},
     {type:'smash',dir:'cross',text:{ru:'Теперь смэш кроссом. Кросс летит дальше и дольше, поэтому второй защитник успевает к нему, хотя стоит ближе к центру.',
-      en:'Now a cross-court smash. It travels further and takes longer, so the other defender gets there even though they stand nearer the centre.'}},
+      en:'Now a cross-court smash. It travels further and takes longer, so the other defender gets there even though they stand nearer the centre.',id:'Sekarang smes silang. Jaraknya lebih jauh dan waktunya lebih lama, jadi pemain bertahan yang lain tetap sempat walau berdiri lebih dekat ke tengah.'}},
     {type:'drive',dir:'line',text:{ru:'Защитник отвечает плоским драйвом по линии — первый шаг к перехвату инициативы.',
-      en:'The defender answers with a flat straight drive — the first step to taking over the initiative.'}}]},
-  {title:{ru:'Переход из защиты в атаку',en:'From defence to attack'},start:{holder:'r1',contact:{x:1.4,d:5.2,h:2.8}},
-   intro:{ru:'Красные атакуют из глубины, синие в защите бок о бок.',en:'Red attack from the back, Blue defend side-by-side.'},
+      en:'The defender answers with a flat straight drive — the first step to taking over the initiative.',id:'Pemain bertahan membalas dengan drive lurus yang datar — langkah pertama untuk merebut inisiatif.'}}]},
+  {title:{ru:'Переход из защиты в атаку',en:'From defence to attack',id:'Dari bertahan ke menyerang'},start:{holder:'r1',contact:{x:1.4,d:5.2,h:2.8}},
+   intro:{ru:'Красные атакуют из глубины, синие в защите бок о бок.',en:'Red attack from the back, Blue defend side-by-side.',id:'Merah menyerang dari belakang, Biru bertahan sejajar.'},
    steps:[
-    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Синие защищаются бок о бок.',en:'Straight smash. Blue defend side-by-side.'}},
+    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Синие защищаются бок о бок.',en:'Straight smash. Blue defend side-by-side.',id:'Smes lurus. Biru bertahan sejajar.'}},
     {type:'block',dir:'cross',hitterTo:'forward',late:true,text:{ru:'Защитник подставляет к сетке и сам идёт за воланом вперёд. Партнёр видит это и смещается назад в центр — пара перестраивается в «спереди-сзади».',
-      en:'The defender blocks to the net and follows the shuttle forward. The partner sees it and moves back to the centre — the pair turns into front-and-back.'}},
+      en:'The defender blocks to the net and follows the shuttle forward. The partner sees it and moves back to the centre — the pair turns into front-and-back.',id:'Pemain bertahan memblok ke depan net lalu ikut maju mengejar kok. Rekannya melihat itu dan mundur ke tengah — pasangan berubah menjadi depan-belakang.'}},
     {type:'lift',dir:'line',text:{ru:'Красный у сетки берёт волан низко и вынужден поднять. Теперь атакуют синие: передний остаётся у сетки, задний бьёт сверху.',
-      en:'Red takes the shuttle low at the net and has to lift. Now Blue attack: the front player stays at the net, the rear player hits from above.'}},
-    {type:'smash',dir:'mid',text:{ru:'Смэш в центр, между защитниками. Инициатива перехвачена.',en:'Smash down the middle, between the defenders. The initiative has changed hands.'}}]},
-  {title:{ru:'Переход из атаки в защиту',en:'From attack to defence'},start:{holder:'b1',contact:{x:-1.2,d:5.3,h:2.8}},
-   intro:{ru:'Синие атакуют: Синий 1 сзади с воланом над головой, Синий 2 у сетки.',en:'Blue attack: Blue 1 is at the back with the shuttle overhead, Blue 2 is at the net.'},
+      en:'Red takes the shuttle low at the net and has to lift. Now Blue attack: the front player stays at the net, the rear player hits from above.',id:'Merah mengambil kok rendah di depan net dan terpaksa mengangkat. Sekarang Biru menyerang: pemain depan tetap di net, pemain belakang memukul dari atas.'}},
+    {type:'smash',dir:'mid',text:{ru:'Смэш в центр, между защитниками. Инициатива перехвачена.',en:'Smash down the middle, between the defenders. The initiative has changed hands.',id:'Smes ke tengah, di antara dua pemain bertahan. Inisiatif berhasil direbut.'}}]},
+  {title:{ru:'Переход из атаки в защиту',en:'From attack to defence',id:'Dari menyerang ke bertahan'},start:{holder:'b1',contact:{x:-1.2,d:5.3,h:2.8}},
+   intro:{ru:'Синие атакуют: Синий 1 сзади с воланом над головой, Синий 2 у сетки.',en:'Blue attack: Blue 1 is at the back with the shuttle overhead, Blue 2 is at the net.',id:'Biru menyerang: Biru 1 di belakang dengan kok di atas kepala, Biru 2 di depan net.'},
    steps:[
-    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Задний бьёт, передний ждёт у сетки.',en:'Straight smash. The rear player hits, the front player waits at the net.'}},
+    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Задний бьёт, передний ждёт у сетки.',en:'Straight smash. The rear player hits, the front player waits at the net.',id:'Smes lurus. Pemain belakang memukul, pemain depan menunggu di net.'}},
     {type:'block',dir:'cross',late:true,text:{ru:'Защитник красных подставляет кроссом в дальний от переднего угол сетки. Передний опаздывает и берёт волан уже низко, под тросом.',
-      en:'Red\'s defender blocks cross-court to the net corner far from the front player. The front player is late and takes the shuttle low, below the tape.'}},
+      en:'Red\'s defender blocks cross-court to the net corner far from the front player. The front player is late and takes the shuttle low, below the tape.',id:'Pemain bertahan Merah memblok silang ke sudut net yang jauh dari pemain depan. Pemain depan terlambat dan mengambil kok sudah rendah, di bawah pita net.'}},
     {type:'lift',dir:'line',text:{ru:'Переднему пришлось поднять. Подняли — значит, защищаются: поднявший отходит назад на свою сторону, задний смещается на другую половину. Снова «бок о бок».',
-      en:'The front player had to lift. Lifted means defend: the lifter moves back on their side, the rear player shifts to the other half. Side-by-side again.'}},
-    {type:'smash',dir:'line',text:{ru:'Красные атакуют, а синие уже стоят бок о бок и готовы.',en:'Red attack, and Blue are already side-by-side and ready.'}}]},
-  {title:{ru:'Укороченный и ротация',en:'Drop shot and rotation'},start:{holder:'b1',contact:{x:1.3,d:5.4,h:2.7}},
-   intro:{ru:'Синий 1 сзади с высоким воланом, Синий 2 впереди.',en:'Blue 1 is at the back with a high shuttle, Blue 2 is in front.'},
+      en:'The front player had to lift. Lifted means defend: the lifter moves back on their side, the rear player shifts to the other half. Side-by-side again.',id:'Pemain depan terpaksa mengangkat. Mengangkat berarti bertahan: pemain yang mengangkat mundur di sisinya, pemain belakang bergeser ke separuh yang lain. Kembali sejajar.'}},
+    {type:'smash',dir:'line',text:{ru:'Красные атакуют, а синие уже стоят бок о бок и готовы.',en:'Red attack, and Blue are already side-by-side and ready.',id:'Merah menyerang, dan Biru sudah berdiri sejajar dan siap.'}}]},
+  {title:{ru:'Укороченный и ротация',en:'Drop shot and rotation',id:'Dropshot dan rotasi'},start:{holder:'b1',contact:{x:1.3,d:5.4,h:2.7}},
+   intro:{ru:'Синий 1 сзади с высоким воланом, Синий 2 впереди.',en:'Blue 1 is at the back with a high shuttle, Blue 2 is in front.',id:'Biru 1 di belakang dengan bola tinggi, Biru 2 di depan.'},
    steps:[
     {type:'drop',dir:'line',hitterTo:'forward',late:true,text:{ru:'Задний играет медленный укороченный по линии и идёт за ним к сетке. Передний не стоит на месте: по кругу уходит назад и закрывает освободившуюся глубину. Это ротация — строй «спереди-сзади» тот же, игроки поменялись ролями.',
-      en:'The rear player plays a slow straight drop and follows it to the net. The front player does not stay put: they circle back and cover the empty back court. This is rotation — still front-and-back, with the roles swapped.'}},
-    {type:'lift',dir:'cross',text:{ru:'Красный поднимает кроссом. Волан берёт тот, кто теперь сзади, — бывший передний.',en:'Red lifts cross-court. The shuttle is taken by whoever is now at the back — the former front player.'}},
-    {type:'smash',dir:'line',text:{ru:'Атака продолжается, только теперь сзади другой игрок.',en:'The attack goes on, only now a different player is at the back.'}}]},
-  {title:{ru:'Драйвы: плоский обмен',en:'Drives: a flat exchange'},start:{holder:'r1',contact:{x:-1.1,d:3.2,h:1.35}},
-   intro:{ru:'Волан на уровне груди в середине корта. Обе пары стоят бок о бок, чуть ближе к сетке.',en:'The shuttle is at chest height in mid-court. Both pairs stand side-by-side, a little closer to the net.'},
+      en:'The rear player plays a slow straight drop and follows it to the net. The front player does not stay put: they circle back and cover the empty back court. This is rotation — still front-and-back, with the roles swapped.',id:'Pemain belakang memainkan dropshot lurus yang pelan dan mengikutinya ke net. Pemain depan tidak diam: ia berputar mundur dan menutup area belakang yang kosong. Inilah rotasi — tetap depan-belakang, hanya perannya bertukar.'}},
+    {type:'lift',dir:'cross',text:{ru:'Красный поднимает кроссом. Волан берёт тот, кто теперь сзади, — бывший передний.',en:'Red lifts cross-court. The shuttle is taken by whoever is now at the back — the former front player.',id:'Merah mengangkat silang. Kok diambil oleh pemain yang sekarang di belakang — tadinya pemain depan.'}},
+    {type:'smash',dir:'line',text:{ru:'Атака продолжается, только теперь сзади другой игрок.',en:'The attack goes on, only now a different player is at the back.',id:'Serangan berlanjut, hanya saja sekarang pemain lain yang di belakang.'}}]},
+  {title:{ru:'Драйвы: плоский обмен',en:'Drives: a flat exchange',id:'Drive: adu pukulan datar'},start:{holder:'r1',contact:{x:-1.1,d:3.2,h:1.35}},
+   intro:{ru:'Волан на уровне груди в середине корта. Обе пары стоят бок о бок, чуть ближе к сетке.',en:'The shuttle is at chest height in mid-court. Both pairs stand side-by-side, a little closer to the net.',id:'Kok setinggi dada di tengah lapangan. Kedua pasangan berdiri sejajar, sedikit lebih dekat ke net.'},
    steps:[
-    {type:'drive',dir:'line',text:{ru:'Драйв по линии. Отвечает тот, на чьей половине волан, — как можно раньше, ракетка перед грудью.',en:'Straight drive. Whoever has the shuttle on their half answers — as early as possible, racket in front of the chest.'}},
-    {type:'drive',dir:'cross',text:{ru:'Ответный драйв кроссом. Пары смещаются за воланом и держат строй бок о бок.',en:'A cross-court drive back. Both pairs shift with the shuttle and keep side-by-side.'}},
-    {type:'drive',dir:'mid',text:{ru:'Драйв в центр, между игроками. Здесь нужна договорённость, кто берёт центр.',en:'A drive down the middle, between the players. This is where the pair needs an agreement on who takes the middle.'}},
-    {type:'push',dir:'line',text:{ru:'Толчок в середину — способ сбить ритм. Кто ответит низко, тому придётся поднимать.',en:'A push to mid-court breaks the rhythm. Whoever answers it low will have to lift.'}}]},
-  {title:{ru:'Короткая подача и приём',en:'Short serve and return'},serve:true,
+    {type:'drive',dir:'line',text:{ru:'Драйв по линии. Отвечает тот, на чьей половине волан, — как можно раньше, ракетка перед грудью.',en:'Straight drive. Whoever has the shuttle on their half answers — as early as possible, racket in front of the chest.',id:'Drive lurus. Yang menjawab adalah pemain yang kok-nya ada di separuh lapangannya — sedini mungkin, raket di depan dada.'}},
+    {type:'drive',dir:'cross',text:{ru:'Ответный драйв кроссом. Пары смещаются за воланом и держат строй бок о бок.',en:'A cross-court drive back. Both pairs shift with the shuttle and keep side-by-side.',id:'Balasan drive silang. Kedua pasangan bergeser mengikuti kok dan tetap sejajar.'}},
+    {type:'drive',dir:'mid',text:{ru:'Драйв в центр, между игроками. Здесь нужна договорённость, кто берёт центр.',en:'A drive down the middle, between the players. This is where the pair needs an agreement on who takes the middle.',id:'Drive ke tengah, di antara kedua pemain. Di sinilah pasangan perlu kesepakatan siapa yang mengambil bola tengah.'}},
+    {type:'push',dir:'line',text:{ru:'Толчок в середину — способ сбить ритм. Кто ответит низко, тому придётся поднимать.',en:'A push to mid-court breaks the rhythm. Whoever answers it low will have to lift.',id:'Dorongan ke tengah lapangan memecah ritme. Siapa pun yang membalasnya rendah harus mengangkat.'}}]},
+  {title:{ru:'Короткая подача и приём',en:'Short serve and return',id:'Servis pendek dan pengembalian'},serve:true,
    start:{holder:'r1',contact:{x:-0.3,d:2.15,h:1.1,serve:true},pos:{r1:{x:-0.3,d:2.5},r2:{x:0.2,d:4.3},b1:{x:0.55,d:2.5},b2:{x:-0.8,d:4.4}}},
-   intro:{ru:'Красный 1 подаёт из правого поля, Синий 1 принимает у линии подачи, их партнёры стоят сзади.',en:'Red 1 serves from the right court, Blue 1 receives at the service line, their partners stand behind.'},
+   intro:{ru:'Красный 1 подаёт из правого поля, Синий 1 принимает у линии подачи, их партнёры стоят сзади.',en:'Red 1 serves from the right court, Blue 1 receives at the service line, their partners stand behind.',id:'Merah 1 melakukan servis dari petak kanan, Biru 1 menerima di garis servis, rekan mereka berdiri di belakang.'},
    steps:[
     {type:'serve',dir:'mid',text:{ru:'Короткая подача к центру. Подающий остаётся у сетки, его партнёр сзади — красные с первого удара в строю «спереди-сзади».',
-      en:'Short serve to the centre. The server stays at the net, the partner at the back — Red are front-and-back from the very first shot.'}},
+      en:'Short serve to the centre. The server stays at the net, the partner at the back — Red are front-and-back from the very first shot.',id:'Servis pendek ke tengah. Pemain yang servis tetap di depan net, rekannya di belakang — Merah sudah depan-belakang sejak pukulan pertama.'}},
     {type:'push',dir:'line',text:{ru:'Принимающий встречает подачу как можно раньше и толкает в середину, мимо подающего. Его партнёр уже сзади, синие тоже «спереди-сзади».',
-      en:'The receiver meets the serve as early as possible and pushes it to mid-court past the server. The partner is already at the back, so Blue are front-and-back too.'}},
-    {type:'lift',dir:'cross',text:{ru:'Красному пришлось поднять — синие атакуют, красные переходят в защиту бок о бок.',en:'Red had to lift — Blue attack, Red switch to side-by-side defence.'}},
-    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Синие в атаке, красные в защите.',en:'Straight smash. Blue attack, Red defend.'}}]},
+      en:'The receiver meets the serve as early as possible and pushes it to mid-court past the server. The partner is already at the back, so Blue are front-and-back too.',id:'Penerima menyambut servis sedini mungkin dan mendorongnya ke tengah lapangan melewati pemain yang servis. Rekannya sudah di belakang, jadi Biru juga depan-belakang.'}},
+    {type:'lift',dir:'cross',text:{ru:'Красному пришлось поднять — синие атакуют, красные переходят в защиту бок о бок.',en:'Red had to lift — Blue attack, Red switch to side-by-side defence.',id:'Merah terpaksa mengangkat — Biru menyerang, Merah beralih ke bertahan sejajar.'}},
+    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Синие в атаке, красные в защите.',en:'Straight smash. Blue attack, Red defend.',id:'Smes lurus. Biru menyerang, Merah bertahan.'}}]},
 ];
 function lessonStart(i){
   const Ls=LESSONS[i];const st=Ls.start;const team=teamOf(st.holder),s=sideOf(team);
@@ -1364,7 +1463,8 @@ function setLang(l){
   applyLang();drawForm();updatePanel();S.dirty=true;
 }
 (function(){let l=null;try{l=localStorage.getItem('badm-lang');}catch(e){}
-  LANG=l||((navigator.language||'ru').toLowerCase().startsWith('ru')?'ru':'en');})();
+  const nl=(navigator.language||'ru').toLowerCase();
+  LANG=(l&&TX[l])?l:(nl.startsWith('ru')?'ru':nl.startsWith('id')||nl.startsWith('in')?'id':'en');})();
 for(const b of document.querySelectorAll('.langsw button')) b.onclick=()=>setLang(b.dataset.lang);
 buildCourt();bindUI();applyLang();defaultStart();drawStatic();updatePanel();requestAnimationFrame(loop);
 </script>

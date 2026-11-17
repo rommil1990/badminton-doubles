@@ -239,7 +239,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>Как двигать игроков?</h3>
       <p>Перетащите любого игрока пальцем или мышью. Двигаете игрока пары, которая ждёт удара, — партнёр сам перейдёт в лучшую точку. Двигаете игрока с воланом — меняется место, откуда бьёт соперник.</p>
       <h3>Как выбрать, куда полетит волан?</h3>
-      <p>Линии на корте — удары, которые может сыграть бьющий. Нажмите на точку на конце линии — удар полетит туда. Или перетащите большой волан у бьющего в любое место на половине соперника: удар подберётся сам (смэш, укороченный, высоко-далёкий и так далее), сразу видно траекторию и кто успевает. Удар можно выбрать и кнопкой в списке справа (на телефоне — под кортом).</p>
+      <p>Линии на корте — удары, которые может сыграть бьющий. Нажмите на точку на конце линии — удар полетит туда. Или перетащите большой волан у бьющего в любое место на половине соперника: удар подберётся сам по глубине: к сетке — укороченный, в середину — смэш, к задней линии — высоко-далёкий. Сразу видно траекторию и кто успевает. Если защитник успевает, он перехватывает волан раньше: до перехвата линия сплошная, дальше пунктир до вашей точки. Удар можно выбрать и кнопкой в списке справа (на телефоне — под кортом).</p>
       <h3>Что значат цвета и номера у точек?</h3>
       <p>Зелёная линия — защита успевает, жёлтая — впритык, красная — не успевает. Номер и цвет кружка у точки — какой игрок должен брать волан.</p>
       <h3>Как работают «Авторозыгрыш» и «Пауза»?</h3>
@@ -259,7 +259,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>How do I move the players?</h3>
       <p>Drag any player with a finger or the mouse. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player with the shuttle — that changes where the opponent hits from.</p>
       <h3>How do I choose where the shuttle goes?</h3>
-      <p>The lines on the court are the shots the hitter can play. Tap the dot at the end of a line — the shot goes there. Or drag the big shuttle at the hitter anywhere on the opponent's half: the right shot is picked by itself (smash, drop, clear and so on), and you see its path and who gets there at once. You can also pick a shot from the list on the right (on a phone — below the court).</p>
+      <p>The lines on the court are the shots the hitter can play. Tap the dot at the end of a line — the shot goes there. Or drag the big shuttle at the hitter anywhere on the opponent's half: the shot is picked by depth: near the net — a drop, mid-court — a smash, at the back line — a clear. You see its path and who gets there at once. If a defender gets there, they take the shuttle earlier: the line is solid up to that point and dashed on to your spot. You can also pick a shot from the list on the right (on a phone — below the court).</p>
       <h3>What do the colours and numbers at the dots mean?</h3>
       <p>Green line: the defence gets there; yellow: only just; red: too late. The number and colour of the circle at a dot show which player should take the shuttle.</p>
       <h3>How do “Auto rally” and “Pause” work?</h3>
@@ -279,7 +279,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <h3>Bagaimana cara memindahkan pemain?</h3>
       <p>Seret pemain mana pun dengan jari atau mouse. Seret pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Seret pemain yang memegang kok — tempat lawan memukul akan berubah.</p>
       <h3>Bagaimana memilih ke mana kok terbang?</h3>
-      <p>Garis di lapangan adalah pukulan yang bisa dimainkan pemukul. Ketuk titik di ujung garis — pukulan akan diarahkan ke situ. Atau seret kok besar di pemukul ke mana saja di sisi lawan: jenis pukulan dipilih sendiri (smes, dropshot, lob, dan seterusnya), dan langsung terlihat lintasannya serta siapa yang sempat. Pukulan juga bisa dipilih dari daftar di kanan (di ponsel — di bawah lapangan).</p>
+      <p>Garis di lapangan adalah pukulan yang bisa dimainkan pemukul. Ketuk titik di ujung garis — pukulan akan diarahkan ke situ. Atau seret kok besar di pemukul ke mana saja di sisi lawan: jenis pukulan dipilih menurut kedalaman: dekat net — dropshot, tengah — smes, garis belakang — lob atas. Lintasan dan siapa yang sempat langsung terlihat. Jika pemain bertahan sempat, ia mengambil kok lebih awal: garis utuh sampai titik itu, lalu putus-putus sampai titik Anda. Pukulan juga bisa dipilih dari daftar di kanan (di ponsel — di bawah lapangan).</p>
       <h3>Apa arti warna dan nomor di titik?</h3>
       <p>Garis hijau: pertahanan sempat; kuning: pas-pasan; merah: terlambat. Nomor dan warna lingkaran di dekat titik menunjukkan pemain mana yang harus mengambil kok.</p>
       <h3>Bagaimana “Reli otomatis” dan “Jeda” bekerja?</h3>
@@ -910,7 +910,7 @@ function chooseRow(i){
 function customShot(hitter,c,p){
   const s=sideOf(teamOf(hitter)), d=-s*p.y;
   if(d<0.25) return null;
-  const x=clamp(p.x,-C.HW+0.05,C.HW-0.05), depth=clamp(d,0.4,C.HL-0.1);
+  const x=clamp(p.x,-C.HW+0.02,C.HW-0.02), depth=clamp(d,0.4,C.HL-0.02);
   let type=null,bd=1e9;
   for(const r of repertoire(hitter,c,S.filters)){const dd=Math.abs(SHOT[r.type].depth-depth);if(dd<bd){bd=dd;type=r.type;}}
   let dir;
@@ -959,15 +959,15 @@ function startShDrag(ev){
     const p=svgPoint(e); if(Math.hypot(p.x-p0.x,p.y-p0.y)>0.25) S.shDrag.moved=true;
     S.shDrag.x=p.x;S.shDrag.y=p.y;
     if(S.shDrag.moved){
-      const i=nearestTarget(p,0.4); setHL(i);
-      S.shDrag.pv=i==null?previewAt(p):null; drawPreview(S.shDrag.pv,S.mode==='quiz'); drawSidePath();
+      // без притягивания к точкам: волан летит ровно туда, где его отпустили
+      S.shDrag.pv=previewAt(p); drawPreview(S.shDrag.pv,S.mode==='quiz'); drawSidePath();
       if(S.mode==='quiz'&&!S.shDrag.pv) drawQuizAim();
     }
     S.dirty=true;
   };
   const up=e=>{
     g.removeEventListener('pointermove',move);g.removeEventListener('pointerup',up);g.removeEventListener('pointercancel',up);
-    const ok=S.shDrag&&S.shDrag.moved&&e.type==='pointerup', i=ok?nearestTarget(svgPoint(e),0.4):null, pv=ok&&i==null?previewAt(svgPoint(e)):null;
+    const ok=S.shDrag&&S.shDrag.moved&&e.type==='pointerup', i=null, pv=ok?previewAt(svgPoint(e)):null;
     S.shDrag=null;S.highlight=null;
     if(S.mode==='quiz'){if(pv){S.quiz.pick=pv;S.quiz.needPick=false;S.lastPhase={shot:pv.shot,trails:null};}drawQuizAim();drawSidePath();updatePanel();S.dirty=true;return;}
     if(i!=null){L.prev.innerHTML='';chooseRow(i);}

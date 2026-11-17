@@ -637,7 +637,7 @@ function buildCourt(){
   L.shShadow=el('ellipse',{rx:0.11,ry:0.07,fill:'#000',opacity:0.35},L.shuttle);
   L.shStem=el('line',{stroke:'#fff','stroke-width':0.015,opacity:0.5},L.shuttle);
   L.shIcon=el('circle',{r:0.09,fill:'#fff',stroke:'#f59e0b','stroke-width':0.035},L.shuttle);
-  // большой волан у бьющего: его тянут на маленький волан-цель
+  // большой волан у бьющего: его тянут на точку-цель
   L.grab=el('g',{class:'bigsh'},svg);
   L.grabLine=el('line',{stroke:'#fde68a','stroke-width':0.04,'stroke-dasharray':'0.1 0.07',opacity:0.9},L.grab);
   el('circle',{cx:0,cy:0,r:0.42,fill:'#fde68a',opacity:0.16},L.grab);
@@ -715,7 +715,7 @@ function drawZones(){
     el('rect',{x:x,y:s>0?d:-(d+cs),width:cs+0.003,height:cs+0.003,fill:COL[id],opacity:op.toFixed(3)},L.zones);
   }
 }
-// маленький волан: пробка в точке (x,y), юбка сзади, по направлению полёта ang
+// значок волана: пробка в точке (x,y), юбка сзади, по направлению полёта ang
 function shuttleIcon(parent,x,y,len,ang,cork){
   const g=el('g',{transform:`translate(${x.toFixed(3)} ${y.toFixed(3)}) rotate(${(ang*180/Math.PI).toFixed(1)}) scale(${len})`},parent);
   el('path',{d:'M-0.14,-0.17 L-1,-0.43 Q-1.12,0 -1,0.43 L-0.14,0.17 Z',fill:'#f8fafc',stroke:'#64748b','stroke-width':0.05},g);
@@ -749,6 +749,14 @@ function targetOf(r){
   const e=reach?sh.hit[r.j]:sh.land, pr=sh.samples[Math.max(0,k-1)], q=sh.samples[k];
   return {x:e.x,y:e.y,k,reach,ang:Math.atan2(q.y-pr.y,q.x-pr.x)};
 }
+// точки, которые почти совпадают, на корте показываем одной — остаётся самый частый удар
+const TGT_MIN=0.6;
+function visibleSet(rows){
+  const order=rows.map((r,i)=>i).sort((a,b)=>rows[b].w-rows[a].w), kept=[];
+  for(const i of order){const t=targetOf(rows[i]);if(kept.every(k=>Math.hypot(k.x-t.x,k.y-t.y)>=TGT_MIN))kept.push({i,x:t.x,y:t.y});}
+  return new Set(kept.map(k=>k.i));
+}
+const visibleRows=rows=>{const v=visibleSet(rows);return rows.filter((r,i)=>v.has(i));};
 function grabPoint(){
   const c=S.anim?S.next.c2:S.contact, team=teamOf(S.anim?S.next.R:S.holder);
   return {x:c.x,y:c.y,dir:-sideOf(team)};
@@ -765,12 +773,12 @@ function drawFan(){
     if(!S.holder||S.over||!S.ev) return;
     rows=S.ev.rows;
   }
-  const choose=canChoose();
+  const choose=canChoose(), vis=visibleSet(rows);
   const showAll=(S.layers.fan||choose)&&!(S.mode==='quiz'&&!(S.quiz&&S.quiz.checked));
   rows.forEach((r,i)=>{
     const hl=S.highlight===i||only===i;
     if(only!=null&&only!==i) return;
-    if(!showAll&&!hl) return;
+    if(!(showAll&&vis.has(i))&&!hl) return;
     const sh=r.shot, t=targetOf(r);
     const pts=sh.samples.slice(0,t.k+1).map(q=>q.x.toFixed(3)+','+q.y.toFixed(3)).join(' ');
     const col=statusColor(r.bm);
@@ -779,8 +787,8 @@ function drawFan(){
     if(choose||only!=null){
       const g=el('g',{class:'tgt'+(hl?' hl':''),'data-i':i},L.tgt);
       el('circle',{cx:t.x,cy:t.y,r:0.27,class:'halo'},g);
-      shuttleIcon(g,t.x,t.y,0.36,t.ang,t.reach?COL[r.resp]:'#f8fafc');
-      if(!t.reach) el('path',{d:cross,stroke:col,'stroke-width':0.05},g);
+      if(t.reach) el('circle',{cx:t.x,cy:t.y,r:0.1,fill:COL[r.resp],stroke:col,'stroke-width':0.035},g);
+      else el('path',{d:cross,stroke:col,'stroke-width':0.05},g);
       respBadge(g,t,r.resp,!t.reach);
       if(choose){
         // наведение подсвечивает без перерисовки: иначе щелчок теряется
@@ -804,8 +812,9 @@ function setHL(i){
 }
 function nearestTarget(p,maxd){
   const rows=curRows(); if(!rows) return null;
+  const vis=visibleSet(rows);
   let bi=null,bd=maxd;
-  rows.forEach((r,i)=>{const t=targetOf(r),d=Math.hypot(t.x-p.x,t.y-p.y);if(d<bd){bd=d;bi=i;}});
+  rows.forEach((r,i)=>{if(!vis.has(i))return;const t=targetOf(r),d=Math.hypot(t.x-p.x,t.y-p.y);if(d<bd){bd=d;bi=i;}});
   return bi;
 }
 // выбрать удар на корте: волан у бьющего — бьём сразу; пауза в полёте — этот удар будет следующим
@@ -820,9 +829,9 @@ function startShDrag(ev){
   if(!canChoose()) return;
   ev.preventDefault();ev.stopPropagation();
   const g=L.grab; g.setPointerCapture(ev.pointerId);
-  const o=grabPoint(); S.shDrag={x:o.x,y:o.y,moved:false};
+  const o=grabPoint(), p0=svgPoint(ev); S.shDrag={x:o.x,y:o.y,moved:false};
   const move=e=>{
-    const p=svgPoint(e); if(Math.hypot(p.x-o.x,p.y-o.y)>0.2) S.shDrag.moved=true;
+    const p=svgPoint(e); if(Math.hypot(p.x-p0.x,p.y-p0.y)>0.25) S.shDrag.moved=true;
     S.shDrag.x=p.x;S.shDrag.y=p.y;
     setHL(S.shDrag.moved?nearestTarget(p,1.3):null);
     S.dirty=true;
@@ -1058,7 +1067,7 @@ const TX={
   shots_lbl:'Сыграть удар (точка — успевает ли защита: <span style="color:var(--ok)">успевает</span>, <span style="color:var(--warn)">впритык</span>, <span style="color:var(--bad)">нет</span>):',
   rand:'Случайный удар', auto:'Авторозыгрыш', stop:'Стоп', pause:'Пауза', resume:'Продолжить', back:'Назад', reset:'Сначала', relax:'Авторасстановка',
   who_takes:'Кто какой удар берёт',
-  play_hint:'Маленькие воланы — куда можно ударить: нажмите на любой или перетащите на него большой волан у бьющего. «Пауза» останавливает розыгрыш в любой момент — можно рассмотреть расстановку и самому выбрать следующий удар. Пунктирный кружок — лучшая точка, если успеть до неё добежать. Тяните игрока той пары, которая ждёт удара, — партнёр сам займёт лучшую точку. Тяните игрока с воланом — поменяется, откуда бьёт соперник. Нажмите на строку таблицы — увидите траекторию удара.',
+  play_hint:'Точки на концах линий — куда можно ударить: нажмите на любую или перетащите на неё большой волан у бьющего. «Пауза» останавливает розыгрыш в любой момент — можно рассмотреть расстановку и самому выбрать следующий удар. Пунктирный кружок — лучшая точка, если успеть до неё добежать. Тяните игрока той пары, которая ждёт удара, — партнёр сам займёт лучшую точку. Тяните игрока с воланом — поменяется, откуда бьёт соперник. Нажмите на строку таблицы — увидите траекторию удара.',
   ls_exit:'К списку уроков', ls_next:'Дальше', ls_again:'Повторить шаг',
   qz_check:'Проверить', qz_retry:'Повторить', qz_next:'Новая ситуация',
   settings:'Настройки', filters_lbl:'Какие удары может играть соперник:', layers_lbl:'Что показывать на корте:',
@@ -1101,8 +1110,8 @@ const TX={
   nobody:l=>`Никто не успевает к: ${l}.`,
   stOver:w=>`Розыгрыш окончен: очко <b>${TX.ru.team[w].dat}</b>. Нажмите «Сначала», «Назад» или «Авторозыгрыш».`,
   stFly:s=>`Летит: <b>${s}</b>…`,
-  stPaused:(s,n)=>`Пауза: летит <b>${s}</b>.`+(n?'<br>Выберите, куда пойдёт следующий удар: нажмите на маленький волан или перетащите на него большой. Или нажмите «Продолжить».':''),
-  stHold:'Пауза. Нажмите на маленький волан или перетащите на него большой — туда и полетит удар. «Продолжить» — розыгрыш пойдёт дальше сам.',
+  stPaused:(s,n)=>`Пауза: летит <b>${s}</b>.`+(n?'<br>Выберите, куда пойдёт следующий удар: нажмите на точку на конце линии или перетащите на неё большой волан. Или нажмите «Продолжить».':''),
+  stHold:'Пауза. Нажмите на точку на конце линии или перетащите на неё большой волан — туда и полетит удар. «Продолжить» — розыгрыш пойдёт дальше сам.',
   stReady:(n,sit,t,p)=>`Бьёт ${n} — ${sit}.<br>Ждут удара: <b>${TX.ru.team[t].nom}</b>, к ударам успевают на <b>${p}%</b>.`,
   btnTitle:(s,m)=>`${s}: запас ${m} с`,
   tblWait:'Таблица появится, когда волан будет у бьющего.',
@@ -1127,7 +1136,7 @@ const TX={
   shots_lbl:'Play a shot (dot — can the defence get there: <span style="color:var(--ok)">yes</span>, <span style="color:var(--warn)">just</span>, <span style="color:var(--bad)">no</span>):',
   rand:'Random shot', auto:'Auto rally', stop:'Stop', pause:'Pause', resume:'Resume', back:'Back', reset:'Start over', relax:'Auto positions',
   who_takes:'Who takes which shot',
-  play_hint:'Small shuttles mark where the shot can go: tap one, or drag the big shuttle at the hitter onto it. “Pause” stops the rally at any moment — look at the positions and choose the next shot yourself. Dashed circle — the best spot, if there is time to get there. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player holding the shuttle to change where the opponent hits from. Tap a table row to see the shot\'s path.',
+  play_hint:'The dots at the ends of the lines mark where the shot can go: tap one, or drag the big shuttle at the hitter onto it. “Pause” stops the rally at any moment — look at the positions and choose the next shot yourself. Dashed circle — the best spot, if there is time to get there. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player holding the shuttle to change where the opponent hits from. Tap a table row to see the shot\'s path.',
   ls_exit:'Back to lessons', ls_next:'Next', ls_again:'Repeat step',
   qz_check:'Check', qz_retry:'Try again', qz_next:'New situation',
   settings:'Settings', filters_lbl:'Shots the opponent may play:', layers_lbl:'Show on court:',
@@ -1170,8 +1179,8 @@ const TX={
   nobody:l=>`Nobody reaches: ${l}.`,
   stOver:w=>`Rally over: point to <b>${TX.en.team[w].dat}</b>. Press “Start over”, “Back” or “Auto rally”.`,
   stFly:s=>`In flight: <b>${s}</b>…`,
-  stPaused:(s,n)=>`Paused: <b>${s}</b> in flight.`+(n?'<br>Choose where the next shot goes: tap a small shuttle or drag the big one onto it. Or press “Resume”.':''),
-  stHold:'Paused. Tap a small shuttle or drag the big one onto it — the shot goes there. “Resume” lets the rally carry on by itself.',
+  stPaused:(s,n)=>`Paused: <b>${s}</b> in flight.`+(n?'<br>Choose where the next shot goes: tap a dot at the end of a line or drag the big shuttle onto it. Or press “Resume”.':''),
+  stHold:'Paused. Tap a dot at the end of a line or drag the big shuttle onto it — the shot goes there. “Resume” lets the rally carry on by itself.',
   stReady:(n,sit,t,p)=>`${n} is hitting — ${sit}.<br>Waiting: <b>${TX.en.team[t].nom}</b>, they reach <b>${p}%</b> of the shots.`,
   btnTitle:(s,m)=>`${s}: ${m} s to spare`,
   tblWait:'The table appears when a player has the shuttle.',
@@ -1196,7 +1205,7 @@ const TX={
   shots_lbl:'Mainkan pukulan (titik — apakah pertahanan sempat: <span style="color:var(--ok)">sempat</span>, <span style="color:var(--warn)">pas-pasan</span>, <span style="color:var(--bad)">tidak</span>):',
   rand:'Pukulan acak', auto:'Reli otomatis', stop:'Berhenti', pause:'Jeda', resume:'Lanjutkan', back:'Kembali', reset:'Ulang dari awal', relax:'Posisi otomatis',
   who_takes:'Siapa mengambil pukulan apa',
-  play_hint:'Kok kecil menandai ke mana pukulan bisa diarahkan: ketuk salah satunya, atau seret kok besar di pemukul ke sana. “Jeda” menghentikan reli kapan saja — lihat posisi pemain dan pilih sendiri pukulan berikutnya. Lingkaran putus-putus — titik terbaik, jika sempat berlari ke sana. Geser pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Geser pemain yang memegang kok untuk mengubah dari mana lawan memukul. Ketuk baris tabel untuk melihat lintasan pukulan.',
+  play_hint:'Titik di ujung garis menandai ke mana pukulan bisa diarahkan: ketuk salah satunya, atau seret kok besar di pemukul ke sana. “Jeda” menghentikan reli kapan saja — lihat posisi pemain dan pilih sendiri pukulan berikutnya. Lingkaran putus-putus — titik terbaik, jika sempat berlari ke sana. Geser pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Geser pemain yang memegang kok untuk mengubah dari mana lawan memukul. Ketuk baris tabel untuk melihat lintasan pukulan.',
   ls_exit:'Ke daftar pelajaran', ls_next:'Lanjut', ls_again:'Ulangi langkah',
   qz_check:'Periksa', qz_retry:'Ulangi', qz_next:'Situasi baru',
   settings:'Pengaturan', filters_lbl:'Pukulan yang boleh dimainkan lawan:', layers_lbl:'Tampilkan di lapangan:',
@@ -1239,8 +1248,8 @@ const TX={
   nobody:l=>`Tidak ada yang sempat ke: ${l}.`,
   stOver:w=>`Reli selesai: poin untuk <b>${TX.id.team[w].dat}</b>. Tekan “Ulang dari awal”, “Kembali” atau “Reli otomatis”.`,
   stFly:s=>`Sedang melayang: <b>${s}</b>…`,
-  stPaused:(s,n)=>`Dijeda: <b>${s}</b> sedang melayang.`+(n?'<br>Pilih ke mana pukulan berikutnya: ketuk kok kecil atau seret kok besar ke sana. Atau tekan “Lanjutkan”.':''),
-  stHold:'Dijeda. Ketuk kok kecil atau seret kok besar ke sana — pukulan akan diarahkan ke situ. “Lanjutkan” — reli berjalan sendiri lagi.',
+  stPaused:(s,n)=>`Dijeda: <b>${s}</b> sedang melayang.`+(n?'<br>Pilih ke mana pukulan berikutnya: ketuk titik di ujung garis atau seret kok besar ke sana. Atau tekan “Lanjutkan”.':''),
+  stHold:'Dijeda. Ketuk titik di ujung garis atau seret kok besar ke sana — pukulan akan diarahkan ke situ. “Lanjutkan” — reli berjalan sendiri lagi.',
   stReady:(n,sit,t,p)=>`${n} memukul — ${sit}.<br>Menunggu: <b>${TX.id.team[t].nom}</b>, mereka sempat ke <b>${p}%</b> pukulan.`,
   btnTitle:(s,m)=>`${s}: sisa ${m} dtk`,
   tblWait:'Tabel muncul saat ada pemain yang memegang kok.',
@@ -1395,7 +1404,7 @@ function weightedPick(rows){
 function autoStep(){
   if(!S.auto||S.anim||S.paused||S.mode!=='play') return;
   if(S.over){randomStart();S.desc={kind:'ready'};updatePanel();setTimeout(autoStep,700);return;}
-  const r=weightedPick(S.ev.rows);
+  const r=weightedPick(visibleRows(S.ev.rows));
   playShot(r.type,r.dir);
 }
 const START_KINDS=[
@@ -1604,7 +1613,7 @@ function bindUI(){
     S.band=b.dataset.band;S.contact={...S.contact,h:BAND_H[S.band]};delete S.contact.serve;S.incoming=null;S.lastPhase=null;
     arrangeHolderPartner();arrangeWaiting(false);recomputeIdeal();recomputeEval();S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();
   };
-  $('pl-rand').onclick=()=>{if(S.anim||S.over)return;S.auto=false;const r=weightedPick(S.ev.rows);playShot(r.type,r.dir);};
+  $('pl-rand').onclick=()=>{if(S.anim||S.over)return;S.auto=false;const r=weightedPick(visibleRows(S.ev.rows));playShot(r.type,r.dir);};
   const toggleAuto=()=>{S.auto=!S.auto;if(S.auto){if(S.paused)resumeGame();else autoStep();}else if(S.paused&&!S.anim)S.paused=false;updatePanel(!!S.anim);};
   $('pl-auto').onclick=toggleAuto;$('sc-auto').onclick=toggleAuto;
   $('pl-pause').onclick=togglePause;$('sc-pause').onclick=togglePause;

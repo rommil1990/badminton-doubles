@@ -1,0 +1,46 @@
+import sys, re
+from playwright.sync_api import sync_playwright
+url="file://"+sys.argv[1]; out=sys.argv[2]; errs=[]
+CYR=re.compile('[А-Яа-яЁё]')
+with sync_playwright() as p:
+    br=p.chromium.launch(headless=True, channel="chrome")
+    pg=br.new_page(viewport={"width":1300,"height":850})
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.on("console", lambda m: errs.append(m.text) if m.type=="error" else None)
+    pg.goto(url); pg.wait_for_timeout(600)
+    print("default lang:", pg.evaluate("LANG"))
+    pg.click(".langsw button[data-lang=en]"); pg.wait_for_timeout(300)
+    def cyr(tag):
+        t=pg.evaluate("()=>document.body.innerText")+" "+pg.evaluate("()=>[...document.querySelectorAll('svg text')].map(e=>e.textContent).join(' ')")
+        bad=sorted(set(m.group(0) for m in re.finditer(r'\S*[А-Яа-яЁё]\S*',t)))
+        print(f"[{tag}] cyrillic left:", bad[:15])
+    cyr("play-ready")
+    pg.click("#pl-shots .shotrow button >> nth=0"); pg.wait_for_timeout(3500)
+    cyr("play-after-shot"); print("EN comment:", pg.inner_text("#pl-comment")[:400])
+    pg.screenshot(path=out+"/en-1-play.png")
+    # drag
+    bx=pg.evaluate("()=>{const r=document.querySelector('.pl[data-id=\"r2\"]').getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2]}")
+    pg.mouse.move(bx[0],bx[1]); pg.mouse.down(); pg.mouse.move(bx[0]+60,bx[1]-60,steps=6); pg.mouse.up(); pg.wait_for_timeout(300)
+    print("EN drag:", pg.inner_text("#pl-comment")[:250])
+    pg.click("#tabs button[data-mode=lessons]"); pg.wait_for_timeout(400)
+    cyr("lessons-list")
+    pg.click("#ls-list button >> nth=3"); pg.wait_for_timeout(400)
+    for i in range(4): pg.click("#ls-next"); pg.wait_for_timeout(4300)
+    cyr("lesson4-end"); print("EN lesson:", pg.inner_text("#ls-text")[:300], "|", pg.inner_text("#ls-step"))
+    pg.screenshot(path=out+"/en-2-lesson.png")
+    # switch to RU in the middle of a lesson and back
+    pg.click(".langsw button[data-lang=ru]"); pg.wait_for_timeout(300)
+    print("RU lesson:", pg.inner_text("#ls-text")[:120], "|", pg.inner_text("#ls-step"), "|", pg.inner_text("#ls-comment")[:120])
+    pg.click(".langsw button[data-lang=en]"); pg.wait_for_timeout(300)
+    pg.click("#tabs button[data-mode=quiz]"); pg.wait_for_timeout(500)
+    pg.click("#qz-check"); pg.wait_for_timeout(400)
+    cyr("quiz"); print("EN quiz:", pg.inner_text("#qz-result")[:300])
+    pg.screenshot(path=out+"/en-3-quiz.png")
+    pg.click("#tabs button[data-mode=basics]"); pg.wait_for_timeout(300)
+    pg.evaluate("()=>document.getElementById('settings').open=true")
+    cyr("basics+settings")
+    pg.screenshot(path=out+"/en-4-basics.png", full_page=True)
+    # reload: language remembered
+    pg.reload(); pg.wait_for_timeout(600); print("after reload lang:", pg.evaluate("LANG"))
+    br.close()
+print("ERRORS:", errs)

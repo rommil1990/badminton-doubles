@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Badminton doubles / Парный бадминтон</title>
+<style>
+:root{--bg:#0e151d;--panel:#152130;--card:#1b2a3b;--line:#26384c;--ink:#e7eef5;--mut:#93a5b8;--acc:#38bdf8;
+--b1:#3b82f6;--b2:#22d3ee;--r1:#ef4444;--r2:#f59e0b;--ok:#22c55e;--warn:#eab308;--bad:#ef4444}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{display:flex;height:100vh}
+#stage{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:6px;position:relative}
+#court{width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}
+#panel{width:410px;flex:none;overflow-y:auto;background:var(--panel);padding:12px 14px 30px;border-left:1px solid var(--line)}
+h1{font-size:18px;margin:0}
+.sub{color:var(--mut);font-size:12px;margin-bottom:10px}
+nav{display:flex;gap:4px;margin:8px 0 12px;flex-wrap:wrap}
+nav button{flex:1}
+button{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;cursor:pointer;white-space:nowrap}
+button:hover{border-color:#3b5673}
+button.on{background:#0c4a6e;border-color:var(--acc)}
+button:disabled{opacity:.45;cursor:default}
+button.prim{background:#075985;border-color:#0ea5e9}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.lbl{color:var(--mut);font-size:12px;margin-right:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+.status{font-size:13.5px}
+.status b{font-weight:650}
+.shots{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.shotrow{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.shotrow .nm{width:112px;color:var(--mut);font-size:12.5px}
+.shotrow button{padding:5px 8px;font-size:12.5px;display:flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.comment{font-size:13.5px}
+.comment p{margin:0 0 7px}
+.comment .tip{color:#cfe3f5}
+.comment .res{color:var(--mut)}
+.lesson-text{font-size:14.5px;line-height:1.5}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+td,th{padding:4px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{color:var(--mut);font-weight:500}
+tr.hl td{background:#20364c}
+tbody tr{cursor:pointer}
+details{margin:10px 0}
+summary{cursor:pointer;color:#bcd0e3;font-weight:600;margin-bottom:6px}
+label.chk{display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;font-size:13px;cursor:pointer}
+.hint{color:var(--mut);font-size:12.5px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.lessons button{display:block;width:100%;text-align:left;margin:5px 0;white-space:normal}
+.score{font-size:22px;font-weight:700}
+.basics h3{font-size:14.5px;margin:14px 0 4px;color:#cfe3f5}
+.basics p,.basics li{font-size:13.5px}
+.basics ul{padding-left:18px;margin:4px 0}
+.banner{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#0b1620e6;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-weight:600;display:none;pointer-events:none;text-align:center;max-width:90%}
+@media (max-width: 860px){
+  #app{flex-direction:column;height:auto}
+  #stage{height:72vh;flex:none;padding:2px}
+  #panel{width:100%;border-left:0;border-top:1px solid var(--line)}
+}
+svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.pl{cursor:grab}
+.pl.nodrag{cursor:default}
+.langsw{display:flex;gap:3px;flex:none}
+.langsw button{padding:4px 8px;font-size:12px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <svg id="court" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="banner" id="banner"></div>
+  </div>
+  <aside id="panel">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      <div><h1 data-i18n="h1"></h1><div class="sub" data-i18n="sub"></div></div>
+      <div class="langsw"><button data-lang="ru">RU</button><button data-lang="en">EN</button></div>
+    </div>
+    <nav id="tabs">
+      <button data-mode="play" class="on" data-i18n="tab_play"></button>
+      <button data-mode="lessons" data-i18n="tab_lessons"></button>
+      <button data-mode="quiz" data-i18n="tab_quiz"></button>
+      <button data-mode="basics" data-i18n="tab_basics"></button>
+    </nav>
+
+    <section id="m-play">
+      <div class="card status" id="pl-status"></div>
+      <div class="lbl" data-i18n="band_lbl"></div>
+      <div class="row" id="pl-band" style="margin-top:4px">
+        <button data-band="high" data-i18n="band_high"></button><button data-band="mid" data-i18n="band_mid"></button><button data-band="low" data-i18n="band_low"></button>
+      </div>
+      <div class="lbl" data-i18n="shots_lbl"></div>
+      <div id="pl-shots" class="shots"></div>
+      <div class="row">
+        <button id="pl-rand" data-i18n="rand"></button>
+        <button id="pl-auto"></button>
+        <button id="pl-back" data-i18n="back"></button>
+        <button id="pl-reset" data-i18n="reset"></button>
+        <button id="pl-relax" data-i18n="relax"></button>
+      </div>
+      <div class="card comment" id="pl-comment"></div>
+      <details open><summary data-i18n="who_takes"></summary><div id="pl-table"></div></details>
+      <p class="hint" data-i18n="play_hint"></p>
+    </section>
+
+    <section id="m-lessons" hidden>
+      <div id="ls-list" class="lessons"></div>
+      <div id="ls-run" hidden>
+        <div class="row"><button id="ls-exit" data-i18n="ls_exit"></button><span class="lbl" id="ls-step"></span></div>
+        <div class="card"><div style="font-weight:650;margin-bottom:6px" id="ls-title"></div><div class="lesson-text" id="ls-text"></div></div>
+        <div class="row"><button id="ls-prev" data-i18n="back"></button><button class="prim" id="ls-next" data-i18n="ls_next"></button><button id="ls-again" data-i18n="ls_again"></button><button id="ls-restart" data-i18n="reset"></button></div>
+        <div class="card comment" id="ls-comment"></div>
+      </div>
+    </section>
+
+    <section id="m-quiz" hidden>
+      <div class="card" id="qz-task"></div>
+      <div class="row"><button class="prim" id="qz-check" data-i18n="qz_check"></button><button id="qz-next" data-i18n="qz_next"></button></div>
+      <div class="card" id="qz-result" hidden></div>
+    </section>
+
+    <section id="m-basics" hidden class="basics">
+     <div data-lang-block="ru">
+      <h3>Два строя пары</h3>
+      <ul>
+        <li><b>«Спереди-сзади» — атака.</b> Задний бьёт сверху (смэш, укороченный), передний стоит у линии подачи с поднятой ракеткой и добивает всё короткое.</li>
+        <li><b>«Бок о бок» — защита.</b> Каждый держит свою половину корта по ширине, оба примерно посередине глубины, ракетка перед собой.</li>
+      </ul>
+      <h3>Главное правило</h3>
+      <p>Ударили <b>вверх</b> (высокий, свеча, высокая подача) — переходите в <b>защиту</b>, встаёте бок о бок. Ударили <b>вниз</b> (смэш, укороченный, подставка, сетка) — держите <b>атаку</b>, спереди-сзади.</p>
+      <h3>Атака</h3>
+      <ul>
+        <li>Бьющий после смэша остаётся сзади и смещается к центру — следующий высокий снова его.</li>
+        <li>Передний держит сетку у линии подачи: всё короткое — его.</li>
+        <li>Передний не отходит назад и не оборачивается посмотреть на партнёра.</li>
+      </ul>
+      <h3>Защита</h3>
+      <ul>
+        <li>Пара смещается к стороне атакующего: прямой смэш самый быстрый, к нему должно быть ближе всего.</li>
+        <li>Защитник на линии удара — ближе к боковой; второй — ближе к центру: кросс летит дольше, и ему ещё закрывать середину.</li>
+        <li>Удар в центр между защитниками — самый неудобный: заранее договоритесь, кто его берёт.</li>
+      </ul>
+      <h3>Переходы</h3>
+      <ul>
+        <li><b>Защита → атака.</b> Подставка к сетке или плоский драйв, после которых соперник вынужден поднять. Кто пошёл вперёд за своим ударом — становится передним, партнёр уходит назад.</li>
+        <li><b>Атака → защита.</b> Переднему пришлось поднять — поднявший отходит назад на свою сторону, задний смещается на другую половину.</li>
+        <li><b>Ротация.</b> После медленного укороченного задний может пойти за воланом к сетке, а передний по кругу уходит назад — строй тот же, роли поменялись.</li>
+      </ul>
+      <h3>Как программа считает позиции</h3>
+      <p>Позиции не взяты из шаблона. Для каждого удара, который может сыграть соперник из этой точки, считается траектория волана и время полёта. Программа перебирает точки корта и ставит пару так, чтобы она успевала к как можно большему числу ударов и брала волан как можно выше — высокий волан можно бить вниз.</p>
+      <p>Модель игрока: реакция около 0,2 с, бег вперёд и вбок около 3,6 м/с, назад медленнее (около 2,5 м/с), досягаемость ракеткой около 1 м, в выпаде больше. Скорости ударов — любительский уровень. Это упрощение: в реальной игре решают ещё хват, рука (левша или правша) и привычки соперника.</p>
+      <p>Строй «бок о бок» получается из расчёта сам. Строй «спереди-сзади», когда соперник берёт волан снизу, задан правилом атаки, а точки внутри строя рассчитываются.</p>
+     </div>
+     <div data-lang-block="en">
+      <h3>The two formations</h3>
+      <ul>
+        <li><b>Front-and-back — attack.</b> The rear player hits from above (smash, drop); the front player stands at the service line with the racket up and finishes everything short.</li>
+        <li><b>Side-by-side — defence.</b> Each player covers their half of the court's width, both roughly in the middle of the depth, racket in front.</li>
+      </ul>
+      <h3>The main rule</h3>
+      <p>Hit it <b>up</b> (clear, lift, flick serve) — switch to <b>defence</b>, side-by-side. Hit it <b>down</b> (smash, drop, block, net shot) — keep the <b>attack</b>, front-and-back.</p>
+      <h3>Attack</h3>
+      <ul>
+        <li>After smashing, the hitter stays at the back and drifts to the centre — the next high shuttle is theirs again.</li>
+        <li>The front player holds the net at the service line: everything short is theirs.</li>
+        <li>The front player does not back off and does not turn around to watch the partner.</li>
+      </ul>
+      <h3>Defence</h3>
+      <ul>
+        <li>The pair shifts towards the attacker's side: the straight smash is the fastest, so it must be the closest.</li>
+        <li>The defender on the straight side stands nearer the sideline; the other is nearer the centre — the cross-court shot flies longer, and they also cover the middle.</li>
+        <li>A shot down the middle between the defenders is the most awkward one: agree in advance who takes it.</li>
+      </ul>
+      <h3>Transitions</h3>
+      <ul>
+        <li><b>Defence → attack.</b> A block to the net or a flat drive that forces the opponents to lift. Whoever follows their shot forward becomes the front player; the partner goes back.</li>
+        <li><b>Attack → defence.</b> The front player had to lift — the lifter moves back on their side, the rear player shifts to the other half.</li>
+        <li><b>Rotation.</b> After a slow drop the rear player may follow it to the net while the front player circles back — same formation, roles swapped.</li>
+      </ul>
+      <h3>How the app calculates positions</h3>
+      <p>Positions are not taken from a template. For every shot the opponent can play from that spot, the app computes the shuttle's path and flight time. It then searches the court for the spots from which the pair reaches as many shots as possible and takes the shuttle as high as possible — a high shuttle can be hit down.</p>
+      <p>Player model: reaction about 0.2 s, running forward and sideways about 3.6 m/s, backwards slower (about 2.5 m/s), racket reach about 1 m, more in a lunge. Shot speeds are club level. This is a simplification: in a real game grip, handedness and the opponents' habits matter too.</p>
+      <p>The side-by-side formation comes out of the calculation by itself. Front-and-back when the opponent takes the shuttle from below is set by the attacking rule, and the spots inside the formation are calculated.</p>
+     </div>
+    </section>
+
+    <details id="settings"><summary data-i18n="settings"></summary>
+      <div class="lbl" data-i18n="filters_lbl"></div>
+      <div id="st-filters"></div>
+      <div class="lbl" style="margin-top:8px" data-i18n="layers_lbl"></div>
+      <div>
+        <label class="chk"><input type="checkbox" data-layer="fan" checked><span data-i18n="ly_fan"></span></label>
+        <label class="chk"><input type="checkbox" data-layer="zones" checked><span data-i18n="ly_zones"></span></label>
+        <label class="chk"><input type="checkbox" data-layer="ghosts" checked><span data-i18n="ly_ghosts"></span></label>
+        <label class="chk"><input type="checkbox" data-layer="trails" checked><span data-i18n="ly_trails"></span></label>
+        <label class="chk"><input type="checkbox" data-layer="side" checked><span data-i18n="ly_side"></span></label>
+      </div>
+      <div class="row"><span class="lbl" data-i18n="speed_lbl"></span>
+        <button data-speed="0.25"></button><button data-speed="0.5" class="on"></button><button data-speed="1"></button>
+      </div>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--b1)"></i><span data-i18n="n_b1"></span></span>
+        <span><i class="dot" style="background:var(--b2)"></i><span data-i18n="n_b2"></span></span>
+        <span><i class="dot" style="background:var(--r1)"></i><span data-i18n="n_r1"></span></span>
+        <span><i class="dot" style="background:var(--r2)"></i><span data-i18n="n_r2"></span></span>
+      </div>
+    </details>
+  </aside>
+</div>
+
+<script>
+/*ENGINE-START*/
+// ===================== МОДЕЛЬ =====================
+// Координаты в метрах. Начало — центр сетки. x — поперёк корта, y — вдоль.
+// Синие на стороне y>0 (внизу экрана), красные — y<0 (вверху).
+const C={HW:3.05,HL:6.70,SSL:1.98,LSL:5.94,SGL:2.59,NETH:1.55};
+const PH={REACT:0.22,VF:3.6,VB:2.5,REACH:0.95,REACH_LOW:1.15,REACH_HIGH:0.6,TAU:0.07,ALPHA:0.7,
+  HMIN:0.12,HMAX:2.6,RECOVER:0.3,VANIM:3.3,DMIN:1.0,SET:0.3,NETPEN:0.08};
+const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
+const teamOf=id=>id[0]==='b'?'blue':'red';
+const sideOf=t=>t==='blue'?1:-1;
+const other=t=>t==='blue'?'red':'blue';
+const MATES={blue:['b1','b2'],red:['r1','r2']};
+const partnerOf=id=>({b1:'b2',b2:'b1',r1:'r2',r2:'r1'})[id];
+const NAMES={b1:'Синий 1',b2:'Синий 2',r1:'Красный 1',r2:'Красный 2'};
+const NAMES_ACC={b1:'Синего 1',b2:'Синего 2',r1:'Красного 1',r2:'Красного 2'};
+const TEAM={blue:{nom:'синие',cap:'Синие',dat:'синим',gen:'синих'},red:{nom:'красные',cap:'Красные',dat:'красным',gen:'красных'}};
+
+// Параметры ударов (любительский уровень).
+// b — «выпуклость» траектории, hReq — высота над сеткой, depth — куда упадёт (метров от сетки),
+// T — время до приземления, a — торможение волана, lat — смещение поперёк, p — где вершина траектории.
+const SHOT={
+  smash:{n:'Смэш',g:'smash',b:0.25,hReq:1.68,depth:5.0,v0:48,Ld:4.7,lat:2.3,p:1.0,rx:0.1},
+  kill: {n:'Добивание',g:'smash',b:0,hReq:1.62,depth:3.0,v0:40,Ld:4.7,lat:2.2,p:1.0,rx:0.1},
+  drop: {n:'Укороченный',g:'drop',b:0.9,hReq:1.75,depth:1.5,T:1.3,ref:7.5,a:0.5,lat:2.1,p:1.25},
+  clear:{n:'Высокий',g:'high',b:5.0,hReq:3,depth:6.35,T:1.8,ref:12,a:0.7,lat:2.5,p:1.3},
+  lift: {n:'Свеча',g:'high',b:3.6,hReq:2.2,depth:6.2,T:1.35,ref:8,a:0.6,lat:2.5,p:1.0},
+  flick:{n:'Высокая подача',g:'high',b:3.4,hReq:2.6,depth:6.0,T:1.5,ref:8.5,a:0.6,lat:2.2,p:1.2},
+  drive:{n:'Драйв',g:'drive',b:0.45,hReq:1.68,depth:5.8,v0:28,Ld:4.7,lat:2.4,p:1.15,rx:0.06},
+  push: {n:'Толчок',g:'push',b:0.7,hReq:1.72,depth:3.7,v0:12,Ld:4.7,lat:2.1,p:0.7},
+  net:  {n:'Сетка',g:'net',b:0.35,hReq:1.62,depth:0.7,T:1.0,ref:2.2,a:0.4,lat:2.2,p:1.3},
+  block:{n:'Подставка',g:'net',b:0.5,hReq:1.65,depth:1.1,T:1.0,ref:5,a:0.45,lat:2.1,p:2.0},
+  serve:{n:'Короткая подача',g:'net',b:0.45,hReq:1.65,depth:2.25,T:1.0,ref:4.5,a:0.4,lat:2.4,p:1.2},
+};
+let LANG='ru';
+const SHOT_N={
+  ru:{smash:'Смэш',kill:'Добивание',drop:'Укороченный',clear:'Высокий',lift:'Свеча',flick:'Высокая подача',drive:'Драйв',push:'Толчок',net:'Сетка',block:'Подставка',serve:'Короткая подача'},
+  en:{smash:'Smash',kill:'Kill',drop:'Drop',clear:'Clear',lift:'Lift',flick:'Flick serve',drive:'Drive',push:'Push',net:'Net shot',block:'Block',serve:'Short serve'}};
+const DIR_N={ru:{line:'по линии',mid:'в центр',cross:'кроссом'},en:{line:'straight',mid:'down the middle',cross:'cross-court'}};
+const SDIR_N={ru:{mid:'к центру',cross:'в угол',line:'в глубину'},en:{mid:'to the centre',cross:'to the corner',line:'deep'}};
+const DIR=DIR_N.ru, SERVE_DIR=SDIR_N.ru;
+const GROUPS=[['smash','смэш и добивание'],['drop','укороченный'],['high','высокие: клир, свеча'],['drive','драйв'],['push','толчок в середину'],['net','сетка и подставка']];
+function shotName(t,d){const n=SHOT_N[LANG][t]; if(t==='serve'||t==='flick') return n+' '+(SDIR_N[LANG][d]||''); return n+' '+DIR_N[LANG][d];}
+const quality=h=>clamp((h-0.7)/1.2,0,1);
+const isUp=t=>t==='clear'||t==='lift'||t==='flick';
+
+function makeShot(hitter,c,type,dir,o={}){
+  const P=SHOT[type], team=teamOf(hitter), s=sideOf(team);
+  const sd=Math.abs(c.x)<0.3?(c.x>=0?1:-1):Math.sign(c.x);
+  let lx;
+  if(o.landX!=null) lx=o.landX;
+  else if(type==='serve') lx=dir==='cross'?-sd*2.45:-sd*0.45;
+  else if(type==='flick') lx=dir==='cross'?-sd*2.3:-sd*0.9;
+  else lx=dir==='line'?sd*P.lat:dir==='cross'?-sd*P.lat:0.1*sd;
+  const depth=o.depth??P.depth;
+  const land={x:lx,y:-s*depth};
+  const D=Math.max(0.05,Math.abs(c.y));
+  const sn=D/(D+depth);
+  const wf=x=>Math.pow(x,P.p);
+  const wn=wf(sn), bulge=4*wn*(1-wn);
+  const b=Math.max(P.b,(P.hReq-c.h*(1-sn))/Math.max(bulge,0.05));
+  const dist=Math.hypot(land.x-c.x,land.y-c.y);
+  // Быстрые удары тормозят как настоящий волан: x(t)=Ld·ln(1+v0·t/Ld). Навесные — по упрощённой кривой.
+  let T,spOf;
+  if(P.v0){T=P.Ld/P.v0*(Math.exp(dist/P.Ld)-1); spOf=u=>Math.min(1,P.Ld*Math.log(1+P.v0*u*T/P.Ld)/dist);}
+  else {T=P.T*clamp(Math.pow(dist/P.ref,0.6),0.7,1.35); spOf=u=>P.a*(1-(1-u)*(1-u))+(1-P.a)*u;}
+  const N=40, samples=[], hit=[];
+  for(let k=0;k<=N;k++){
+    const u=k/N, sp=spOf(u), ww=wf(sp);
+    const x=lerp(c.x,land.x,sp), y=lerp(c.y,land.y,sp);
+    const h=Math.max(0,c.h*(1-sp)+4*b*ww*(1-ww));
+    const dr=-s*y;
+    const q={x,y,h,t:u*T,k,q:quality(h)};
+    samples.push(q);
+    if(dr>=0.3&&h>=PH.HMIN&&h<=PH.HMAX&&Math.abs(x)<=C.HW+0.5&&dr<=C.HL+0.8) hit.push(q);
+  }
+  return {hitter,team,recv:other(team),type,dir,from:{x:c.x,y:c.y,h:c.h},land,T,samples,hit,rx:P.rx||0,get name(){return shotName(type,dir);}};
+}
+
+const bandOf=h=>h>=2.1?'high':h>=1.0?'mid':'low';
+const BAND_H={high:2.7,mid:1.4,low:0.5};
+
+// Какие удары реально доступны из этой точки и с какой частотой их играют.
+function repertoire(hitter,c,allowed){
+  const D=Math.abs(c.y), h=c.h; let L;
+  if(c.serve) L=[['serve','mid',.45],['serve','cross',.2],['flick','mid',.2],['flick','cross',.15]];
+  else if(h>=2.1){
+    if(D>=3.6) L=[['smash','line',.2],['smash','mid',.15],['smash','cross',.15],['drop','line',.15],['drop','cross',.12],['clear','line',.12],['clear','cross',.11]];
+    else if(D>=2.0) L=[['smash','line',.22],['smash','mid',.2],['smash','cross',.18],['drop','line',.15],['drop','cross',.15],['push','mid',.1]];
+    else L=[['kill','line',.3],['kill','mid',.3],['kill','cross',.25],['net','line',.15]];
+  } else if(h>=1.0){
+    if(D>=2.2) L=[['drive','line',.18],['drive','mid',.14],['drive','cross',.14],['push','line',.1],['push','mid',.1],['block','line',.09],['block','cross',.09],['lift','line',.08],['lift','cross',.08]];
+    else L=[['push','line',.2],['push','mid',.15],['push','cross',.15],['net','line',.15],['net','cross',.12],['lift','line',.12],['lift','cross',.11]];
+  } else {
+    if(D<2.4) L=[['net','line',.2],['net','cross',.15],['push','line',.12],['push','mid',.1],['lift','line',.23],['lift','cross',.2]];
+    else if(D<4.6) L=[['block','line',.22],['block','cross',.1],['drive','line',.14],['drive','cross',.07],['lift','line',.27],['lift','cross',.2]];
+    else L=[['lift','line',.3],['lift','cross',.3],['block','line',.12],['block','cross',.1],['drop','line',.1],['drop','cross',.08]];
+  }
+  let f=L.filter(([t])=>!allowed||allowed[SHOT[t].g]!==false);
+  if(!f.length) f=L;
+  const W=f.reduce((a,q)=>a+q[2],0);
+  return f.map(([t,d,w])=>({type:t,dir:d,w:w/W,shot:makeShot(hitter,c,t,d)}));
+}
+
+// Сколько «стоит» игроку в точке (px,py) этот удар: успевает ли и насколько высоко берёт.
+function pVal(px,py,side,sh){
+  let best=0,bj=-1,bm=-9,mj=-9;
+  const H=sh.hit, r0=PH.REACT+sh.rx;
+  for(let j=0;j<H.length;j++){
+    const q=H[j], dx=q.x-px, dy=q.y-py, dist=Math.sqrt(dx*dx+dy*dy);
+    const reach=q.h>2.3?PH.REACH_HIGH:(q.h<0.6?PH.REACH_LOW:PH.REACH);
+    let rt=r0;
+    if(dist>reach){const back=side*dy/dist; const v=back>0?PH.VF+(PH.VB-PH.VF)*back:PH.VF; rt+=(dist-reach)/v;}
+    const m=q.t-rt; if(m>bm) bm=m;
+    // успеть мало — чтобы ударить сильно, нужно ещё и встать под волан (запас ~0,3 с)
+    const v=(1/(1+Math.exp(-m/PH.TAU)))*(PH.ALPHA+(1-PH.ALPHA)*q.q*(m<=0?0:m>=PH.SET?1:m/PH.SET));
+    if(v>best){best=v;bj=j;mj=m;}
+  }
+  return {v:best,j:bj,m:mj,bm};
+}
+function reachTime(px,py,side,x,y,h){
+  const dx=x-px,dy=y-py,dist=Math.hypot(dx,dy);
+  const reach=h>2.3?PH.REACH_HIGH:(h<0.6?PH.REACH_LOW:PH.REACH);
+  if(dist<=reach) return PH.REACT;
+  const back=side*dy/dist; const v=back>0?PH.VF+(PH.VB-PH.VF)*back:PH.VF;
+  return PH.REACT+(dist-reach)/v;
+}
+
+// Оценка пары против набора ударов.
+function evalTeam(pos,team,rep){
+  const side=sideOf(team), [A,B]=MATES[team];
+  let cost=0,cover=0;
+  const rows=rep.map(r=>{
+    const a=pVal(pos[A].x,pos[A].y,side,r.shot), b=pVal(pos[B].x,pos[B].y,side,r.shot);
+    const w=a.v>=b.v?{id:A,...a}:{id:B,...b};
+    const bm=Math.max(a.bm,b.bm);
+    cost+=r.w*(1-w.v); if(bm>=0) cover+=r.w;
+    return {...r,resp:w.id,v:w.v,j:w.j,m:w.m,bm,va:a.v,vb:b.v};
+  });
+  return {rows,cost,cover};
+}
+
+const GRID=(()=>{const g=[];for(let d=1.0;d<=6.5+1e-9;d+=0.25)for(let x=-2.85;x<=2.85+1e-9;x+=0.25)g.push([x,d]);return g;})();
+const NB=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+
+// Поиск лучших точек для пары. cons[id]: {fixed} | {start,r} | {prev,hyst}
+function optimize(team,rep,cons={},opt={}){
+  const side=sideOf(team), [A,B]=MATES[team], nS=rep.length, W=rep.map(r=>r.w);
+  let zone={};
+  const vals=(x,y)=>{const a=new Float64Array(nS);for(let i=0;i<nS;i++)a[i]=pVal(x,y,side,rep[i].shot).v;return a;};
+  const pen=(id,x,y)=>{const c=cons[id];if(!c)return 0;let p=0;
+    if(c.start){const d=Math.hypot(x-c.start.x,y-c.start.y);if(d>c.r)p+=4*(d-c.r)*(d-c.r);}
+    if(c.prev){p+=(c.hyst||0.03)*((x-c.prev.x)**2+(y-c.prev.y)**2);}
+    return p;};
+  const tc=(va,vb)=>{let s=0;for(let i=0;i<nS;i++)s+=W[i]*(1-(va[i]>vb[i]?va[i]:vb[i]));return s;};
+  const best=(id,vo)=>{
+    const c=cons[id]||{};
+    if(c.fixed) return {x:c.fixed.x,y:c.fixed.y,v:vals(c.fixed.x,c.fixed.y)};
+    let bc=Infinity,bx=null,by=null;
+    const z=zone[id];
+    const tryPt=(x,y)=>{
+      const d=side*y;
+      if(Math.abs(x)>C.HW-0.1||d<PH.DMIN||d>C.HL-0.05) return;
+      if(z&&(d<z[0]||d>z[1])) return;
+      let s=pen(id,x,y)+(d<1.5?PH.NETPEN*(1.5-d)*(1.5-d):0); if(s>=bc) return;
+      for(let i=0;i<nS;i++){const v=pVal(x,y,side,rep[i].shot).v; s+=W[i]*(1-(v>vo[i]?v:vo[i])); if(s>=bc) return;}
+      bc=s;bx=x;by=y;
+    };
+    for(const g of GRID){const y=side*g[1]; if(c.start&&Math.hypot(g[0]-c.start.x,y-c.start.y)>c.r+0.6) continue; tryPt(g[0],y);}
+    if(bx===null){ if(c.start){bx=c.start.x;by=c.start.y;bc=Infinity;} else {bx=0;by=side*3.5;} }
+    for(let st=0.12;st>0.02;st/=2){const x0=bx,y0=by;for(const [dx,dy] of NB) tryPt(x0+dx*st,y0+dy*st);}
+    return {x:bx,y:by,v:vals(bx,by)};
+  };
+  const fA=cons[A]&&cons[A].fixed, fB=cons[B]&&cons[B].fixed;
+  if(fA||fB){
+    const fid=fA?A:B, oid=fA?B:A, fp=fA||fB;
+    const pf={x:fp.x,y:fp.y,v:vals(fp.x,fp.y)}; const po=best(oid,pf.v);
+    return {[fid]:{x:pf.x,y:pf.y},[oid]:{x:po.x,y:po.y},cost:tc(pf.v,po.v)+pen(oid,po.x,po.y)};
+  }
+  const cur=id=>cons[id]&&(cons[id].start||cons[id].prev);
+  const form=opt.form||(rep.length&&rep[0].shot.from.h<1.0?'fb':null);
+  const starts=[];
+  const sb=[{x:-1.3,y:side*3.7},{x:1.3,y:side*3.7}], fb=[{x:0.2,y:side*2.3},{x:0,y:side*4.6}];
+  const FZ=[PH.DMIN,2.7], BZ=[3.4,C.HL];
+  if(form==='fb'){
+    // соперник бьёт снизу — пара атакует: один впереди, другой сзади
+    starts.push([fb[0],fb[1],{[A]:FZ,[B]:BZ}],[fb[1],fb[0],{[A]:BZ,[B]:FZ}]);
+  } else {
+    if(cur(A)&&cur(B)) starts.push([cur(A),cur(B)]);
+    starts.push([sb[0],sb[1]],[sb[1],sb[0]],[fb[0],fb[1]],[fb[1],fb[0]]);
+  }
+  const rounds=opt.rounds||3;
+  let res=null;
+  for(const [a0,b0,zn] of (opt.fast&&form!=='fb'?starts.slice(0,3):starts)){
+    zone=zn||{};
+    let pa={x:a0.x,y:a0.y,v:vals(a0.x,a0.y)}, pb={x:b0.x,y:b0.y,v:vals(b0.x,b0.y)};
+    for(let r=0;r<rounds;r++){pa=best(A,pb.v);pb=best(B,pa.v);}
+    const cost=tc(pa.v,pb.v)+pen(A,pa.x,pa.y)+pen(B,pb.x,pb.y);
+    if(!res||cost<res.cost-1e-9) res={cost,[A]:{x:pa.x,y:pa.y},[B]:{x:pb.x,y:pb.y}};
+  }
+  // чтобы игроки не «менялись местами» без нужды
+  if(opt.cur&&!(cons[A]&&cons[A].start)&&!(cons[B]&&cons[B].start)){
+    const ca=opt.cur[A],cb=opt.cur[B];
+    const d0=Math.hypot(res[A].x-ca.x,res[A].y-ca.y)+Math.hypot(res[B].x-cb.x,res[B].y-cb.y);
+    const d1=Math.hypot(res[B].x-ca.x,res[B].y-ca.y)+Math.hypot(res[A].x-cb.x,res[A].y-cb.y);
+    if(d1<d0-0.05){const t=res[A];res[A]=res[B];res[B]=t;}
+  }
+  return res;
+}
+
+// Обычный ответ из этой точки — по нему партнёр бьющего готовится заранее.
+const TAKE={smash:3.6,kill:2.4,drop:1.5,clear:5.2,lift:5.1,drive:3.0,push:3.0,net:0.55,block:0.9,serve:2.2,flick:5.2};
+function typicalReply(c,incoming){
+  const D=Math.abs(c.y),h=c.h;
+  if(h>=2.1) return D>=2.0?['smash','line']:['kill','mid'];
+  if(h>=1.0) return D>=2.4?['drive','line']:['push','line'];
+  if(D<2.4) return (incoming==='net'||incoming==='block'||incoming==='serve'||incoming==='push')?['net','line']:['lift','cross'];
+  return ['lift','line'];
+}
+function predictNext(holder,c,incoming,filters){
+  const [t,d]=typicalReply(c,incoming);
+  const shot=makeShot(holder,c,t,d);
+  const os=-sideOf(teamOf(holder));
+  let best=null,bd=1e9;
+  for(const s of shot.hit){const dd=Math.abs(os*s.y-TAKE[t]); if(dd<bd){bd=dd;best=s;}}
+  if(!best) best=shot.samples[shot.samples.length-1];
+  const oc={x:best.x,y:best.y,h:best.h};
+  const pseudo=MATES[other(teamOf(holder))][0];
+  return {shot,t:best.t,contact:oc,rep:repertoire(pseudo,oc,filters)};
+}
+// Куда встать партнёру того, кто сейчас бьёт.
+function holderPartner(holder,body,c,incoming,filters){
+  const pn=predictNext(holder,c,incoming,filters);
+  const cons={[holder]:{start:body,r:PH.VANIM*Math.max(0,pn.t-PH.RECOVER)}};
+  const res=optimize(teamOf(holder),pn.rep,cons,{fast:true,rounds:2});
+  return res[partnerOf(holder)];
+}
+function partial(from,to,maxd){const dx=to.x-from.x,dy=to.y-from.y,d=Math.hypot(dx,dy);if(d<=maxd||d<1e-6)return {x:to.x,y:to.y};const k=maxd/d;return {x:from.x+dx*k,y:from.y+dy*k};}
+// Тело игрока стоит чуть в стороне от волана (длина руки с ракеткой).
+function bodyNear(contact,from){const dx=from.x-contact.x,dy=from.y-contact.y,d=Math.hypot(dx,dy);if(d<1e-6)return {x:contact.x,y:contact.y};const k=Math.min(0.45,d)/d;return {x:contact.x+dx*k,y:contact.y+dy*k};}
+
+// Полный расчёт одного удара: кто принимает, куда бегут все четверо.
+function planPhase(pos,shot,o={}){
+  const T=shot.team,O=shot.recv,H=shot.hitter,Hp=partnerOf(H),sO=sideOf(O),sT=sideOf(T);
+  let R=null,ri=null;
+  for(const id of MATES[O]){const r=pVal(pos[id].x,pos[id].y,sO,shot); if(!ri||r.v>ri.v){ri=r;R=id;}}
+  if(o.forceResp){R=o.forceResp;ri=pVal(pos[R].x,pos[R].y,sO,shot);}
+  if(o.late&&ri&&ri.j>=0){ // сценарий: принимающий опаздывает и берёт волан уже низко
+    const p=pos[R];
+    for(let j=ri.j;j<shot.hit.length;j++){const q=shot.hit[j];const m=q.t-(reachTime(p.x,p.y,sO,q.x,q.y,q.h)+shot.rx);if(q.h<0.75&&m>=0){ri={...ri,j,m};break;}}
+  }
+  const lost=!ri||ri.j<0||ri.m<-0.03;
+  const sample=lost?null:shot.hit[ri.j];
+  const tEnd=lost?shot.T:sample.t;
+  const Rp=partnerOf(R);
+  let c2=null,nextRep=null,hitTeam,ideal=null,rEnd,rpTarget=pos[Rp],hitterTo=null;
+  if(!lost){
+    c2={x:sample.x,y:sample.y,h:sample.h};
+    nextRep=repertoire(R,c2,o.filters);
+    const cons={};
+    if(o.hitterTo==='forward') hitterTo={x:clamp(0.35*shot.land.x+0.3*pos[H].x,-1.4,1.4),y:sT*2.3};
+    cons[H]=hitterTo?{fixed:hitterTo}:{start:pos[H],r:PH.VANIM*Math.max(0,tEnd-PH.RECOVER)};
+    cons[Hp]={start:pos[Hp],r:PH.VANIM*Math.max(0,tEnd-0.12)};
+    hitTeam=optimize(T,nextRep,cons);
+    if(hitterTo){ // если до точки не добежать — бежим сколько успеем
+      hitTeam[H]=partial(pos[H],hitterTo,PH.VANIM*Math.max(0,tEnd-PH.RECOVER));
+    }
+    const id0=optimize(T,nextRep,{},{cur:{[H]:hitTeam[H],[Hp]:hitTeam[Hp]}});
+    ideal={[H]:id0[H],[Hp]:id0[Hp]};
+    rEnd=bodyNear(c2,pos[R]);
+    const pn=predictNext(R,c2,shot.type,o.filters);
+    const pc={[R]:{start:rEnd,r:PH.VANIM*Math.max(0,pn.t-PH.RECOVER)},[Rp]:{start:pos[Rp],r:PH.VANIM*Math.max(0,tEnd-PH.REACT+pn.t)}};
+    const pl=optimize(O,pn.rep,pc,{fast:true,rounds:2});
+    rpTarget=partial(pos[Rp],pl[Rp],PH.VANIM*Math.max(0,tEnd-PH.REACT));
+  } else {
+    hitTeam={[H]:partial(pos[H],{x:pos[H].x*0.5,y:sT*3.5},PH.VANIM*Math.max(0,tEnd-PH.RECOVER)),[Hp]:{...pos[Hp]}};
+    rEnd=partial(pos[R],shot.land,PH.VANIM*Math.max(0,tEnd-PH.REACT));
+  }
+  const tracks={};
+  const mk=(id,from,to,t0,exact)=>{const d=Math.hypot(to.x-from.x,to.y-from.y);let t1=exact?tEnd:Math.min(tEnd,t0+d/PH.VANIM);if(t1<=t0)t1=t0+1e-3;tracks[id]={from:{x:from.x,y:from.y},to:{x:to.x,y:to.y},t0,t1};};
+  mk(H,pos[H],hitTeam[H],PH.RECOVER,false);
+  mk(Hp,pos[Hp],hitTeam[Hp],0.12,false);
+  mk(R,pos[R],rEnd,PH.REACT,!lost);
+  mk(Rp,pos[Rp],rpTarget,PH.REACT,false);
+  const newPos={};for(const id in tracks) newPos[id]=tracks[id].to;
+  return {shot,R,Rp,lost,sample,margin:ri?ri.m:-1,tEnd,tracks,c2,nextRep,ideal,newPos,winner:lost?T:null};
+}
+
+function formationOf(pos,team){
+  const s=sideOf(team),[A,B]=MATES[team];
+  const dx=Math.abs(pos[A].x-pos[B].x), dd=Math.abs(s*pos[A].y-s*pos[B].y);
+  if(dd>=1.3&&dd>dx*0.8) return 'fb';
+  if(dx>=1.4&&dd<=1.1) return 'sb';
+  return 'diag';
+}
+const FORM={fb:'спереди-сзади (атака)',sb:'бок о бок (защита)',diag:'по диагонали (переход)'};
+/*ENGINE-END*/
+</script>
+
+<script>
+// ===================== ИНТЕРФЕЙС =====================
+const NS='http://www.w3.org/2000/svg';
+const COL={b1:'#3b82f6',b2:'#22d3ee',r1:'#ef4444',r2:'#f59e0b'};
+const svg=document.getElementById('court');
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+const $=id=>document.getElementById(id);
+const num=(v,n)=>{const t=v.toFixed(n);return LANG==='ru'?t.replace('.',','):t;};
+const fmt=(v,n=2)=>(v>=0?'+':'−')+num(Math.abs(v),n);
+const statusColor=m=>m>=0.12?'#22c55e':m>=0?'#eab308':'#ef4444';
+const SIDE_X0=4.15, SIDE_K=0.38;
+
+// ---------- состояние ----------
+const S={
+  mode:'play',pos:null,holder:null,contact:null,incoming:null,band:'high',locked:null,ideal:null,
+  filters:{smash:true,drop:true,high:true,drive:true,push:true,net:true},
+  layers:{fan:true,zones:true,ghosts:true,trails:true,side:true},speed:0.5,
+  anim:null,history:[],auto:false,over:null,lastPhase:null,highlight:null,ev:null,rep:null,
+  lesson:null,quiz:null,desc:null,dragging:null,dirty:true
+};
+const waitingTeam=()=>S.holder?other(teamOf(S.holder)):null;
+
+// ---------- корт ----------
+const L={};
+function buildCourt(){
+  svg.innerHTML='';
+  const defs=el('defs',{},svg);
+  for(const id in COL){const m=el('marker',{id:'ar-'+id,viewBox:'0 0 10 10',refX:'8',refY:'5',markerWidth:'4',markerHeight:'4',orient:'auto-start-reverse'},defs);el('path',{d:'M0,0 L10,5 L0,10 z',fill:COL[id]},m);}
+  const pat=el('pattern',{id:'netp',width:'0.12',height:'0.12',patternUnits:'userSpaceOnUse'},defs);
+  el('path',{d:'M0,0 L0.12,0.12 M0.12,0 L0,0.12',stroke:'#cbd5e1','stroke-width':'0.012'},pat);
+  el('rect',{x:-3.9,y:-7.45,width:11.2,height:14.9,fill:'#0e151d'},svg);
+  el('rect',{x:-3.55,y:-7.2,width:7.1,height:14.4,rx:0.15,fill:'#1d4d36'},svg);
+  el('rect',{x:-C.HW,y:-C.HL,width:2*C.HW,height:2*C.HL,fill:'#2b7a4b'},svg);
+  L.zones=el('g',{},svg);
+  const ln=el('g',{stroke:'#f1f5f9','stroke-width':0.04,fill:'none',opacity:0.92},svg);
+  el('rect',{x:-C.HW,y:-C.HL,width:2*C.HW,height:2*C.HL},ln);
+  for(const sx of [-1,1]) el('line',{x1:sx*C.SGL,y1:-C.HL,x2:sx*C.SGL,y2:C.HL},ln);
+  for(const sy of [-1,1]){
+    el('line',{x1:-C.HW,y1:sy*C.SSL,x2:C.HW,y2:sy*C.SSL},ln);
+    el('line',{x1:-C.HW,y1:sy*C.LSL,x2:C.HW,y2:sy*C.LSL},ln);
+    el('line',{x1:0,y1:sy*C.SSL,x2:0,y2:sy*C.HL},ln);
+  }
+  L.labels=el('g',{},svg);
+  L.fan=el('g',{},svg);
+  L.trails=el('g',{},svg);
+  L.ghosts=el('g',{},svg);
+  // сетка
+  el('rect',{x:-C.HW-0.15,y:-0.07,width:2*C.HW+0.3,height:0.14,fill:'url(#netp)',opacity:0.9},svg);
+  el('line',{x1:-C.HW-0.15,y1:0,x2:C.HW+0.15,y2:0,stroke:'#f8fafc','stroke-width':0.05},svg);
+  for(const sx of [-1,1]) el('circle',{cx:sx*(C.HW+0.15),cy:0,r:0.07,fill:'#e2e8f0'},svg);
+  L.form=el('g',{},svg);
+  L.marks=el('g',{},svg);
+  L.players=el('g',{},svg);
+  L.shuttle=el('g',{},svg);
+  // вид сбоку
+  L.side=el('g',{},svg);
+  const sg=L.side;
+  el('rect',{x:SIDE_X0-0.15,y:-7.2,width:3.15,height:14.4,rx:0.15,fill:'#132030'},sg);
+  for(let h=1;h<=7;h++) el('line',{x1:SIDE_X0+h*SIDE_K,y1:-C.HL,x2:SIDE_X0+h*SIDE_K,y2:C.HL,stroke:'#22344a','stroke-width':0.02},sg);
+  el('line',{x1:SIDE_X0,y1:-C.HL,x2:SIDE_X0,y2:C.HL,stroke:'#64748b','stroke-width':0.05},sg);
+  el('line',{x1:SIDE_X0,y1:0,x2:SIDE_X0+C.NETH*SIDE_K,y2:0,stroke:'#f8fafc','stroke-width':0.07},sg);
+  L.sideTicks=[];
+  for(const h of [2,4,6]){const t=el('text',{x:SIDE_X0+h*SIDE_K,y:-6.85,'font-size':0.24,fill:'#7d8fa3','text-anchor':'middle'},sg);t.dataset.h=h;L.sideTicks.push(t);}
+  L.sideLbl=el('text',{x:SIDE_X0+1.4,y:7.05,'font-size':0.26,fill:'#93a5b8','text-anchor':'middle'},sg);
+  L.sidePlayers=el('g',{},sg);
+  L.sidePath=el('polyline',{fill:'none',stroke:'#fde68a','stroke-width':0.035,opacity:0.85},sg);
+  L.sideShuttle=el('circle',{r:0.09,fill:'#fff',stroke:'#f59e0b','stroke-width':0.03},sg);
+  // игроки
+  L.pl={};
+  for(const id of ['b1','b2','r1','r2']){
+    const g=el('g',{class:'pl','data-id':id},L.players);
+    const ring=el('circle',{r:0.44,fill:'none',stroke:'#fde047','stroke-width':0.05,'stroke-dasharray':'0.12 0.08',opacity:0},g);
+    el('circle',{r:0.62,fill:'transparent'},g);
+    const face=el('path',{d:'M0.26,-0.14 L0.47,0 L0.26,0.14 Z',fill:'#f8fafc',opacity:0.9},g);
+    el('circle',{r:0.3,fill:COL[id],stroke:'#fff','stroke-width':0.045},g);
+    const t=el('text',{y:0.11,'text-anchor':'middle','font-size':0.32,'font-weight':700,fill:'#0b1220'},g);t.textContent=id[1];
+    L.pl[id]={g,ring,face};
+    g.addEventListener('pointerdown',ev=>startDrag(ev,id));
+  }
+  // волан
+  L.shShadow=el('ellipse',{rx:0.11,ry:0.07,fill:'#000',opacity:0.35},L.shuttle);
+  L.shStem=el('line',{stroke:'#fff','stroke-width':0.015,opacity:0.5},L.shuttle);
+  L.shIcon=el('circle',{r:0.09,fill:'#fff',stroke:'#f59e0b','stroke-width':0.035},L.shuttle);
+  applyView();
+}
+function applyView(){
+  svg.setAttribute('viewBox',S.layers.side?'-3.75 -7.35 10.9 14.7':'-3.75 -7.35 7.5 14.7');
+  L.side.style.display=S.layers.side?'':'none';
+}
+
+// ---------- ситуации ----------
+function bodyFromContact(c,team){const s=sideOf(team);return {x:clamp(c.x*0.95,-C.HW,C.HW),y:c.y+s*0.38};}
+function contactFromBody(b,team,h){const s=sideOf(team);return {x:b.x,y:b.y-s*0.38,h};}
+function snapshot(){return JSON.parse(JSON.stringify({pos:S.pos,holder:S.holder,contact:S.contact,incoming:S.incoming,band:S.band,locked:S.locked,ideal:S.ideal,over:S.over,desc:S.desc,lastPhase:S.lastPhase?{trails:S.lastPhase.trails,shotKey:S.lastPhase.shotKey}:null}));}
+function restore(sn){Object.assign(S,JSON.parse(JSON.stringify(sn)));if(S.lastPhase&&S.lastPhase.shotKey)S.lastPhase.shot=shotFromKey(S.lastPhase.shotKey);recomputeEval();drawStatic();S.dirty=true;updatePanel();}
+function shotFromKey(k){return makeShot(k.hitter,k.from,k.type,k.dir);}
+
+function setSituation(holder,contact,posOverride,incoming=null){
+  S.holder=holder;S.contact={...contact};S.incoming=incoming;S.band=bandOf(contact.h);S.locked=null;S.over=null;S.lastPhase=null;
+  const ht=teamOf(holder);
+  const pos={};
+  if(posOverride){for(const id in posOverride) pos[id]={...posOverride[id]};}
+  if(!pos[holder]) pos[holder]=bodyFromContact(contact,ht);
+  S.pos=pos;
+  const hp=partnerOf(holder);
+  if(!pos[hp]) pos[hp]=holderPartner(holder,pos[holder],contact,incoming,S.filters);
+  const wt=other(ht);
+  if(!pos[MATES[wt][0]]||!pos[MATES[wt][1]]){
+    const rep=repertoire(holder,contact,S.filters);
+    const res=optimize(wt,rep,{});
+    for(const id of MATES[wt]) if(!pos[id]) pos[id]=res[id];
+  }
+  recomputeIdeal();recomputeEval();drawStatic();S.dirty=true;
+}
+function recomputeIdeal(){
+  const wt=waitingTeam(); if(!wt||S.over){S.ideal=null;return;}
+  const rep=repertoire(S.holder,S.contact,S.filters);
+  const res=optimize(wt,rep,{},{cur:S.pos});
+  S.ideal={};for(const id of MATES[wt]) S.ideal[id]=res[id];
+}
+function recomputeEval(){
+  if(!S.holder||S.over){S.ev=null;S.rep=null;return;}
+  S.rep=repertoire(S.holder,S.contact,S.filters);
+  S.ev=evalTeam(S.pos,waitingTeam(),S.rep);
+}
+// пара ждущих: расставить автоматически (с учётом того, кого держит пользователь)
+function arrangeWaiting(fast){
+  const wt=waitingTeam(); if(!wt) return;
+  const rep=repertoire(S.holder,S.contact,S.filters);
+  const cons={};
+  if(S.locked&&teamOf(S.locked)===wt) cons[S.locked]={fixed:S.pos[S.locked]};
+  const res=optimize(wt,rep,cons,{cur:S.pos,fast});
+  for(const id of MATES[wt]) S.pos[id]=res[id];
+}
+function arrangeHolderPartner(){
+  const hp=partnerOf(S.holder);
+  S.pos[hp]=holderPartner(S.holder,S.pos[S.holder],S.contact,S.incoming,S.filters);
+}
+
+// ---------- отрисовка ----------
+function drawStatic(){drawZones();drawFan();drawGhosts();drawTrails();drawForm();drawSidePath();}
+function drawZones(){
+  L.zones.innerHTML='';
+  if(!S.layers.zones||!S.holder||S.over||S.mode==='quiz'&&!(S.quiz&&S.quiz.checked)) return;
+  const wt=waitingTeam(), s=sideOf(wt), [A,B]=MATES[wt], cs=0.305;
+  for(let d=0;d<C.HL-1e-6;d+=cs) for(let x=-C.HW;x<C.HW-1e-6;x+=cs){
+    const cx=x+cs/2, cy=s*(d+cs/2);
+    const ta=reachTime(S.pos[A].x,S.pos[A].y,s,cx,cy,1), tb=reachTime(S.pos[B].x,S.pos[B].y,s,cx,cy,1);
+    const id=ta<=tb?A:B, t=Math.min(ta,tb);
+    const op=clamp(0.34-0.18*t,0.06,0.3);
+    el('rect',{x:x,y:s>0?d:-(d+cs),width:cs+0.003,height:cs+0.003,fill:COL[id],opacity:op.toFixed(3)},L.zones);
+  }
+}
+function drawFan(){
+  L.fan.innerHTML='';
+  if(!S.holder||S.over||!S.ev) return;
+  const showAll=S.layers.fan&&!(S.mode==='quiz'&&!(S.quiz&&S.quiz.checked));
+  S.ev.rows.forEach((r,i)=>{
+    const hl=S.highlight===i;
+    if(!showAll&&!hl) return;
+    const sh=r.shot; const reach=r.bm>=0&&r.j>=0;
+    const endK=reach?sh.hit[r.j].k:sh.samples.length-1;
+    const pts=sh.samples.slice(0,endK+1).map(q=>q.x.toFixed(3)+','+q.y.toFixed(3)).join(' ');
+    const col=statusColor(r.bm);
+    el('polyline',{points:pts,fill:'none',stroke:col,'stroke-width':hl?0.08:0.035,opacity:hl?1:0.75,'stroke-dasharray':isUp(sh.type)?'0.18 0.1':'none'},L.fan);
+    const e=reach?sh.hit[r.j]:sh.land;
+    if(reach) el('circle',{cx:e.x,cy:e.y,r:hl?0.11:0.075,fill:COL[r.resp],stroke:col,'stroke-width':0.03},L.fan);
+    else {const c=0.11;el('path',{d:`M${e.x-c},${e.y-c} L${e.x+c},${e.y+c} M${e.x-c},${e.y+c} L${e.x+c},${e.y-c}`,stroke:col,'stroke-width':0.05},L.fan);}
+  });
+}
+function drawGhosts(){
+  L.ghosts.innerHTML='';
+  if(!S.layers.ghosts||!S.ideal||S.anim||S.mode==='quiz') return;
+  for(const id in S.ideal){
+    const g=S.ideal[id], p=S.pos[id]; const d=Math.hypot(g.x-p.x,g.y-p.y);
+    if(d<0.35) continue;
+    el('line',{x1:p.x,y1:p.y,x2:g.x,y2:g.y,stroke:COL[id],'stroke-width':0.025,'stroke-dasharray':'0.06 0.06',opacity:0.8},L.ghosts);
+    el('circle',{cx:g.x,cy:g.y,r:0.3,fill:'none',stroke:COL[id],'stroke-width':0.04,'stroke-dasharray':'0.1 0.07'},L.ghosts);
+  }
+}
+function drawTrails(){
+  L.trails.innerHTML='';
+  if(!S.layers.trails) return;
+  const lp=S.lastPhase; if(!lp||!lp.trails) return;
+  for(const id in lp.trails){
+    const t=lp.trails[id]; const d=Math.hypot(t.to.x-t.from.x,t.to.y-t.from.y); if(d<0.25) continue;
+    el('circle',{cx:t.from.x,cy:t.from.y,r:0.2,fill:'none',stroke:COL[id],'stroke-width':0.03,opacity:0.6},L.trails);
+    const k=(d-0.32)/d; const ex=t.from.x+(t.to.x-t.from.x)*k, ey=t.from.y+(t.to.y-t.from.y)*k;
+    el('line',{x1:t.from.x,y1:t.from.y,x2:ex,y2:ey,stroke:COL[id],'stroke-width':0.05,opacity:0.75,'stroke-dasharray':'0.12 0.07','marker-end':`url(#ar-${id})`},L.trails);
+  }
+}
+function drawForm(){
+  L.form.innerHTML='';
+  if(!S.pos) return;
+  for(const t of ['blue','red']){
+    const f=formationOf(S.pos,t);
+    const tx_=el('text',{x:0,y:t==='blue'?7.05:-6.88,'text-anchor':'middle','font-size':0.27,fill:t==='blue'?'#93c5fd':'#fca5a5'},L.form);
+    tx_.textContent=tm(t,'cap')+': '+tx().form[f];
+  }
+}
+function drawSidePath(){
+  let sh=null;
+  if(S.anim) sh=S.anim.ph.shot;
+  else if(S.highlight!=null&&S.ev) sh=S.ev.rows[S.highlight].shot;
+  else if(S.lastPhase&&S.lastPhase.shot) sh=S.lastPhase.shot;
+  if(!sh){L.sidePath.setAttribute('points','');return;}
+  let end=sh.samples.length-1;
+  if(S.anim&&!S.anim.ph.lost) end=S.anim.ph.sample.k;
+  L.sidePath.setAttribute('points',sh.samples.slice(0,end+1).map(q=>(SIDE_X0+q.h*SIDE_K).toFixed(3)+','+q.y.toFixed(3)).join(' '));
+}
+function shuttleState(){
+  if(S.anim){
+    const a=S.anim, sh=a.ph.shot, N=sh.samples.length-1;
+    const f=clamp(a.t/sh.T,0,1)*N, i=Math.min(N-1,Math.floor(f)), r=f-i, p=sh.samples[i], q=sh.samples[i+1];
+    return {x:lerp(p.x,q.x,r),y:lerp(p.y,q.y,r),h:lerp(p.h,q.h,r)};
+  }
+  if(S.over) return S.over.land;
+  return S.contact;
+}
+function drawDynamic(){
+  const sp=shuttleState();
+  for(const id of ['b1','b2','r1','r2']){
+    const p=S.pos[id], o=L.pl[id];
+    o.g.setAttribute('transform',`translate(${p.x.toFixed(3)} ${p.y.toFixed(3)})`);
+    let ang;
+    if(sp){ang=Math.atan2(sp.y-p.y,sp.x-p.x);} else ang=teamOf(id)==='blue'?-Math.PI/2:Math.PI/2;
+    o.face.setAttribute('transform',`rotate(${(ang*180/Math.PI).toFixed(1)})`);
+    o.ring.setAttribute('opacity',(!S.anim&&!S.over&&S.holder===id)?1:0);
+    const canDrag=canDragId(id); o.g.classList.toggle('nodrag',!canDrag);
+  }
+  if(sp){
+    L.shuttle.style.display='';
+    const ox=sp.h*0.1, oy=-sp.h*0.1;
+    L.shShadow.setAttribute('cx',sp.x);L.shShadow.setAttribute('cy',sp.y);
+    L.shStem.setAttribute('x1',sp.x);L.shStem.setAttribute('y1',sp.y);L.shStem.setAttribute('x2',sp.x+ox);L.shStem.setAttribute('y2',sp.y+oy);
+    L.shIcon.setAttribute('cx',sp.x+ox);L.shIcon.setAttribute('cy',sp.y+oy);L.shIcon.setAttribute('r',(0.085+0.014*sp.h).toFixed(3));
+    L.sideShuttle.setAttribute('cx',SIDE_X0+sp.h*SIDE_K);L.sideShuttle.setAttribute('cy',sp.y);
+  } else L.shuttle.style.display='none';
+  // игроки на виде сбоку
+  L.sidePlayers.innerHTML='';
+  for(const id of ['b1','b2','r1','r2']) el('rect',{x:SIDE_X0,y:S.pos[id].y-0.1,width:1.75*SIDE_K,height:0.2,rx:0.06,fill:COL[id],opacity:0.85},L.sidePlayers);
+  drawForm();
+}
+
+// ---------- анимация ----------
+function playShot(type,dir,o={}){
+  if(S.anim||!S.holder||S.over) return;
+  S.history.push(snapshot());
+  const shot=o.shot||makeShot(S.holder,S.contact,type,dir);
+  const ph=planPhase(S.pos,shot,{filters:S.filters,hitterTo:o.hitterTo,late:o.late});
+  S.highlight=null;S.locked=null;
+  S.anim={ph,t:0,start:performance.now(),onEnd:o.onEnd,note:o.note};
+  S.lastPhase={shot,trails:ph.tracks,shotKey:{hitter:shot.hitter,from:shot.from,type:shot.type,dir:shot.dir}};
+  L.fan.innerHTML='';L.ghosts.innerHTML='';L.zones.innerHTML='';
+  drawTrails();drawSidePath();
+  setBanner(shot.name+' — '+nm(shot.hitter));
+  updatePanel(true);
+}
+function stepAnim(now){
+  const a=S.anim; if(!a) return;
+  a.t=Math.min(a.ph.lost?a.ph.shot.T:a.ph.tEnd,(now-a.start)/1000*S.speed);
+  for(const id in a.ph.tracks){
+    const tr=a.ph.tracks[id]; const f=clamp((a.t-tr.t0)/(tr.t1-tr.t0),0,1); const e=f<0.5?2*f*f:1-2*(1-f)*(1-f);
+    S.pos[id]={x:lerp(tr.from.x,tr.to.x,e),y:lerp(tr.from.y,tr.to.y,e)};
+  }
+  const tEndShow=a.ph.lost?a.ph.shot.T:a.ph.tEnd;
+  if(a.t>=tEndShow) finishPhase();
+}
+function finishPhase(){
+  const a=S.anim, ph=a.ph; S.anim=null;
+  for(const id in ph.newPos) S.pos[id]={...ph.newPos[id]};
+  S.desc={kind:'phase',d:phaseDesc(ph)};
+  if(ph.lost){
+    S.over={winner:ph.winner,land:{x:ph.shot.land.x,y:ph.shot.land.y,h:0}};
+    S.ideal=null;
+    setBanner(tx().bannerLost(ph.winner));
+  } else {
+    S.holder=ph.R;S.contact={...ph.c2};S.incoming=ph.shot.type;S.band=bandOf(ph.c2.h);
+    S.ideal=ph.ideal;
+    setBanner('');
+  }
+  recomputeEval();drawStatic();updatePanel();
+  if(a.onEnd) a.onEnd(ph);
+  if(S.auto) setTimeout(autoStep,ph.lost?1800:450);
+}
+let bannerTimer=null;
+function setBanner(t){const b=$('banner');if(!t){b.style.display='none';return;}b.textContent=t;b.style.display='block';clearTimeout(bannerTimer);bannerTimer=setTimeout(()=>{if(!S.over)b.style.display='none';},2600);}
+
+function loop(now){
+  try{
+    if(S.anim){stepAnim(now);S.dirty=true;}
+    if(S.dirty){drawDynamic();S.dirty=false;}
+  }catch(e){console.error(e);S.anim=null;S.dirty=false;}
+  requestAnimationFrame(loop);
+}
+
+// ---------- перетаскивание ----------
+function canDragId(id){
+  if(S.anim||!S.holder||S.over) return false;
+  if(S.mode==='lessons') return false;
+  if(S.mode==='quiz') return teamOf(id)==='blue'&&!(S.quiz&&S.quiz.checked);
+  return true;
+}
+function svgPoint(ev){const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
+let dragRaf=null;
+function startDrag(ev,id){
+  if(!canDragId(id)) return;
+  ev.preventDefault();
+  S.dragging=id; S.auto=false;
+  const g=L.pl[id].g; g.setPointerCapture(ev.pointerId);
+  const move=e=>{
+    const p=svgPoint(e), s=sideOf(teamOf(id));
+    const x=clamp(p.x,-C.HW-0.4,C.HW+0.4), d=clamp(s*p.y,0.35,C.HL+0.4);
+    S.pos[id]={x,y:s*d};
+    if(!dragRaf) dragRaf=requestAnimationFrame(()=>{dragRaf=null;onDragged(id,false);});
+    S.dirty=true;
+  };
+  const up=e=>{g.removeEventListener('pointermove',move);g.removeEventListener('pointerup',up);g.removeEventListener('pointercancel',up);S.dragging=null;onDragged(id,true);};
+  g.addEventListener('pointermove',move);g.addEventListener('pointerup',up);g.addEventListener('pointercancel',up);
+}
+function onDragged(id,final){
+  if(S.mode==='quiz'){recomputeEval();drawStatic();S.dirty=true;return;}
+  const wt=waitingTeam();
+  if(id===S.holder){
+    S.contact=contactFromBody(S.pos[id],teamOf(id),BAND_H[S.band]);
+    S.incoming=null;S.lastPhase=null;
+    arrangeHolderPartner();
+    arrangeWaiting(!final);
+    recomputeIdeal();
+    S.desc={kind:'ready'};
+  } else if(teamOf(id)===wt){
+    S.locked=id;
+    const rep=repertoire(S.holder,S.contact,S.filters);
+    const mate=partnerOf(id);
+    const res=optimize(wt,rep,{[id]:{fixed:S.pos[id]},[mate]:{prev:S.pos[mate],hyst:0.025}});
+    S.pos[mate]=res[mate];
+    if(final) recomputeIdeal();
+    S.desc={kind:'drag',id};
+  } else {
+    // партнёр бьющего — просто стоит, где поставили
+    S.desc={kind:'ready'};
+  }
+  recomputeEval();drawStatic();S.dirty=true;updatePanel();
+}
+
+// ---------- тексты (русский и английский) ----------
+const TX={
+ ru:{
+  title:'Парный бадминтон — тренажёр перемещений',
+  h1:'Парный бадминтон', sub:'как двигаться паре на корте при разных ударах соперника',
+  tab_play:'Игра', tab_lessons:'Уроки', tab_quiz:'Тест', tab_basics:'Основы',
+  band_lbl:'На какой высоте бьющий встречает волан:', band_high:'сверху', band_mid:'на уровне груди', band_low:'снизу',
+  shots_lbl:'Сыграть удар (точка — успевает ли защита: <span style="color:var(--ok)">успевает</span>, <span style="color:var(--warn)">впритык</span>, <span style="color:var(--bad)">нет</span>):',
+  rand:'Случайный удар', auto:'Авторозыгрыш', stop:'Стоп', back:'Назад', reset:'Сначала', relax:'Авторасстановка',
+  who_takes:'Кто какой удар берёт',
+  play_hint:'Пунктирный кружок — лучшая точка, если успеть до неё добежать. Тяните игрока той пары, которая ждёт удара, — партнёр сам займёт лучшую точку. Тяните игрока с воланом — поменяется, откуда бьёт соперник. Нажмите на строку таблицы — увидите траекторию удара.',
+  ls_exit:'К списку уроков', ls_next:'Дальше', ls_again:'Повторить шаг',
+  qz_check:'Проверить', qz_next:'Новая ситуация',
+  settings:'Настройки', filters_lbl:'Какие удары может играть соперник:', layers_lbl:'Что показывать на корте:',
+  ly_fan:'веер ударов', ly_zones:'зоны игроков', ly_ghosts:'лучшие точки', ly_trails:'следы перемещений', ly_side:'вид сбоку',
+  speed_lbl:'Скорость анимации:',
+  n_b1:'Синий 1', n_b2:'Синий 2', n_r1:'Красный 1', n_r2:'Красный 2',
+  acc:{b1:'Синего 1',b2:'Синего 2',r1:'Красного 1',r2:'Красного 2'},
+  team:{blue:{nom:'синие',cap:'Синие',dat:'синим',gen:'синих'},red:{nom:'красные',cap:'Красные',dat:'красным',gen:'красных'}},
+  form:{fb:'спереди-сзади (атака)',sb:'бок о бок (защита)',diag:'по диагонали (переход)'},
+  groups:{smash:'смэш и добивание',drop:'укороченный',high:'высокие: клир, свеча',drive:'драйв',push:'толчок в середину',net:'сетка и подставка'},
+  m:'м', s:'с', side_lbl:'вид сбоку: высота',
+  ht:['сверху','на уровне груди','снизу'], dt:{serve:'с подачи',deep:'из глубины',mid:'из середины',net:'у сетки'},
+  tipRecv:{
+    smash:'Против смэша — строй «бок о бок»: каждый держит свою половину, ракетка перед собой. Защитник на линии удара стоит ближе к боковой: прямой смэш долетает быстрее всего.',
+    kill:'Добивание с сетки почти не берётся. Ошибка была раньше: волан отдали коротко и невысоко.',
+    drop:'Укороченный падает перед линией подачи. К нему выходит ближайший, второй закрывает глубину за его спиной.',
+    clear:'Высокий волан — шанс атаковать: ближайший уходит под волан назад, партнёр выходит к линии подачи. Строй «спереди-сзади».',
+    lift:'Свеча — шанс атаковать: ближайший уходит под волан назад, партнёр выходит к линии подачи. Строй «спереди-сзади».',
+    flick:'Высокая подача: принимающий отходит назад под волан, его партнёр выходит вперёд — пара сразу в атаке.',
+    drive:'Драйв — быстрый плоский удар. Встречать его надо как можно раньше, ракетка на уровне груди; пара стоит бок о бок ближе к середине.',
+    push:'Толчок целит в «ничью» зону между игроками. Берёт тот, кто ближе, второй сразу закрывает его половину.',
+    net:'Сетка: встречайте волан как можно выше у троса — тогда можно бить вниз. Партнёр держит глубину.',
+    block:'Подставка к сетке — добыча переднего атакующего: ради неё он и стоит у линии подачи с поднятой ракеткой.',
+    serve:'Короткая подача: принимающий атакует волан как можно раньше, его партнёр уже стоит сзади.'},
+  tipHit:{
+    up:'Подняли — значит, сами переходят в защиту: оба отходят и встают бок о бок.',
+    serve:'Подающий остаётся у сетки, партнёр сзади — с первого удара строй атаки.',
+    rear:'Ударили вниз — держат атаку: бьющий остаётся сзади и смещается к центру, партнёр у сетки.',
+    drive:'После драйва пара остаётся бок о бок, чуть ближе к сетке.',
+    block:'Подставили к сетке — сопернику придётся брать низко и, скорее всего, поднимать. Можно идти вперёд и готовиться к атаке.',
+    net:'После удара у сетки бьющий остаётся впереди, партнёр закрывает глубину.'},
+  lost:(t,w)=>`Никто из ${TX.ru.team[t].gen} не успевает — очко ${TX.ru.team[w].dat}.`,
+  take:(n,m,h)=>`Принимает ${n}: запас времени ${m} с, волан на высоте ${h} м.`,
+  forms:(b,r)=>`Синие: ${b}. Красные: ${r}.`,
+  ready:(n,sit,cap,f)=>`<b>${n}</b> бьёт ${sit}. ${cap} ждут удара и стоят ${f}.`,
+  miss:l=>`Не успевают к: ${l}.`,
+  allOk:(s,m)=>`Пара успевает ко всем ударам. Самый опасный — ${s} (запас ${m} с).`,
+  drag:(a,b)=>`Вы ведёте ${a}. ${b} встаёт туда, откуда закрывает то, до чего не успевает партнёр.`,
+  takes:(n,l)=>`${n} берёт: ${l}.`,
+  nobody:l=>`Никто не успевает к: ${l}.`,
+  stOver:w=>`Розыгрыш окончен: очко <b>${TX.ru.team[w].dat}</b>. Нажмите «Сначала», «Назад» или «Авторозыгрыш».`,
+  stFly:s=>`Летит: <b>${s}</b>…`,
+  stReady:(n,sit,t,p)=>`Бьёт ${n} — ${sit}.<br>Ждут удара: <b>${TX.ru.team[t].nom}</b>, к ударам успевают на <b>${p}%</b>.`,
+  btnTitle:(s,m)=>`${s}: запас ${m} с`,
+  tblWait:'Таблица появится, когда волан будет у бьющего.',
+  tblHead:t=>`<th>Удар</th><th>Часто</th><th>Берёт (${TX.ru.team[t].nom})</th><th>Запас</th>`,
+  tblNobody:'никто',
+  tblHint:'Запас — на сколько секунд игрок успевает раньше волана. Меньше нуля — не успевает.',
+  bannerLost:w=>`Очко ${TX.ru.team[w].dat}: никто не успел к волану`,
+  lsDone:'Урок окончен.', lsStep:(a,b)=>`шаг ${a} из ${b}`,
+  qzTask:(n,sit)=>`${n} сейчас бьёт ${sit}. Поставьте обоих синих туда, где им лучше всего ждать удар, и нажмите «Проверить».`,
+  qzScore:s=>`${s} из 100`,
+  qzVerdict:['Отлично — почти как в расчёте.','Хорошо, но можно точнее.','Есть что поправить.'],
+  qzDist:(a,b)=>`Белые кружки — лучшие точки по расчёту. Синий 1 стоит от своей в ${a} м, Синий 2 — в ${b} м.`,
+  qzCover:(a,b)=>`Ваша пара успевает к ${a}% ударов соперника, лучшая расстановка — к ${b}%.`,
+  qzMiss:l=>`Не успеваете к: ${l}.`,
+  qzHint:'Цветные линии — удары соперника: зелёные успеваете, жёлтые впритык, красные нет.'
+ },
+ en:{
+  title:'Badminton doubles — movement trainer',
+  h1:'Badminton doubles', sub:'how a pair should move on court against different shots',
+  tab_play:'Play', tab_lessons:'Lessons', tab_quiz:'Quiz', tab_basics:'Basics',
+  band_lbl:'Height at which the hitter meets the shuttle:', band_high:'overhead', band_mid:'chest height', band_low:'low',
+  shots_lbl:'Play a shot (dot — can the defence get there: <span style="color:var(--ok)">yes</span>, <span style="color:var(--warn)">just</span>, <span style="color:var(--bad)">no</span>):',
+  rand:'Random shot', auto:'Auto rally', stop:'Stop', back:'Back', reset:'Start over', relax:'Auto positions',
+  who_takes:'Who takes which shot',
+  play_hint:'Dashed circle — the best spot, if there is time to get there. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player holding the shuttle to change where the opponent hits from. Tap a table row to see the shot\'s path.',
+  ls_exit:'Back to lessons', ls_next:'Next', ls_again:'Repeat step',
+  qz_check:'Check', qz_next:'New situation',
+  settings:'Settings', filters_lbl:'Shots the opponent may play:', layers_lbl:'Show on court:',
+  ly_fan:'shot fan', ly_zones:'player zones', ly_ghosts:'best spots', ly_trails:'movement trails', ly_side:'side view',
+  speed_lbl:'Animation speed:',
+  n_b1:'Blue 1', n_b2:'Blue 2', n_r1:'Red 1', n_r2:'Red 2',
+  acc:{b1:'Blue 1',b2:'Blue 2',r1:'Red 1',r2:'Red 2'},
+  team:{blue:{nom:'Blue',cap:'Blue',dat:'Blue',gen:'Blue'},red:{nom:'Red',cap:'Red',dat:'Red',gen:'Red'}},
+  form:{fb:'front-and-back (attack)',sb:'side-by-side (defence)',diag:'diagonal (transition)'},
+  groups:{smash:'smash and kill',drop:'drop',high:'high: clear, lift',drive:'drive',push:'push to mid-court',net:'net shot and block'},
+  m:'m', s:'s', side_lbl:'side view: height',
+  ht:['overhead','at chest height','from below'], dt:{serve:'on the serve',deep:'from the back',mid:'from mid-court',net:'at the net'},
+  tipRecv:{
+    smash:'Against a smash, go side-by-side: each player covers their half, racket in front. The defender on the straight side stands nearer the sideline — the straight smash arrives fastest.',
+    kill:'A net kill is almost impossible to return. The mistake came earlier: the shuttle was sent short and loose.',
+    drop:'A drop lands in front of the service line. The nearer player goes for it, the partner covers the depth behind them.',
+    clear:'A high shuttle is a chance to attack: the nearer player moves back under it, the partner steps up to the service line. Front-and-back.',
+    lift:'A lift is a chance to attack: the nearer player moves back under the shuttle, the partner steps up to the service line. Front-and-back.',
+    flick:'Flick serve: the receiver moves back under the shuttle, the partner steps forward — the pair is attacking straight away.',
+    drive:'A drive is fast and flat. Meet it as early as possible with the racket at chest height; the pair stands side-by-side, a little forward.',
+    push:'A push aims at the "nobody\'s" gap between the players. The nearer one takes it, the partner covers their half at once.',
+    net:'Net play: meet the shuttle as high as possible near the tape, so you can hit down. The partner covers the back.',
+    block:'A block to the net is the front attacker\'s prey: that is why they stand at the service line with the racket up.',
+    serve:'Short serve: the receiver attacks the shuttle as early as possible, the partner is already at the back.'},
+  tipHit:{
+    up:'They hit it up — so now they defend: both move back and stand side-by-side.',
+    serve:'The server stays at the net, the partner at the back — an attacking formation from the first shot.',
+    rear:'They hit down — the attack goes on: the hitter stays at the back and drifts to the centre, the partner is at the net.',
+    drive:'After a drive the pair stays side-by-side, a little closer to the net.',
+    block:'Blocked to the net — the opponents must take it low and will most likely lift. Time to move forward and get ready to attack.',
+    net:'After a shot at the net the hitter stays in front, the partner covers the back.'},
+  lost:(t,w)=>`No ${TX.en.team[t].gen} player gets there — point to ${TX.en.team[w].dat}.`,
+  take:(n,m,h)=>`Taken by ${n}: ${m} s to spare, shuttle at ${h} m.`,
+  forms:(b,r)=>`Blue: ${b}. Red: ${r}.`,
+  ready:(n,sit,cap,f)=>`<b>${n}</b> hits ${sit}. ${cap} wait for the shot: ${f}.`,
+  miss:l=>`They can't reach: ${l}.`,
+  allOk:(s,m)=>`The pair reaches every shot. Most dangerous: ${s} (${m} s to spare).`,
+  drag:(a,b)=>`You are moving ${a}. ${b} goes where they cover whatever the partner cannot reach.`,
+  takes:(n,l)=>`${n} takes: ${l}.`,
+  nobody:l=>`Nobody reaches: ${l}.`,
+  stOver:w=>`Rally over: point to <b>${TX.en.team[w].dat}</b>. Press “Start over”, “Back” or “Auto rally”.`,
+  stFly:s=>`In flight: <b>${s}</b>…`,
+  stReady:(n,sit,t,p)=>`${n} is hitting — ${sit}.<br>Waiting: <b>${TX.en.team[t].nom}</b>, they reach <b>${p}%</b> of the shots.`,
+  btnTitle:(s,m)=>`${s}: ${m} s to spare`,
+  tblWait:'The table appears when a player has the shuttle.',
+  tblHead:t=>`<th>Shot</th><th>How often</th><th>Taken by (${TX.en.team[t].nom})</th><th>Margin</th>`,
+  tblNobody:'nobody',
+  tblHint:'Margin — how many seconds the player arrives before the shuttle. Below zero means too late.',
+  bannerLost:w=>`Point to ${TX.en.team[w].dat}: nobody reached the shuttle`,
+  lsDone:'End of lesson.', lsStep:(a,b)=>`step ${a} of ${b}`,
+  qzTask:(n,sit)=>`${n} is about to hit ${sit}. Place both Blue players where they should wait for the shot and press “Check”.`,
+  qzScore:s=>`${s} / 100`,
+  qzVerdict:['Excellent — almost exactly as calculated.','Good, but could be more precise.','Room for improvement.'],
+  qzDist:(a,b)=>`White circles are the best spots by calculation. Blue 1 is ${a} m from theirs, Blue 2 is ${b} m.`,
+  qzCover:(a,b)=>`Your pair reaches ${a}% of the opponent's shots; the best setup reaches ${b}%.`,
+  qzMiss:l=>`You can't reach: ${l}.`,
+  qzHint:'Coloured lines are the opponent\'s shots: green — you get there, yellow — just, red — no.'
+ }
+};
+const tx=()=>TX[LANG];
+const nm=id=>tx()['n_'+id];
+const nmAcc=id=>tx().acc[id];
+const tm=(t,k)=>tx().team[t][k];
+const lo=x=>typeof x==='string'?x:(x[LANG]||x.ru);
+const shotLow=sh=>LANG==='ru'?sh.name.toLowerCase():sh.name.charAt(0).toLowerCase()+sh.name.slice(1);
+const listShots=rows=>rows.map(r=>shotLow(r.shot)).join(', ');
+function tipHit(shot){
+  const t=shot.type, D=Math.abs(shot.from.y), H=tx().tipHit;
+  if(isUp(t)) return H.up;
+  if(t==='serve') return H.serve;
+  if((t==='smash'||t==='drop')&&D>=3.2) return H.rear;
+  if(t==='drive') return H.drive;
+  if(t==='block') return H.block;
+  return H.net;
+}
+// описание удара храним данными, текст собираем при показе — так он переключается вместе с языком
+function phaseDesc(ph){
+  const sh=ph.shot;
+  return {hitter:sh.hitter,type:sh.type,dir:sh.dir,team:sh.team,recv:sh.recv,fromY:sh.from.y,lost:ph.lost,R:ph.R,margin:ph.margin,h:ph.c2?ph.c2.h:0,
+    fb:formationOf(ph.newPos,'blue'),fr:formationOf(ph.newPos,'red')};
+}
+function describePhase(d){
+  const T=tx(), out=[];
+  const sh={type:d.type,dir:d.dir,from:{y:d.fromY},name:shotName(d.type,d.dir)};
+  out.push(`<p><b>${nm(d.hitter)}</b>: ${shotLow(sh)}.</p>`);
+  if(d.lost) out.push(`<p class="res">${T.lost(d.recv,d.team)}</p>`);
+  else out.push(`<p class="res">${T.take(`<b style="color:${COL[d.R]}">${nm(d.R)}</b>`,fmt(d.margin),num(d.h,1))}</p>`);
+  out.push(`<p class="tip">${T.tipRecv[d.type]}</p>`);
+  out.push(`<p class="tip">${tipHit(sh)}</p>`);
+  out.push(`<p class="res">${T.forms(T.form[d.fb],T.form[d.fr])}</p>`);
+  return out.join('');
+}
+function situationText(){
+  const D=Math.abs(S.contact.y), h=S.contact.h, T=tx();
+  const ht=h>=2.1?T.ht[0]:h>=1.0?T.ht[1]:T.ht[2];
+  const dt=S.contact.serve?T.dt.serve:D>=4.2?T.dt.deep:D>=2.2?T.dt.mid:T.dt.net;
+  return `${ht}, ${dt}`;
+}
+function describeReady(){
+  if(!S.ev) return '';
+  const T=tx(), wt=waitingTeam(), f=formationOf(S.pos,wt);
+  const worst=[...S.ev.rows].sort((a,b)=>a.bm-b.bm)[0];
+  let t=`<p>${T.ready(nm(S.holder),situationText(),tm(wt,'cap'),T.form[f])}</p>`;
+  const miss=S.ev.rows.filter(r=>r.bm<0);
+  if(miss.length) t+=`<p class="tip">${T.miss(listShots(miss))}</p>`;
+  else t+=`<p class="tip">${T.allOk(shotLow(worst.shot),fmt(worst.bm))}</p>`;
+  return t;
+}
+function describeDrag(id){
+  const T=tx(), mate=partnerOf(id);
+  const mine=S.ev?S.ev.rows.filter(r=>r.resp===mate&&r.bm>=0):[];
+  const miss=S.ev?S.ev.rows.filter(r=>r.bm<0):[];
+  let t=`<p>${T.drag(`<b style="color:${COL[id]}">${nmAcc(id)}</b>`,`<b style="color:${COL[mate]}">${nm(mate)}</b>`)}</p>`;
+  if(mine.length) t+=`<p class="tip">${T.takes(nm(mate),listShots(mine))}</p>`;
+  if(miss.length) t+=`<p class="tip" style="color:#fca5a5">${T.nobody(listShots(miss))}</p>`;
+  return t;
+}
+function commentHTML(){
+  const d=S.desc;
+  if(!d||d.kind==='ready') return describeReady();
+  if(d.kind==='phase') return describePhase(d.d);
+  if(d.kind==='drag') return describeDrag(d.id);
+  return '';
+}
+
+// ---------- панель «Игра» ----------
+function updatePanel(busy){
+  const mode=S.mode, T=tx();
+  if(mode==='play'){
+    const st=$('pl-status');
+    if(S.over) st.innerHTML=T.stOver(S.over.winner);
+    else if(S.anim) st.innerHTML=T.stFly(shotLow(S.anim.ph.shot));
+    else if(S.holder){
+      const wt=waitingTeam();
+      st.innerHTML=T.stReady(`<b style="color:${COL[S.holder]}">${nm(S.holder)}</b>`,situationText(),wt,Math.round(S.ev.cover*100));
+    }
+    for(const b of document.querySelectorAll('#pl-band button')){b.classList.toggle('on',b.dataset.band===S.band);b.disabled=!!(S.anim||S.over||!S.holder);}
+    renderShotButtons($('pl-shots'),busy);
+    $('pl-comment').innerHTML=commentHTML();
+    renderTable($('pl-table'));
+    $('pl-back').disabled=!S.history.length||!!S.anim;
+    $('pl-rand').disabled=!!(S.anim||S.over);
+    $('pl-auto').classList.toggle('on',S.auto);
+    $('pl-auto').textContent=S.auto?T.stop:T.auto;
+    $('pl-relax').disabled=!!(S.anim||S.over);
+  } else if(mode==='lessons') updateLessonPanel();
+  else if(mode==='quiz') updateQuizPanel();
+}
+function renderShotButtons(box,busy){
+  box.innerHTML='';
+  if(!S.ev||S.over) return;
+  const groups=new Map();
+  S.ev.rows.forEach((r,i)=>{if(!groups.has(r.type))groups.set(r.type,[]);groups.get(r.type).push([r,i]);});
+  for(const [type,list] of groups){
+    const row=document.createElement('div');row.className='shotrow';
+    const nme=document.createElement('span');nme.className='nm';nme.textContent=SHOT_N[LANG][type];row.appendChild(nme);
+    for(const [r,i] of list){
+      const b=document.createElement('button');
+      const dn=(type==='serve'||type==='flick')?SDIR_N[LANG][r.dir]:DIR_N[LANG][r.dir];
+      b.innerHTML=`<i class="dot" style="background:${statusColor(r.bm)}"></i>${dn}`;
+      b.title=tx().btnTitle(r.shot.name,fmt(r.bm));
+      b.disabled=!!(S.anim||busy);
+      b.onclick=()=>{S.auto=false;playShot(r.type,r.dir);};
+      b.onmouseenter=()=>{S.highlight=i;drawFan();drawSidePath();renderTable($('pl-table'));};
+      b.onmouseleave=()=>{S.highlight=null;drawFan();drawSidePath();renderTable($('pl-table'));};
+      row.appendChild(b);
+    }
+    box.appendChild(row);
+  }
+}
+function renderTable(box){
+  if(!box) return;
+  const T=tx();
+  if(!S.ev||S.over||S.anim){box.innerHTML=`<p class="hint">${T.tblWait}</p>`;return;}
+  const wt=waitingTeam();
+  let h=`<table><thead><tr>${T.tblHead(wt)}</tr></thead><tbody>`;
+  S.ev.rows.forEach((r,i)=>{
+    h+=`<tr data-i="${i}" class="${S.highlight===i?'hl':''}"><td>${r.shot.name}</td><td>${Math.round(r.w*100)}%</td>`+
+       `<td>${r.bm>=0?`<i class="dot" style="background:${COL[r.resp]}"></i> ${nm(r.resp)}`:`<span style="color:#fca5a5">${T.tblNobody}</span>`}</td>`+
+       `<td style="color:${statusColor(r.bm)}">${fmt(r.bm)} ${T.s}</td></tr>`;
+  });
+  h+=`</tbody></table><p class="hint">${T.tblHint}</p>`;
+  box.innerHTML=h;
+  for(const tr of box.querySelectorAll('tbody tr')) tr.onclick=()=>{const i=+tr.dataset.i;S.highlight=S.highlight===i?null:i;drawFan();drawSidePath();renderTable(box);};
+}
+
+// ---------- авторозыгрыш ----------
+function weightedPick(rows){
+  const ws=rows.map(r=>r.w*(0.45+(1-r.v)));
+  let x=Math.random()*ws.reduce((a,b)=>a+b,0);
+  for(let i=0;i<rows.length;i++){x-=ws[i];if(x<=0)return rows[i];}
+  return rows[rows.length-1];
+}
+function autoStep(){
+  if(!S.auto||S.anim||S.mode!=='play') return;
+  if(S.over){randomStart();S.desc={kind:'ready'};updatePanel();setTimeout(autoStep,700);return;}
+  const r=weightedPick(S.ev.rows);
+  playShot(r.type,r.dir);
+}
+const START_KINDS=[
+  {w:.4,f:s=>({x:(Math.random()*2-1)*2.2,d:4.6+Math.random()*1.2,h:2.7})},
+  {w:.25,f:s=>({x:(Math.random()*2-1)*2.2,d:0.8+Math.random()*0.8,h:0.5})},
+  {w:.2,f:s=>({x:(Math.random()*2-1)*2.0,d:2.6+Math.random()*1.4,h:1.35})},
+  {w:.15,f:s=>({x:(Math.random()*2-1)*2.2,d:3.0+Math.random()*1.2,h:0.6})},
+];
+function randomContact(team){
+  let x=Math.random();let k=START_KINDS[0];for(const q of START_KINDS){x-=q.w;if(x<=0){k=q;break;}}
+  const c=k.f(); return {x:c.x,y:sideOf(team)*c.d,h:c.h};
+}
+function randomStart(){
+  const team=Math.random()<0.5?'red':'blue';
+  const holder=MATES[team][Math.random()<0.5?0:1];
+  setSituation(holder,randomContact(team));
+}
+function defaultStart(){setSituation('r1',{x:1.3,y:-5.1,h:2.7});S.history=[];S.desc={kind:'ready'};}
+
+// ---------- уроки ----------
+const LESSONS=[
+  {title:{ru:'Атака: высокий мяч, смэш и добивание',en:'Attack: high shuttle, smash and kill'},start:{holder:'r1',contact:{x:-0.8,d:1.0,h:0.45}},
+   intro:{ru:'Красный у сетки, волан низко. Синие стоят «спереди-сзади»: передний давит у сетки, задний ждёт подъёма. Нажмите «Дальше».',
+          en:'Red is at the net with the shuttle low. Blue stand front-and-back: the front player presses at the net, the rear one waits for the lift. Press “Next”.'},
+   steps:[
+    {type:'lift',dir:'line',text:{ru:'Красный вынужден поднять волан в глубину. Высокий волан — сигнал к атаке: кто ближе, уходит под волан назад, второй выходит вперёд к линии подачи.',
+      en:'Red has to lift the shuttle deep. A high shuttle is the signal to attack: the nearer player goes back under it, the other steps up to the service line.'}},
+    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Бьющий остаётся сзади и смещается к центру — следующий высокий снова его. Передний держит сетку и ждёт короткий ответ.',
+      en:'Straight smash. The hitter stays at the back and drifts to the centre — the next high shuttle is theirs again. The front player holds the net and waits for a short reply.'}},
+    {type:'block',dir:'cross',text:{ru:'Защитник подставил кроссом к сетке. Передний стоит у линии подачи и встречает волан высоко, у самого троса, — ещё до того, как волан опустится.',
+      en:'The defender blocks cross-court to the net. The front player is at the service line and meets the shuttle high, right at the tape, before it drops.'}},
+    {type:'kill',dir:'mid',text:{ru:'Добивание вниз, в центр между защитниками. Очко выиграно построением: задний давит, передний ловит короткое.',
+      en:'Kill down the middle, between the defenders. The point is won by the formation: the rear player presses, the front player catches everything short.'}}]},
+  {title:{ru:'Защита: подняли — встали бок о бок',en:'Defence: lifted — go side-by-side'},start:{holder:'b1',contact:{x:1.1,d:0.9,h:0.4}},
+   intro:{ru:'Синего утянули к сетке укороченным, волан низко — придётся поднимать. Смотрите, как пара переходит в защиту.',
+          en:'A drop has pulled Blue to the net and the shuttle is low — they will have to lift. Watch the pair switch to defence.'},
+   steps:[
+    {type:'lift',dir:'cross',text:{ru:'Синие подняли волан. Подняли — значит, защищаются: поднявший отходит назад на свою половину, партнёр встаёт рядом на другую. Строй «бок о бок».',
+      en:'Blue lift the shuttle. Lifted means defend: the lifter moves back on their half, the partner takes the other half. Side-by-side.'}},
+    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Его берёт защитник со стороны удара: он заранее стоит ближе к боковой — прямой смэш долетает быстрее всего.',
+      en:'Straight smash. The defender on that side takes it: they already stand nearer the sideline, because the straight smash arrives fastest.'}},
+    {type:'lift',dir:'line',text:{ru:'Защитник снова поднимает в глубину. Пара остаётся бок о бок и смещается вслед за атакующим.',
+      en:'The defender lifts deep again. The pair stays side-by-side and shifts with the attacker.'}},
+    {type:'smash',dir:'cross',text:{ru:'Теперь смэш кроссом. Кросс летит дальше и дольше, поэтому второй защитник успевает к нему, хотя стоит ближе к центру.',
+      en:'Now a cross-court smash. It travels further and takes longer, so the other defender gets there even though they stand nearer the centre.'}},
+    {type:'drive',dir:'line',text:{ru:'Защитник отвечает плоским драйвом по линии — первый шаг к перехвату инициативы.',
+      en:'The defender answers with a flat straight drive — the first step to taking over the initiative.'}}]},
+  {title:{ru:'Переход из защиты в атаку',en:'From defence to attack'},start:{holder:'r1',contact:{x:1.4,d:5.2,h:2.8}},
+   intro:{ru:'Красные атакуют из глубины, синие в защите бок о бок.',en:'Red attack from the back, Blue defend side-by-side.'},
+   steps:[
+    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Синие защищаются бок о бок.',en:'Straight smash. Blue defend side-by-side.'}},
+    {type:'block',dir:'cross',hitterTo:'forward',late:true,text:{ru:'Защитник подставляет к сетке и сам идёт за воланом вперёд. Партнёр видит это и смещается назад в центр — пара перестраивается в «спереди-сзади».',
+      en:'The defender blocks to the net and follows the shuttle forward. The partner sees it and moves back to the centre — the pair turns into front-and-back.'}},
+    {type:'lift',dir:'line',text:{ru:'Красный у сетки берёт волан низко и вынужден поднять. Теперь атакуют синие: передний остаётся у сетки, задний бьёт сверху.',
+      en:'Red takes the shuttle low at the net and has to lift. Now Blue attack: the front player stays at the net, the rear player hits from above.'}},
+    {type:'smash',dir:'mid',text:{ru:'Смэш в центр, между защитниками. Инициатива перехвачена.',en:'Smash down the middle, between the defenders. The initiative has changed hands.'}}]},
+  {title:{ru:'Переход из атаки в защиту',en:'From attack to defence'},start:{holder:'b1',contact:{x:-1.2,d:5.3,h:2.8}},
+   intro:{ru:'Синие атакуют: Синий 1 сзади с воланом над головой, Синий 2 у сетки.',en:'Blue attack: Blue 1 is at the back with the shuttle overhead, Blue 2 is at the net.'},
+   steps:[
+    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Задний бьёт, передний ждёт у сетки.',en:'Straight smash. The rear player hits, the front player waits at the net.'}},
+    {type:'block',dir:'cross',late:true,text:{ru:'Защитник красных подставляет кроссом в дальний от переднего угол сетки. Передний опаздывает и берёт волан уже низко, под тросом.',
+      en:'Red\'s defender blocks cross-court to the net corner far from the front player. The front player is late and takes the shuttle low, below the tape.'}},
+    {type:'lift',dir:'line',text:{ru:'Переднему пришлось поднять. Подняли — значит, защищаются: поднявший отходит назад на свою сторону, задний смещается на другую половину. Снова «бок о бок».',
+      en:'The front player had to lift. Lifted means defend: the lifter moves back on their side, the rear player shifts to the other half. Side-by-side again.'}},
+    {type:'smash',dir:'line',text:{ru:'Красные атакуют, а синие уже стоят бок о бок и готовы.',en:'Red attack, and Blue are already side-by-side and ready.'}}]},
+  {title:{ru:'Укороченный и ротация',en:'Drop shot and rotation'},start:{holder:'b1',contact:{x:1.3,d:5.4,h:2.7}},
+   intro:{ru:'Синий 1 сзади с высоким воланом, Синий 2 впереди.',en:'Blue 1 is at the back with a high shuttle, Blue 2 is in front.'},
+   steps:[
+    {type:'drop',dir:'line',hitterTo:'forward',late:true,text:{ru:'Задний играет медленный укороченный по линии и идёт за ним к сетке. Передний не стоит на месте: по кругу уходит назад и закрывает освободившуюся глубину. Это ротация — строй «спереди-сзади» тот же, игроки поменялись ролями.',
+      en:'The rear player plays a slow straight drop and follows it to the net. The front player does not stay put: they circle back and cover the empty back court. This is rotation — still front-and-back, with the roles swapped.'}},
+    {type:'lift',dir:'cross',text:{ru:'Красный поднимает кроссом. Волан берёт тот, кто теперь сзади, — бывший передний.',en:'Red lifts cross-court. The shuttle is taken by whoever is now at the back — the former front player.'}},
+    {type:'smash',dir:'line',text:{ru:'Атака продолжается, только теперь сзади другой игрок.',en:'The attack goes on, only now a different player is at the back.'}}]},
+  {title:{ru:'Драйвы: плоский обмен',en:'Drives: a flat exchange'},start:{holder:'r1',contact:{x:-1.1,d:3.2,h:1.35}},
+   intro:{ru:'Волан на уровне груди в середине корта. Обе пары стоят бок о бок, чуть ближе к сетке.',en:'The shuttle is at chest height in mid-court. Both pairs stand side-by-side, a little closer to the net.'},
+   steps:[
+    {type:'drive',dir:'line',text:{ru:'Драйв по линии. Отвечает тот, на чьей половине волан, — как можно раньше, ракетка перед грудью.',en:'Straight drive. Whoever has the shuttle on their half answers — as early as possible, racket in front of the chest.'}},
+    {type:'drive',dir:'cross',text:{ru:'Ответный драйв кроссом. Пары смещаются за воланом и держат строй бок о бок.',en:'A cross-court drive back. Both pairs shift with the shuttle and keep side-by-side.'}},
+    {type:'drive',dir:'mid',text:{ru:'Драйв в центр, между игроками. Здесь нужна договорённость, кто берёт центр.',en:'A drive down the middle, between the players. This is where the pair needs an agreement on who takes the middle.'}},
+    {type:'push',dir:'line',text:{ru:'Толчок в середину — способ сбить ритм. Кто ответит низко, тому придётся поднимать.',en:'A push to mid-court breaks the rhythm. Whoever answers it low will have to lift.'}}]},
+  {title:{ru:'Короткая подача и приём',en:'Short serve and return'},serve:true,
+   start:{holder:'r1',contact:{x:-0.3,d:2.15,h:1.1,serve:true},pos:{r1:{x:-0.3,d:2.5},r2:{x:0.2,d:4.3},b1:{x:0.55,d:2.5},b2:{x:-0.8,d:4.4}}},
+   intro:{ru:'Красный 1 подаёт из правого поля, Синий 1 принимает у линии подачи, их партнёры стоят сзади.',en:'Red 1 serves from the right court, Blue 1 receives at the service line, their partners stand behind.'},
+   steps:[
+    {type:'serve',dir:'mid',text:{ru:'Короткая подача к центру. Подающий остаётся у сетки, его партнёр сзади — красные с первого удара в строю «спереди-сзади».',
+      en:'Short serve to the centre. The server stays at the net, the partner at the back — Red are front-and-back from the very first shot.'}},
+    {type:'push',dir:'line',text:{ru:'Принимающий встречает подачу как можно раньше и толкает в середину, мимо подающего. Его партнёр уже сзади, синие тоже «спереди-сзади».',
+      en:'The receiver meets the serve as early as possible and pushes it to mid-court past the server. The partner is already at the back, so Blue are front-and-back too.'}},
+    {type:'lift',dir:'cross',text:{ru:'Красному пришлось поднять — синие атакуют, красные переходят в защиту бок о бок.',en:'Red had to lift — Blue attack, Red switch to side-by-side defence.'}},
+    {type:'smash',dir:'line',text:{ru:'Смэш по линии. Синие в атаке, красные в защите.',en:'Straight smash. Blue attack, Red defend.'}}]},
+];
+function lessonStart(i){
+  const Ls=LESSONS[i];const st=Ls.start;const team=teamOf(st.holder),s=sideOf(team);
+  const c={x:st.contact.x,y:s*st.contact.d,h:st.contact.h};if(st.contact.serve)c.serve=true;
+  let pos=null;
+  if(st.pos){pos={};for(const id in st.pos)pos[id]={x:st.pos[id].x,y:sideOf(teamOf(id))*st.pos[id].d};}
+  setSituation(st.holder,c,pos);
+  S.history=[];S.desc=null;
+  S.lesson={i,step:0};
+  $('ls-list').hidden=true;$('ls-run').hidden=false;
+  updatePanel();
+}
+function lessonNext(){
+  const ls=S.lesson;if(!ls||S.anim)return;const Ls=LESSONS[ls.i];
+  if(ls.step>=Ls.steps.length) return;
+  const st=Ls.steps[ls.step];
+  const step=ls.step;
+  playShot(st.type,st.dir,{hitterTo:st.hitterTo,late:st.late,onEnd:ph=>{ls.step=step+1;if(S.contact&&ls.step<Ls.steps.length&&S.contact.serve)delete S.contact.serve;updatePanel();}});
+}
+function lessonPrev(){
+  const ls=S.lesson;if(!ls||S.anim||!S.history.length)return;
+  restore(S.history.pop());ls.step=Math.max(0,ls.step-1);updatePanel();
+}
+function lessonAgain(){
+  const ls=S.lesson;if(!ls||S.anim||!S.history.length||ls.step===0)return;
+  restore(S.history.pop());ls.step--;lessonNext();
+}
+function updateLessonPanel(){
+  const box=$('ls-list'), T=tx();
+  if(box.dataset.lang!==LANG){box.innerHTML='';box.dataset.lang=LANG;LESSONS.forEach((Ls,i)=>{const b=document.createElement('button');b.innerHTML=`<b>${i+1}.</b> ${lo(Ls.title)}`;b.onclick=()=>lessonStart(i);box.appendChild(b);});}
+  const ls=S.lesson;if(!ls)return;
+  const Ls=LESSONS[ls.i];
+  $('ls-title').textContent=lo(Ls.title);
+  const cur=S.anim?lo(Ls.steps[ls.step].text):(ls.step===0?lo(Ls.intro):lo(Ls.steps[ls.step-1].text));
+  $('ls-text').innerHTML=(!S.anim&&ls.step>=Ls.steps.length)?cur+`<br><br><b>${T.lsDone}</b>`:cur;
+  $('ls-step').textContent=T.lsStep(Math.min(ls.step+(S.anim?1:0),Ls.steps.length),Ls.steps.length);
+  $('ls-next').disabled=!!S.anim||ls.step>=Ls.steps.length;
+  $('ls-prev').disabled=!!S.anim||ls.step===0;
+  $('ls-again').disabled=!!S.anim||ls.step===0;
+  $('ls-comment').innerHTML=S.anim?'':(ls.step>0?commentHTML():describeReady());
+}
+
+// ---------- тест ----------
+function quizNew(){
+  const holder=Math.random()<0.5?'r1':'r2';
+  const c=randomContact('red');
+  setSituation(holder,c);
+  S.pos.b1={x:-0.6,y:6.95};S.pos.b2={x:0.6,y:6.95};
+  S.quiz={checked:false};S.history=[];
+  recomputeEval();drawStatic();S.dirty=true;updatePanel();
+}
+function quizCheck(){
+  if(!S.quiz||S.quiz.checked)return;
+  S.quiz.checked=true;
+  const rep=repertoire(S.holder,S.contact,S.filters);
+  const user=evalTeam(S.pos,'blue',rep);
+  const best=optimize('blue',rep,{},{cur:S.pos});
+  const bestEv=evalTeam(best,'blue',rep);
+  // 100 — как в расчёте; каждые 0,03 лишней «стоимости» (доля ударов, взятых плохо или не взятых) — минус 10 баллов
+  const score=Math.round(100*clamp(1-(user.cost-bestEv.cost)/0.3,0,1));
+  // ближайшее соответствие игроков лучшим точкам
+  const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  let m={b1:best.b1,b2:best.b2};
+  if(d(S.pos.b1,best.b2)+d(S.pos.b2,best.b1)<d(S.pos.b1,best.b1)+d(S.pos.b2,best.b2)) m={b1:best.b2,b2:best.b1};
+  S.quiz.best=m;S.quiz.score=score;S.quiz.user=user;S.quiz.bestEv=bestEv;
+  recomputeEval();drawStatic();
+  L.ghosts.innerHTML='';
+  for(const id of ['b1','b2']){
+    const g=m[id],p=S.pos[id];
+    el('line',{x1:p.x,y1:p.y,x2:g.x,y2:g.y,stroke:COL[id],'stroke-width':0.04,'stroke-dasharray':'0.08 0.06'},L.ghosts);
+    el('circle',{cx:g.x,cy:g.y,r:0.3,fill:'none',stroke:'#fff','stroke-width':0.05,'stroke-dasharray':'0.1 0.07'},L.ghosts);
+    el('circle',{cx:g.x,cy:g.y,r:0.22,fill:COL[id],opacity:0.35},L.ghosts);
+  }
+  updatePanel();
+}
+function updateQuizPanel(){
+  const q=S.quiz, T=tx(); if(!q) return;
+  $('qz-task').innerHTML=T.qzTask(`<b style="color:${COL[S.holder]}">${nm(S.holder)}</b>`,situationText());
+  const r=$('qz-result');
+  if(!q.checked){r.hidden=true;return;}
+  r.hidden=false;
+  const d=id=>num(Math.hypot(S.pos[id].x-q.best[id].x,S.pos[id].y-q.best[id].y),1);
+  const miss=q.user.rows.filter(x=>x.bm<0);
+  const verdict=q.score>=90?T.qzVerdict[0]:q.score>=70?T.qzVerdict[1]:T.qzVerdict[2];
+  r.innerHTML=`<div class="score">${T.qzScore(q.score)}</div><p>${verdict}</p>`+
+   `<p>${T.qzDist(d('b1'),d('b2'))}</p>`+
+   `<p>${T.qzCover(Math.round(q.user.cover*100),Math.round(q.bestEv.cover*100))}</p>`+
+   (miss.length?`<p style="color:#fca5a5">${T.qzMiss(listShots(miss))}</p>`:'')+
+   `<p class="hint">${T.qzHint}</p>`;
+}
+
+// ---------- режимы ----------
+function setMode(m){
+  S.anim=null;S.mode=m;S.auto=false;S.highlight=null;
+  for(const b of document.querySelectorAll('#tabs button')) b.classList.toggle('on',b.dataset.mode===m);
+  for(const k of ['play','lessons','quiz','basics']) $('m-'+k).hidden=k!==m;
+  setBanner('');
+  if(m==='play'){defaultStart();}
+  else if(m==='lessons'){S.lesson=null;$('ls-list').hidden=false;$('ls-run').hidden=true;defaultStart();S.desc=null;}
+  else if(m==='quiz'){quizNew();}
+  drawStatic();S.dirty=true;updatePanel();
+}
+
+// ---------- кнопки ----------
+function bindUI(){
+  for(const b of document.querySelectorAll('#tabs button')) b.onclick=()=>setMode(b.dataset.mode);
+  for(const b of document.querySelectorAll('#pl-band button')) b.onclick=()=>{
+    if(S.anim||!S.holder||S.over)return;
+    S.band=b.dataset.band;S.contact={...S.contact,h:BAND_H[S.band]};delete S.contact.serve;S.incoming=null;S.lastPhase=null;
+    arrangeHolderPartner();arrangeWaiting(false);recomputeIdeal();recomputeEval();S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();
+  };
+  $('pl-rand').onclick=()=>{if(S.anim||S.over)return;S.auto=false;const r=weightedPick(S.ev.rows);playShot(r.type,r.dir);};
+  $('pl-auto').onclick=()=>{S.auto=!S.auto;updatePanel();if(S.auto)autoStep();};
+  $('pl-back').onclick=()=>{if(S.anim||!S.history.length)return;S.auto=false;restore(S.history.pop());};
+  $('pl-reset').onclick=()=>{if(S.anim)return;S.auto=false;defaultStart();drawStatic();updatePanel();};
+  $('pl-relax').onclick=()=>{if(S.anim||S.over)return;S.locked=null;arrangeWaiting(false);arrangeHolderPartner();recomputeIdeal();recomputeEval();S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();};
+  $('ls-next').onclick=lessonNext;$('ls-prev').onclick=lessonPrev;$('ls-again').onclick=lessonAgain;
+  $('ls-restart').onclick=()=>{if(S.lesson&&!S.anim)lessonStart(S.lesson.i);};
+  $('ls-exit').onclick=()=>{S.anim=null;S.lesson=null;$('ls-list').hidden=false;$('ls-run').hidden=true;defaultStart();S.desc=null;drawStatic();S.dirty=true;};
+  $('qz-check').onclick=quizCheck;$('qz-next').onclick=quizNew;
+  const fbox=$('st-filters');
+  for(const [g] of GROUPS){const l=document.createElement('label');l.className='chk';l.innerHTML=`<input type="checkbox" data-g="${g}" checked><span data-g-label="${g}"></span>`;fbox.appendChild(l);}
+  for(const i of fbox.querySelectorAll('input')) i.onchange=()=>{
+    S.filters[i.dataset.g]=i.checked;
+    if(!S.anim&&S.holder&&!S.over){if(S.mode!=='quiz'){arrangeWaiting(false);arrangeHolderPartner();recomputeIdeal();}recomputeEval();if(S.mode==='play')S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();}
+  };
+  for(const i of document.querySelectorAll('[data-layer]')) i.onchange=()=>{S.layers[i.dataset.layer]=i.checked;applyView();drawStatic();S.dirty=true;};
+  for(const b of document.querySelectorAll('[data-speed]')) b.onclick=()=>{S.speed=+b.dataset.speed;for(const x of document.querySelectorAll('[data-speed]'))x.classList.toggle('on',x===b);};
+}
+
+// ---------- язык ----------
+function applyLang(){
+  const T=tx();
+  document.documentElement.lang=LANG; document.title=T.title;
+  for(const e of document.querySelectorAll('[data-i18n]')) e.innerHTML=T[e.dataset.i18n];
+  for(const e of document.querySelectorAll('[data-lang-block]')) e.hidden=e.dataset.langBlock!==LANG;
+  for(const e of document.querySelectorAll('[data-g-label]')) e.textContent=T.groups[e.dataset.gLabel];
+  for(const b of document.querySelectorAll('[data-speed]')) b.textContent=num(+b.dataset.speed,b.dataset.speed==='1'?0:(b.dataset.speed==='0.5'?1:2))+'×';
+  for(const b of document.querySelectorAll('.langsw button')) b.classList.toggle('on',b.dataset.lang===LANG);
+  for(const t of L.sideTicks) t.textContent=t.dataset.h+' '+T.m;
+  L.sideLbl.textContent=T.side_lbl;
+}
+function setLang(l){
+  LANG=l; try{localStorage.setItem('badm-lang',l);}catch(e){}
+  applyLang();drawForm();updatePanel();S.dirty=true;
+}
+(function(){let l=null;try{l=localStorage.getItem('badm-lang');}catch(e){}
+  LANG=l||((navigator.language||'ru').toLowerCase().startsWith('ru')?'ru':'en');})();
+for(const b of document.querySelectorAll('.langsw button')) b.onclick=()=>setLang(b.dataset.lang);
+buildCourt();bindUI();applyLang();defaultStart();drawStatic();updatePanel();requestAnimationFrame(loop);
+</script>
+</body>
+</html>

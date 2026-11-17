@@ -140,7 +140,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
         <li><b>«Бок о бок» — защита.</b> Каждый держит свою половину корта по ширине, оба примерно посередине глубины, ракетка перед собой.</li>
       </ul>
       <h3>Главное правило</h3>
-      <p>Ударили <b>вверх</b> (высокий, свеча, высокая подача) — переходите в <b>защиту</b>, встаёте бок о бок. Ударили <b>вниз</b> (смэш, укороченный, подставка, сетка) — держите <b>атаку</b>, спереди-сзади.</p>
+      <p>Ударили <b>вверх</b> (высоко-далёкий, откидка, высокая подача) — переходите в <b>защиту</b>, встаёте бок о бок. Ударили <b>вниз</b> (смэш, укороченный, подставка, сетка) — держите <b>атаку</b>, спереди-сзади.</p>
       <h3>Атака</h3>
       <ul>
         <li>Бьющий после смэша остаётся сзади и смещается к центру — следующий высокий снова его.</li>
@@ -155,7 +155,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       </ul>
       <h3>Переходы</h3>
       <ul>
-        <li><b>Защита → атака.</b> Подставка к сетке или плоский драйв, после которых соперник вынужден поднять. Кто пошёл вперёд за своим ударом — становится передним, партнёр уходит назад.</li>
+        <li><b>Защита → атака.</b> Подставка к сетке или плоский удар, после которых соперник вынужден поднять. Кто пошёл вперёд за своим ударом — становится передним, партнёр уходит назад.</li>
         <li><b>Атака → защита.</b> Переднему пришлось поднять — поднявший отходит назад на свою сторону, задний смещается на другую половину.</li>
         <li><b>Ротация.</b> После медленного укороченного задний может пойти за воланом к сетке, а передний по кругу уходит назад — строй тот же, роли поменялись.</li>
       </ul>
@@ -259,7 +259,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 // Синие на стороне y>0 (внизу экрана), красные — y<0 (вверху).
 const C={HW:3.05,HL:6.70,SSL:1.98,LSL:5.94,SGL:2.59,NETH:1.55};
 const PH={REACT:0.22,VF:3.6,VB:2.5,REACH:0.95,REACH_LOW:1.15,REACH_HIGH:0.6,TAU:0.07,ALPHA:0.7,
-  HMIN:0.12,HMAX:2.6,RECOVER:0.3,VANIM:3.3,DMIN:1.0,SET:0.3,NETPEN:0.08};
+  HMIN:0.12,HMAX:2.6,RECOVER:0.3,VANIM:3.3,DMIN:1.0,SET:0.3,NETPEN:0.08,DEFD:3.7,DEFPEN:0.35};
 const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const teamOf=id=>id[0]==='b'?'blue':'red';
 const sideOf=t=>t==='blue'?1:-1;
@@ -277,10 +277,10 @@ const SHOT={
   smash:{n:'Смэш',g:'smash',b:0.25,hReq:1.68,depth:5.0,v0:48,Ld:4.7,lat:2.3,p:1.0,rx:0.1},
   kill: {n:'Добивание',g:'smash',b:0,hReq:1.62,depth:3.0,v0:40,Ld:4.7,lat:2.2,p:1.0,rx:0.1},
   drop: {n:'Укороченный',g:'drop',b:0.9,hReq:1.75,depth:1.5,T:1.3,ref:7.5,a:0.5,lat:2.1,p:1.25},
-  clear:{n:'Высокий',g:'high',b:5.0,hReq:3,depth:6.35,T:1.8,ref:12,a:0.7,lat:2.5,p:1.3},
-  lift: {n:'Свеча',g:'high',b:3.6,hReq:2.2,depth:6.2,T:1.35,ref:8,a:0.6,lat:2.5,p:1.0},
+  clear:{n:'Высоко-далёкий',g:'high',b:5.0,hReq:3,depth:6.35,T:1.8,ref:12,a:0.7,lat:2.5,p:1.3},
+  lift: {n:'Откидка',g:'high',b:3.6,hReq:2.2,depth:6.2,T:1.35,ref:8,a:0.6,lat:2.5,p:1.0},
   flick:{n:'Высокая подача',g:'high',b:3.4,hReq:2.6,depth:6.0,T:1.5,ref:8.5,a:0.6,lat:2.2,p:1.2},
-  drive:{n:'Драйв',g:'drive',b:0.45,hReq:1.68,depth:5.8,v0:28,Ld:4.7,lat:2.4,p:1.15,rx:0.06},
+  drive:{n:'Плоский',g:'drive',b:0.45,hReq:1.68,depth:5.8,v0:28,Ld:4.7,lat:2.4,p:1.15,rx:0.06},
   push: {n:'Толчок',g:'push',b:0.7,hReq:1.72,depth:3.7,v0:12,Ld:4.7,lat:2.1,p:0.7},
   net:  {n:'Сетка',g:'net',b:0.35,hReq:1.62,depth:0.7,T:1.0,ref:2.2,a:0.4,lat:2.2,p:1.3},
   block:{n:'Подставка',g:'net',b:0.5,hReq:1.65,depth:1.1,T:1.0,ref:5,a:0.45,lat:2.1,p:2.0},
@@ -288,14 +288,16 @@ const SHOT={
 };
 let LANG='ru';
 const SHOT_N={
-  ru:{smash:'Смэш',kill:'Добивание',drop:'Укороченный',clear:'Высокий',lift:'Свеча',flick:'Высокая подача',drive:'Драйв',push:'Толчок',net:'Сетка',block:'Подставка',serve:'Короткая подача'},
+  ru:{smash:'Смэш',kill:'Добивание',drop:'Укороченный',clear:'Высоко-далёкий',lift:'Откидка',flick:'Высокая подача',drive:'Плоский',push:'Толчок',net:'Сетка',block:'Подставка',serve:'Короткая подача'},
   en:{smash:'Smash',kill:'Kill',drop:'Drop',clear:'Clear',lift:'Lift',flick:'Flick serve',drive:'Drive',push:'Push',net:'Net shot',block:'Block',serve:'Short serve'},
   id:{smash:'Smes',kill:'Kill',drop:'Dropshot',clear:'Lob atas',lift:'Lob bawah',flick:'Servis flick',drive:'Drive',push:'Dorongan',net:'Netting',block:'Blok',serve:'Servis pendek'}};
 const DIR_N={ru:{line:'по линии',mid:'в центр',cross:'кроссом'},en:{line:'straight',mid:'down the middle',cross:'cross-court'},id:{line:'lurus',mid:'ke tengah',cross:'silang'}};
 const SDIR_N={ru:{mid:'к центру',cross:'в угол',line:'в глубину'},en:{mid:'to the centre',cross:'to the corner',line:'deep'},id:{mid:'ke tengah',cross:'ke sudut',line:'ke belakang'}};
 const DIR=DIR_N.ru, SERVE_DIR=SDIR_N.ru;
-const GROUPS=[['smash','смэш и добивание'],['drop','укороченный'],['high','высокие: клир, свеча'],['drive','драйв'],['push','толчок в середину'],['net','сетка и подставка']];
-function shotName(t,d){const n=SHOT_N[LANG][t]; if(t==='serve'||t==='flick') return n+' '+(SDIR_N[LANG][d]||''); return n+' '+DIR_N[LANG][d];}
+const GROUPS=[['smash','смэш и добивание'],['drop','укороченный'],['high','высокие: высоко-далёкий, откидка'],['drive','плоские'],['push','толчок в середину'],['net','сетка и подставка']];
+// по-русски удар снизу вверх из задней зоны — «высоко-далёкий», из передней — «откидка»
+function shotTypeName(t,D){return LANG==='ru'&&t==='lift'&&D>=2.4?'Высоко-далёкий':SHOT_N[LANG][t];}
+function shotName(t,d,D=0){const n=shotTypeName(t,D); if(t==='serve'||t==='flick') return n+' '+(SDIR_N[LANG][d]||''); return n+' '+DIR_N[LANG][d];}
 const quality=h=>clamp((h-0.7)/1.2,0,1);
 const isUp=t=>t==='clear'||t==='lift'||t==='flick';
 
@@ -329,7 +331,7 @@ function makeShot(hitter,c,type,dir,o={}){
     samples.push(q);
     if(dr>=0.3&&h>=PH.HMIN&&h<=PH.HMAX&&Math.abs(x)<=C.HW+0.5&&dr<=C.HL+0.8) hit.push(q);
   }
-  return {hitter,team,recv:other(team),type,dir,from:{x:c.x,y:c.y,h:c.h},land,T,samples,hit,rx:P.rx||0,get name(){return shotName(type,dir);}};
+  return {hitter,team,recv:other(team),type,dir,from:{x:c.x,y:c.y,h:c.h},land,T,samples,hit,rx:P.rx||0,get name(){return shotName(type,dir,Math.abs(c.y));}};
 }
 
 const bandOf=h=>h>=2.1?'high':h>=1.0?'mid':'low';
@@ -401,6 +403,8 @@ const NB=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 // Поиск лучших точек для пары. cons[id]: {fixed} | {start,r} | {prev,hyst}
 function optimize(team,rep,cons={},opt={}){
   const side=sideOf(team), [A,B]=MATES[team], nS=rep.length, W=rep.map(r=>r.w);
+  // соперник бьёт сверху — защита: ближе ~3,7 м к сетке не встаём (иначе быстрый смэш не успеть принять)
+  const defD=nS&&rep[0].shot.from.h>=2.1?PH.DEFD:0;
   let zone={};
   const vals=(x,y)=>{const a=new Float64Array(nS);for(let i=0;i<nS;i++)a[i]=pVal(x,y,side,rep[i].shot).v;return a;};
   const pen=(id,x,y)=>{const c=cons[id];if(!c)return 0;let p=0;
@@ -417,7 +421,7 @@ function optimize(team,rep,cons={},opt={}){
       const d=side*y;
       if(Math.abs(x)>C.HW-0.1||d<PH.DMIN||d>C.HL-0.05) return;
       if(z&&(d<z[0]||d>z[1])) return;
-      let s=pen(id,x,y)+(d<1.5?PH.NETPEN*(1.5-d)*(1.5-d):0); if(s>=bc) return;
+      let s=pen(id,x,y)+(d<1.5?PH.NETPEN*(1.5-d)*(1.5-d):0)+(d<defD?PH.DEFPEN*(defD-d)*(defD-d):0); if(s>=bc) return;
       for(let i=0;i<nS;i++){const v=pVal(x,y,side,rep[i].shot).v; s+=W[i]*(1-(v>vo[i]?v:vo[i])); if(s>=bc) return;}
       bc=s;bx=x;by=y;
     };
@@ -1077,7 +1081,7 @@ const TX={
   acc:{b1:'Синего 1',b2:'Синего 2',r1:'Красного 1',r2:'Красного 2'},
   team:{blue:{nom:'синие',cap:'Синие',dat:'синим',gen:'синих'},red:{nom:'красные',cap:'Красные',dat:'красным',gen:'красных'}},
   form:{fb:'спереди-сзади (атака)',sb:'бок о бок (защита)',diag:'по диагонали (переход)'},
-  groups:{smash:'смэш и добивание',drop:'укороченный',high:'высокие: клир, свеча',drive:'драйв',push:'толчок в середину',net:'сетка и подставка'},
+  groups:{smash:'смэш и добивание',drop:'укороченный',high:'высокие: высоко-далёкий, откидка',drive:'плоские',push:'толчок в середину',net:'сетка и подставка'},
   m:'м', s:'с', side_lbl:'вид сбоку: высота',
   ht:['сверху','на уровне груди','снизу'], dt:{serve:'с подачи',deep:'из глубины',mid:'из середины',net:'у сетки'},
   tipRecv:{
@@ -1085,9 +1089,9 @@ const TX={
     kill:'Добивание с сетки почти не берётся. Ошибка была раньше: волан отдали коротко и невысоко.',
     drop:'Укороченный падает перед линией подачи. К нему выходит ближайший, второй закрывает глубину за его спиной.',
     clear:'Высокий волан — шанс атаковать: ближайший уходит под волан назад, партнёр выходит к линии подачи. Строй «спереди-сзади».',
-    lift:'Свеча — шанс атаковать: ближайший уходит под волан назад, партнёр выходит к линии подачи. Строй «спереди-сзади».',
+    lift:'Откидка или высоко-далёкий — шанс атаковать: ближайший уходит под волан назад, партнёр выходит к линии подачи. Строй «спереди-сзади».',
     flick:'Высокая подача: принимающий отходит назад под волан, его партнёр выходит вперёд — пара сразу в атаке.',
-    drive:'Драйв — быстрый плоский удар. Встречать его надо как можно раньше, ракетка на уровне груди; пара стоит бок о бок ближе к середине.',
+    drive:'Плоский — быстрый удар над самой сеткой. Встречать его надо как можно раньше, ракетка на уровне груди; пара стоит бок о бок ближе к середине.',
     push:'Толчок целит в «ничью» зону между игроками. Берёт тот, кто ближе, второй сразу закрывает его половину.',
     net:'Сетка: встречайте волан как можно выше у троса — тогда можно бить вниз. Партнёр держит глубину.',
     block:'Подставка к сетке — добыча переднего атакующего: ради неё он и стоит у линии подачи с поднятой ракеткой.',
@@ -1096,7 +1100,7 @@ const TX={
     up:'Подняли — значит, сами переходят в защиту: оба отходят и встают бок о бок.',
     serve:'Подающий остаётся у сетки, партнёр сзади — с первого удара строй атаки.',
     rear:'Ударили вниз — держат атаку: бьющий остаётся сзади и смещается к центру, партнёр у сетки.',
-    drive:'После драйва пара остаётся бок о бок, чуть ближе к сетке.',
+    drive:'После плоского удара пара остаётся бок о бок, чуть ближе к сетке.',
     block:'Подставили к сетке — сопернику придётся брать низко и, скорее всего, поднимать. Можно идти вперёд и готовиться к атаке.',
     net:'После удара у сетки бьющий остаётся впереди, партнёр закрывает глубину.'},
   lost:(t,w)=>`Никто из ${TX.ru.team[t].gen} не успевает — очко ${TX.ru.team[w].dat}.`,
@@ -1291,7 +1295,7 @@ function phaseDesc(ph){
 }
 function describePhase(d){
   const T=tx(), out=[];
-  const sh={type:d.type,dir:d.dir,from:{y:d.fromY},name:shotName(d.type,d.dir)};
+  const sh={type:d.type,dir:d.dir,from:{y:d.fromY},name:shotName(d.type,d.dir,Math.abs(d.fromY))};
   out.push(`<p><b>${nm(d.hitter)}</b>: ${shotLow(sh)}.</p>`);
   if(d.lost) out.push(`<p class="res">${T.lost(d.recv,d.team)}</p>`);
   else out.push(`<p class="res">${T.take(`<b style="color:${COL[d.R]}">${nm(d.R)}</b>`,fmt(d.margin),num(d.h,1))}</p>`);
@@ -1363,7 +1367,7 @@ function renderShotButtons(box,busy){
   S.ev.rows.forEach((r,i)=>{if(!groups.has(r.type))groups.set(r.type,[]);groups.get(r.type).push([r,i]);});
   for(const [type,list] of groups){
     const row=document.createElement('div');row.className='shotrow';
-    const nme=document.createElement('span');nme.className='nm';nme.textContent=SHOT_N[LANG][type];row.appendChild(nme);
+    const nme=document.createElement('span');nme.className='nm';nme.textContent=shotTypeName(type,Math.abs(S.contact.y));row.appendChild(nme);
     for(const [r,i] of list){
       const b=document.createElement('button');
       const dn=(type==='serve'||type==='flick')?SDIR_N[LANG][r.dir]:DIR_N[LANG][r.dir];
@@ -1450,7 +1454,7 @@ const LESSONS=[
       en:'The defender lifts deep again. The pair stays side-by-side and shifts with the attacker.',id:'Pemain bertahan kembali mengangkat jauh ke belakang. Pasangan tetap sejajar dan bergeser mengikuti penyerang.'}},
     {type:'smash',dir:'cross',text:{ru:'Теперь смэш кроссом. Кросс летит дальше и дольше, поэтому второй защитник успевает к нему, хотя стоит ближе к центру.',
       en:'Now a cross-court smash. It travels further and takes longer, so the other defender gets there even though they stand nearer the centre.',id:'Sekarang smes silang. Jaraknya lebih jauh dan waktunya lebih lama, jadi pemain bertahan yang lain tetap sempat walau berdiri lebih dekat ke tengah.'}},
-    {type:'drive',dir:'line',text:{ru:'Защитник отвечает плоским драйвом по линии — первый шаг к перехвату инициативы.',
+    {type:'drive',dir:'line',text:{ru:'Защитник отвечает плоским ударом по линии — первый шаг к перехвату инициативы.',
       en:'The defender answers with a flat straight drive — the first step to taking over the initiative.',id:'Pemain bertahan membalas dengan drive lurus yang datar — langkah pertama untuk merebut inisiatif.'}}]},
   {title:{ru:'Переход из защиты в атаку',en:'From defence to attack',id:'Dari bertahan ke menyerang'},start:{holder:'r1',contact:{x:1.4,d:5.2,h:2.8}},
    intro:{ru:'Красные атакуют из глубины, синие в защите бок о бок.',en:'Red attack from the back, Blue defend side-by-side.',id:'Merah menyerang dari belakang, Biru bertahan sejajar.'},
@@ -1477,12 +1481,12 @@ const LESSONS=[
       en:'The rear player plays a slow straight drop and follows it to the net. The front player does not stay put: they circle back and cover the empty back court. This is rotation — still front-and-back, with the roles swapped.',id:'Pemain belakang memainkan dropshot lurus yang pelan dan mengikutinya ke net. Pemain depan tidak diam: ia berputar mundur dan menutup area belakang yang kosong. Inilah rotasi — tetap depan-belakang, hanya perannya bertukar.'}},
     {type:'lift',dir:'cross',text:{ru:'Красный поднимает кроссом. Волан берёт тот, кто теперь сзади, — бывший передний.',en:'Red lifts cross-court. The shuttle is taken by whoever is now at the back — the former front player.',id:'Merah mengangkat silang. Kok diambil oleh pemain yang sekarang di belakang — tadinya pemain depan.'}},
     {type:'smash',dir:'line',text:{ru:'Атака продолжается, только теперь сзади другой игрок.',en:'The attack goes on, only now a different player is at the back.',id:'Serangan berlanjut, hanya saja sekarang pemain lain yang di belakang.'}}]},
-  {title:{ru:'Драйвы: плоский обмен',en:'Drives: a flat exchange',id:'Drive: adu pukulan datar'},start:{holder:'r1',contact:{x:-1.1,d:3.2,h:1.35}},
+  {title:{ru:'Плоские удары: обмен',en:'Drives: a flat exchange',id:'Drive: adu pukulan datar'},start:{holder:'r1',contact:{x:-1.1,d:3.2,h:1.35}},
    intro:{ru:'Волан на уровне груди в середине корта. Обе пары стоят бок о бок, чуть ближе к сетке.',en:'The shuttle is at chest height in mid-court. Both pairs stand side-by-side, a little closer to the net.',id:'Kok setinggi dada di tengah lapangan. Kedua pasangan berdiri sejajar, sedikit lebih dekat ke net.'},
    steps:[
-    {type:'drive',dir:'line',text:{ru:'Драйв по линии. Отвечает тот, на чьей половине волан, — как можно раньше, ракетка перед грудью.',en:'Straight drive. Whoever has the shuttle on their half answers — as early as possible, racket in front of the chest.',id:'Drive lurus. Yang menjawab adalah pemain yang kok-nya ada di separuh lapangannya — sedini mungkin, raket di depan dada.'}},
-    {type:'drive',dir:'cross',text:{ru:'Ответный драйв кроссом. Пары смещаются за воланом и держат строй бок о бок.',en:'A cross-court drive back. Both pairs shift with the shuttle and keep side-by-side.',id:'Balasan drive silang. Kedua pasangan bergeser mengikuti kok dan tetap sejajar.'}},
-    {type:'drive',dir:'mid',text:{ru:'Драйв в центр, между игроками. Здесь нужна договорённость, кто берёт центр.',en:'A drive down the middle, between the players. This is where the pair needs an agreement on who takes the middle.',id:'Drive ke tengah, di antara kedua pemain. Di sinilah pasangan perlu kesepakatan siapa yang mengambil bola tengah.'}},
+    {type:'drive',dir:'line',text:{ru:'Плоский по линии. Отвечает тот, на чьей половине волан, — как можно раньше, ракетка перед грудью.',en:'Straight drive. Whoever has the shuttle on their half answers — as early as possible, racket in front of the chest.',id:'Drive lurus. Yang menjawab adalah pemain yang kok-nya ada di separuh lapangannya — sedini mungkin, raket di depan dada.'}},
+    {type:'drive',dir:'cross',text:{ru:'Ответный плоский кроссом. Пары смещаются за воланом и держат строй бок о бок.',en:'A cross-court drive back. Both pairs shift with the shuttle and keep side-by-side.',id:'Balasan drive silang. Kedua pasangan bergeser mengikuti kok dan tetap sejajar.'}},
+    {type:'drive',dir:'mid',text:{ru:'Плоский в центр, между игроками. Здесь нужна договорённость, кто берёт центр.',en:'A drive down the middle, between the players. This is where the pair needs an agreement on who takes the middle.',id:'Drive ke tengah, di antara kedua pemain. Di sinilah pasangan perlu kesepakatan siapa yang mengambil bola tengah.'}},
     {type:'push',dir:'line',text:{ru:'Толчок в середину — способ сбить ритм. Кто ответит низко, тому придётся поднимать.',en:'A push to mid-court breaks the rhythm. Whoever answers it low will have to lift.',id:'Dorongan ke tengah lapangan memecah ritme. Siapa pun yang membalasnya rendah harus mengangkat.'}}]},
   {title:{ru:'Короткая подача и приём',en:'Short serve and return',id:'Servis pendek dan pengembalian'},serve:true,
    start:{holder:'r1',contact:{x:-0.3,d:2.15,h:1.1,serve:true},pos:{r1:{x:-0.3,d:2.5},r2:{x:0.2,d:4.3},b1:{x:0.55,d:2.5},b2:{x:-0.8,d:4.4}}},

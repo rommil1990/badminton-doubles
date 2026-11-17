@@ -119,7 +119,7 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 
     <section id="m-quiz" hidden>
       <div class="card" id="qz-task"></div>
-      <div class="row"><button class="prim" id="qz-check" data-i18n="qz_check"></button><button id="qz-next" data-i18n="qz_next"></button></div>
+      <div class="row"><button class="prim" id="qz-check" data-i18n="qz_check"></button><button id="qz-retry" data-i18n="qz_retry"></button><button id="qz-next" data-i18n="qz_next"></button></div>
       <div class="card" id="qz-result" hidden></div>
     </section>
 
@@ -900,7 +900,7 @@ const TX={
   who_takes:'Кто какой удар берёт',
   play_hint:'Пунктирный кружок — лучшая точка, если успеть до неё добежать. Тяните игрока той пары, которая ждёт удара, — партнёр сам займёт лучшую точку. Тяните игрока с воланом — поменяется, откуда бьёт соперник. Нажмите на строку таблицы — увидите траекторию удара.',
   ls_exit:'К списку уроков', ls_next:'Дальше', ls_again:'Повторить шаг',
-  qz_check:'Проверить', qz_next:'Новая ситуация',
+  qz_check:'Проверить', qz_retry:'Повторить', qz_next:'Новая ситуация',
   settings:'Настройки', filters_lbl:'Какие удары может играть соперник:', layers_lbl:'Что показывать на корте:',
   ly_fan:'веер ударов', ly_zones:'зоны игроков', ly_ghosts:'лучшие точки', ly_trails:'следы перемещений', ly_side:'вид сбоку',
   speed_lbl:'Скорость анимации:',
@@ -967,7 +967,7 @@ const TX={
   who_takes:'Who takes which shot',
   play_hint:'Dashed circle — the best spot, if there is time to get there. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player holding the shuttle to change where the opponent hits from. Tap a table row to see the shot\'s path.',
   ls_exit:'Back to lessons', ls_next:'Next', ls_again:'Repeat step',
-  qz_check:'Check', qz_next:'New situation',
+  qz_check:'Check', qz_retry:'Try again', qz_next:'New situation',
   settings:'Settings', filters_lbl:'Shots the opponent may play:', layers_lbl:'Show on court:',
   ly_fan:'shot fan', ly_zones:'player zones', ly_ghosts:'best spots', ly_trails:'movement trails', ly_side:'side view',
   speed_lbl:'Animation speed:',
@@ -1034,7 +1034,7 @@ const TX={
   who_takes:'Siapa mengambil pukulan apa',
   play_hint:'Lingkaran putus-putus — titik terbaik, jika sempat berlari ke sana. Geser pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Geser pemain yang memegang kok untuk mengubah dari mana lawan memukul. Ketuk baris tabel untuk melihat lintasan pukulan.',
   ls_exit:'Ke daftar pelajaran', ls_next:'Lanjut', ls_again:'Ulangi langkah',
-  qz_check:'Periksa', qz_next:'Situasi baru',
+  qz_check:'Periksa', qz_retry:'Ulangi', qz_next:'Situasi baru',
   settings:'Pengaturan', filters_lbl:'Pukulan yang boleh dimainkan lawan:', layers_lbl:'Tampilkan di lapangan:',
   ly_fan:'kipas pukulan', ly_zones:'zona pemain', ly_ghosts:'titik terbaik', ly_trails:'jejak gerakan', ly_side:'tampak samping',
   speed_lbl:'Kecepatan animasi:',
@@ -1367,7 +1367,14 @@ function quizNew(){
   const c=randomContact('red');
   setSituation(holder,c);
   S.pos.b1={x:-0.6,y:6.95};S.pos.b2={x:0.6,y:6.95};
-  S.quiz={checked:false};S.history=[];
+  S.quiz={checked:false,holder,contact:{...S.contact},start:JSON.parse(JSON.stringify(S.pos))};S.history=[];
+  recomputeEval();drawStatic();S.dirty=true;updatePanel();
+}
+// та же ситуация заново: синие возвращаются на старт, ответ скрыт
+function quizRetry(){
+  const q=S.quiz; if(!q||!q.start) return;
+  setSituation(q.holder,q.contact,q.start);
+  S.quiz={checked:false,holder:q.holder,contact:q.contact,start:q.start};S.history=[];
   recomputeEval();drawStatic();S.dirty=true;updatePanel();
 }
 function quizCheck(){
@@ -1438,7 +1445,7 @@ function bindUI(){
   $('ls-next').onclick=lessonNext;$('ls-prev').onclick=lessonPrev;$('ls-again').onclick=lessonAgain;
   $('ls-restart').onclick=()=>{if(S.lesson&&!S.anim)lessonStart(S.lesson.i);};
   $('ls-exit').onclick=()=>{S.anim=null;S.lesson=null;$('ls-list').hidden=false;$('ls-run').hidden=true;defaultStart();S.desc=null;drawStatic();S.dirty=true;};
-  $('qz-check').onclick=quizCheck;$('qz-next').onclick=quizNew;
+  $('qz-check').onclick=quizCheck;$('qz-retry').onclick=quizRetry;$('qz-next').onclick=quizNew;
   const fbox=$('st-filters');
   for(const [g] of GROUPS){const l=document.createElement('label');l.className='chk';l.innerHTML=`<input type="checkbox" data-g="${g}" checked><span data-g-label="${g}"></span>`;fbox.appendChild(l);}
   for(const i of fbox.querySelectorAll('input')) i.onchange=()=>{

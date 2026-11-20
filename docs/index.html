@@ -10,8 +10,8 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 #app{display:flex;height:100vh}
-#stage{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:6px;position:relative}
-#court{width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}
+#stage{flex:1;min-width:0;display:flex;flex-direction:column;align-items:stretch;padding:6px;position:relative}
+#court{width:100%;flex:1;min-height:0;touch-action:none;user-select:none;-webkit-user-select:none}
 #panel{width:410px;flex:none;overflow-y:auto;background:var(--panel);padding:12px 14px 30px;border-left:1px solid var(--line)}
 h1{font-size:18px;margin:0}
 .sub{color:var(--mut);font-size:12px;margin-bottom:10px}
@@ -63,10 +63,10 @@ label.chk{display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;f
 .basics h3{font-size:14.5px;margin:14px 0 4px;color:#cfe3f5}
 .basics p,.basics li{font-size:13.5px}
 .basics ul{padding-left:18px;margin:4px 0}
-.banner{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#0b1620e6;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-weight:600;display:none;pointer-events:none;text-align:center;max-width:90%}
+.banner{position:absolute;left:50%;top:52px;transform:translateX(-50%);background:#0b1620e6;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-weight:600;display:none;pointer-events:none;text-align:center;max-width:90%}
 @media (max-width: 860px){
   #app{flex-direction:column;height:auto}
-  #stage{height:72vh;flex:none;padding:2px}
+  #stage{height:78vh;flex:none;padding:2px}
   #panel{width:100%;border-left:0;border-top:1px solid var(--line)}
   #stage .stage-lang{display:flex}
   #panel .langsw{display:none}
@@ -76,11 +76,16 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .pl.nodrag{cursor:default}
 .langsw{display:flex;gap:3px;flex:none}
 .langsw button{padding:4px 8px;font-size:12px}
-.stage-lang{position:absolute;right:8px;top:6px;display:none;z-index:2}
-.stage-ctl{position:absolute;left:8px;bottom:6px;display:flex;gap:6px;z-index:2}
+.stage-lang{display:none;margin-left:auto}
+.stage-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.stage-ctl{display:flex;gap:6px;padding:2px 2px}
 .stage-ctl[hidden]{display:none}
-.stage-ctl button{padding:6px 12px;font-size:13px;background:#0b1620e6}
+.stage-ctl button{padding:6px 12px;font-size:13px}
 .stage-ctl button.on{background:#0c4a6e}
+.stage-top{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:2px 2px 4px}
+.stage-top[hidden]{display:none}
+.stage-top button{padding:4px 9px;font-size:12.5px}
+.stage-top button:disabled{opacity:.4}
 .tgt{cursor:pointer}
 .tgt .halo{fill:transparent}
 .tgt.hl .halo,.tgt:hover .halo{fill:#fde68a;fill-opacity:.3}
@@ -90,10 +95,13 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 <body>
 <div id="app">
   <div id="stage">
+    <div class="stage-top" id="shotsel" hidden></div>
     <svg id="court" xmlns="http://www.w3.org/2000/svg"></svg>
     <div class="banner" id="banner"></div>
-    <div class="langsw stage-lang"><button data-lang="ru">RU</button><button data-lang="en">EN</button><button data-lang="id">ID</button></div>
-    <div class="stage-ctl" id="stage-ctl"><button id="sc-auto"></button><button id="sc-pause"></button></div>
+    <div class="stage-bar">
+      <div class="stage-ctl" id="stage-ctl"><button id="sc-auto"></button><button id="sc-pause"></button></div>
+      <div class="langsw stage-lang"><button data-lang="ru">RU</button><button data-lang="en">EN</button><button data-lang="id">ID</button></div>
+    </div>
   </div>
   <aside id="panel">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
@@ -177,6 +185,8 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <p>Перетащите любого игрока пальцем или мышью. Двигаете игрока пары, которая ждёт удара, — партнёр сам перейдёт в лучшую точку. Двигаете игрока с воланом — меняется место, откуда бьёт соперник.</p>
       <h3>Как выбрать, куда полетит волан?</h3>
       <p>Линии на корте — удары, которые может сыграть бьющий. Нажмите на строку в таблице «Наиболее вероятное развитие событий» или на точку на конце линии — удар полетит туда. Или перетащите большой волан у бьющего в любое место на половине соперника: удар подберётся сам по глубине: к сетке — укороченный, в середину — смэш, к задней линии — высоко-далёкий. Сразу видно траекторию и кто успевает. Если защитник успевает, он перехватывает волан раньше: до перехвата линия сплошная, дальше пунктир до вашей точки.</p>
+      <h3>Как выбрать тип удара?</h3>
+      <p>Над кортом есть ряд кнопок: «Авто» и удары, которые бьющий может сыграть из своей точки (у каждого бьющего набор свой). «Авто» — тип выбирается сам по тому, куда вы отпустили волан. Нажмите на кнопку с ударом, например «Смэш», и перетащите большой волан: сыграется именно смэш, ровно в ту точку, где вы его отпустили, — волан никуда не притягивается. Если выбранный удар туда не долетит (смэш у самой сетки или высоко-далёкий в середину корта), в предпросмотре появится красный крестик и подпись «… туда не долетит»; если отпустить волан там, ничего не произойдёт, выберите другую точку. Точки других ударов на корте при этом бледнее. После сыгранного удара переключатель сам возвращается на «Авто». Партнёр бьющего встаёт заранее под выбранный удар: выбрали высоко-далёкий — он отходит назад и пара встаёт для защиты, выбрали смэш — остаётся у сетки. Нажмите «Авто» — он вернётся на обычное место. Расстановку партнёра описывает строка в карточке над таблицей.</p>
       <h3>Что значат цвета и номера у точек?</h3>
       <p>Зелёная линия — защита успевает, жёлтая — впритык, красная — не успевает. Номер и цвет кружка у точки — какой игрок должен брать волан.</p>
       <h3>Что за таблица «Наиболее вероятное развитие событий»?</h3>
@@ -230,6 +240,8 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <p>Drag any player with a finger or the mouse. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player with the shuttle — that changes where the opponent hits from.</p>
       <h3>How do I choose where the shuttle goes?</h3>
       <p>The lines on the court are the shots the hitter can play. Tap a row of the “Most likely course of play” table or the dot at the end of a line — the shot goes there. Or drag the big shuttle at the hitter anywhere on the opponent's half: the shot is picked by depth: near the net — a drop, mid-court — a smash, at the back line — a clear. You see its path and who gets there at once. If a defender gets there, they take the shuttle earlier: the line is solid up to that point and dashed on to your spot.</p>
+      <h3>How do I choose the type of shot?</h3>
+      <p>Above the court there is a row of buttons: “Auto” and the shots the hitter can play from their spot (every hitter has their own set). With “Auto” the type is picked by where you release the shuttle. Press a shot button, for example “Smash”, and drag the big shuttle: exactly a smash is played, to exactly the spot where you let go — the shuttle is not pulled anywhere. If the chosen shot cannot get there (a smash right at the net, or a clear into mid-court), the preview shows a red cross and the note “… won’t reach there”; if you release the shuttle there, nothing happens — pick another spot. The dots of the other shots on the court become paler. After a shot is played, the selector goes back to “Auto” by itself. The hitter’s partner stands ready in advance for the chosen shot: choose a clear — they drop back and the pair sets up to defend; choose a smash — they stay at the net. Press “Auto” and they return to the usual place. The line in the card above the table describes where the partner goes.</p>
       <h3>What do the colours and numbers at the dots mean?</h3>
       <p>Green line: the defence gets there; yellow: only just; red: too late. The number and colour of the circle at a dot show which player should take the shuttle.</p>
       <h3>What is the “Most likely course of play” table?</h3>
@@ -283,6 +295,8 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <p>Seret pemain mana pun dengan jari atau mouse. Seret pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Seret pemain yang memegang kok — tempat lawan memukul akan berubah.</p>
       <h3>Bagaimana memilih ke mana kok terbang?</h3>
       <p>Garis di lapangan adalah pukulan yang bisa dimainkan pemukul. Ketuk sebuah baris di tabel “Perkembangan yang paling mungkin” atau titik di ujung garis — pukulan akan diarahkan ke situ. Atau seret kok besar di pemukul ke mana saja di sisi lawan: jenis pukulan dipilih menurut kedalaman: dekat net — dropshot, tengah — smes, garis belakang — lob atas. Lintasan dan siapa yang sempat langsung terlihat. Jika pemain bertahan sempat, ia mengambil kok lebih awal: garis utuh sampai titik itu, lalu putus-putus sampai titik Anda.</p>
+      <h3>Bagaimana memilih jenis pukulan?</h3>
+      <p>Di atas lapangan ada deretan tombol: “Auto” dan pukulan yang bisa dimainkan pemukul dari posisinya (tiap pemukul punya set sendiri). Dengan “Auto” jenis pukulan dipilih menurut tempat Anda melepas kok. Tekan tombol pukulan, misalnya “Smes”, lalu seret kok besar: yang dimainkan tepat smes, tepat di titik tempat Anda melepasnya — kok tidak ditarik ke mana pun. Jika pukulan yang dipilih tidak akan sampai ke sana (smes di dekat net, atau lob atas ke tengah lapangan), pratinjau menampilkan tanda silang merah dan tulisan “… tidak sampai ke sana”; jika kok dilepas di situ, tidak terjadi apa-apa — pilih titik lain. Titik pukulan lain di lapangan menjadi lebih pudar. Setelah pukulan dimainkan, pemilih kembali ke “Auto” sendiri. Rekan pemukul berdiri lebih dulu sesuai pukulan yang dipilih: pilih lob atas — ia mundur dan pasangan bersiap bertahan; pilih smes — ia tetap di dekat net. Tekan “Auto” dan ia kembali ke tempat biasa. Baris di kartu di atas tabel menjelaskan ke mana rekan pergi.</p>
       <h3>Apa arti warna dan nomor di titik?</h3>
       <p>Garis hijau: pertahanan sempat; kuning: pas-pasan; merah: terlambat. Nomor dan warna lingkaran di dekat titik menunjukkan pemain mana yang harus mengambil kok.</p>
       <h3>Apa itu tabel “Perkembangan yang paling mungkin”?</h3>
@@ -369,6 +383,7 @@ const SHOT_N={
   id:{smash:'Smes',kill:'Kill',drop:'Dropshot',clear:'Lob atas',lift:'Lob bawah',flick:'Servis flick',drive:'Drive',push:'Dorongan',net:'Netting',block:'Blok',serve:'Servis pendek'}};
 const DIR_N={ru:{line:'по линии',mid:'в центр',cross:'кроссом'},en:{line:'straight',mid:'down the middle',cross:'cross-court'},id:{line:'lurus',mid:'ke tengah',cross:'silang'}};
 const SDIR_N={ru:{mid:'к центру',cross:'в угол',line:'в глубину'},en:{mid:'to the centre',cross:'to the corner',line:'deep'},id:{mid:'ke tengah',cross:'ke sudut',line:'ke belakang'}};
+const SHOT_DAT={smash:'смэшу',kill:'добиванию',drop:'укороченному',clear:'высоко-далёкому',lift:'откидке',flick:'высокой подаче',drive:'плоскому',push:'толчку',net:'сетке',block:'подставке',serve:'короткой подаче'};
 const DIR=DIR_N.ru, SERVE_DIR=SDIR_N.ru;
 const GROUPS=[['smash','смэш и добивание'],['drop','укороченный'],['high','высокие: высоко-далёкий, откидка'],['drive','плоские'],['push','толчок в середину'],['net','сетка и подставка']];
 // по-русски удар снизу вверх из задней зоны — «высоко-далёкий», из передней — «откидка»
@@ -561,8 +576,9 @@ function typicalReply(c,incoming){
   if(D<2.4) return (incoming==='net'||incoming==='block'||incoming==='serve'||incoming==='push')?['net','line']:['lift','cross'];
   return ['lift','line'];
 }
-function predictNext(holder,c,incoming,filters){
-  const [t,d]=typicalReply(c,incoming);
+// plan — запланированный удар {type,dir}: партнёр бьющего готовится к нему, а не к «типичному»
+function predictNext(holder,c,incoming,filters,plan){
+  const [t,d]=plan?[plan.type,plan.dir||((plan.type==='serve'||plan.type==='flick')?'mid':'line')]:typicalReply(c,incoming);
   const shot=makeShot(holder,c,t,d);
   const os=-sideOf(teamOf(holder));
   let best=null,bd=1e9;
@@ -573,8 +589,8 @@ function predictNext(holder,c,incoming,filters){
   return {shot,t:best.t,contact:oc,rep:repertoire(pseudo,oc,filters)};
 }
 // Куда встать партнёру того, кто сейчас бьёт.
-function holderPartner(holder,body,c,incoming,filters){
-  const pn=predictNext(holder,c,incoming,filters);
+function holderPartner(holder,body,c,incoming,filters,plan){
+  const pn=predictNext(holder,c,incoming,filters,plan);
   const cons={[holder]:{start:body,r:PH.VANIM*Math.max(0,pn.t-PH.RECOVER)}};
   const res=optimize(teamOf(holder),pn.rep,cons,{fast:true,rounds:2});
   return res[partnerOf(holder)];
@@ -660,7 +676,7 @@ const S={
   layers:{fan:true,zones:true,ghosts:true,trails:true,side:!window.matchMedia('(max-width: 860px)').matches},speed:0.5,
   anim:null,history:[],auto:false,over:null,lastPhase:null,highlight:null,ev:null,rep:null,
   lesson:null,quiz:null,desc:null,dragging:null,dirty:true,
-  paused:false,queued:null,next:null,shDrag:null
+  paused:false,queued:null,next:null,shDrag:null,sel:null,tween:null
 };
 const waitingTeam=()=>S.holder?other(teamOf(S.holder)):null;
 
@@ -745,11 +761,12 @@ function applyView(){
 // ---------- ситуации ----------
 function bodyFromContact(c,team){const s=sideOf(team);return {x:clamp(c.x*0.95,-C.HW,C.HW),y:c.y+s*0.38};}
 function contactFromBody(b,team,h){const s=sideOf(team);return {x:b.x,y:b.y-s*0.38,h};}
-function snapshot(){return JSON.parse(JSON.stringify({pos:S.pos,holder:S.holder,contact:S.contact,incoming:S.incoming,band:S.band,locked:S.locked,ideal:S.ideal,over:S.over,desc:S.desc,lastPhase:S.lastPhase?{trails:S.lastPhase.trails,shotKey:S.lastPhase.shotKey}:null}));}
-function restore(sn){Object.assign(S,JSON.parse(JSON.stringify(sn)));if(S.lastPhase&&S.lastPhase.shotKey)S.lastPhase.shot=shotFromKey(S.lastPhase.shotKey);recomputeEval();drawStatic();S.dirty=true;updatePanel();}
+function snapshot(){return JSON.parse(JSON.stringify({sel:S.sel,pos:S.pos,holder:S.holder,contact:S.contact,incoming:S.incoming,band:S.band,locked:S.locked,ideal:S.ideal,over:S.over,desc:S.desc,lastPhase:S.lastPhase?{trails:S.lastPhase.trails,shotKey:S.lastPhase.shotKey}:null}));}
+function restore(sn){S.tween=null;Object.assign(S,JSON.parse(JSON.stringify(sn)));if(S.lastPhase&&S.lastPhase.shotKey)S.lastPhase.shot=shotFromKey(S.lastPhase.shotKey);recomputeEval();drawStatic();S.dirty=true;updatePanel();}
 function shotFromKey(k){return makeShot(k.hitter,k.from,k.type,k.dir,k.custom||{});}
 
 function setSituation(holder,contact,posOverride,incoming=null){
+  S.sel=null;S.tween=null;
   S.holder=holder;S.contact={...contact};S.incoming=incoming;S.band=bandOf(contact.h);S.locked=null;S.over=null;S.lastPhase=null;
   const ht=teamOf(holder);
   const pos={};
@@ -786,9 +803,38 @@ function arrangeWaiting(fast){
   const res=optimize(wt,rep,cons,{cur:S.pos,fast});
   for(const id of MATES[wt]) S.pos[id]=res[id];
 }
-function arrangeHolderPartner(){
+// какие удары доступны текущему бьющему (разные типы из repertoire)
+function selTypes(){
+  if(!S.holder||S.over||!S.contact) return [];
+  const seen=[];
+  for(const r of repertoire(S.holder,S.contact,S.filters)) if(!seen.includes(r.type)) seen.push(r.type);
+  return seen;
+}
+const selPlan=()=>S.sel?{type:S.sel,dir:(S.sel==='serve'||S.sel==='flick')?'mid':'line'}:null;
+function arrangeHolderPartner(animate){
+  S.tween=null;
+  if(S.sel&&!selTypes().includes(S.sel)) S.sel=null;
   const hp=partnerOf(S.holder);
-  S.pos[hp]=holderPartner(S.holder,S.pos[S.holder],S.contact,S.incoming,S.filters);
+  const to=holderPartner(S.holder,S.pos[S.holder],S.contact,S.incoming,S.filters,selPlan());
+  if(animate&&Math.hypot(to.x-S.pos[hp].x,to.y-S.pos[hp].y)>0.02) S.tween={id:hp,from:{...S.pos[hp]},to:{...to},t0:performance.now(),dur:400};
+  else S.pos[hp]=to;
+}
+function finishTween(){if(S.tween){S.pos[S.tween.id]={...S.tween.to};S.tween=null;drawStatic();S.dirty=true;}}
+function stepTween(now){
+  const tw=S.tween; if(!tw) return;
+  const f=clamp((now-tw.t0)/tw.dur,0,1), e=f<0.5?2*f*f:1-2*(1-f)*(1-f);
+  S.pos[tw.id]={x:lerp(tw.from.x,tw.to.x,e),y:lerp(tw.from.y,tw.to.y,e)};
+  if(f>=1){S.tween=null;drawStatic();}
+  S.dirty=true;
+}
+// выбрать тип удара (null — «Авто»): партнёр бьющего заранее переходит в нужную точку
+function setSel(t){
+  if(S.anim||!S.holder||S.over||S.mode!=='play') return;
+  if(t&&!selTypes().includes(t)) t=null;
+  if(S.sel===t) return;
+  S.sel=t;S.highlight=null;
+  arrangeHolderPartner(true);
+  S.desc={kind:'ready'};drawFan();drawSidePath();S.dirty=true;updatePanel();
 }
 
 // ---------- отрисовка ----------
@@ -868,19 +914,20 @@ function drawFan(){
   const showAll=(S.layers.fan||choose)&&!(S.mode==='quiz'&&!quizFan());
   rows.forEach((r,i)=>{
     const hl=S.highlight===i||only===i;
+    const dimSel=!!(S.sel&&!S.anim&&r.type!==S.sel&&!hl); // выбран другой тип — эти удары приглушены
     if(only!=null&&only!==i) return;
     if(!(showAll&&vis.has(i))&&!hl) return;
     const sh=r.shot, t=targetOf(r);
     const pts=sh.samples.slice(0,t.k+1).map(q=>q.x.toFixed(3)+','+q.y.toFixed(3)).join(' ');
     const col=statusColor(r.bm);
-    el('polyline',{points:pts,fill:'none',stroke:col,'stroke-width':hl?0.08:0.035,opacity:hl?1:0.75,'stroke-dasharray':isUp(sh.type)?'0.18 0.1':'none','data-i':i},L.fan);
+    el('polyline',{points:pts,fill:'none',stroke:col,'stroke-width':hl?0.08:0.035,opacity:hl?1:(dimSel?0.18:0.75),'stroke-dasharray':isUp(sh.type)?'0.18 0.1':'none','data-i':i},L.fan);
     const c=0.11, cross=`M${t.x-c},${t.y-c} L${t.x+c},${t.y+c} M${t.x-c},${t.y+c} L${t.x+c},${t.y-c}`;
     if(choose||only!=null){
-      const g=el('g',{class:'tgt'+(hl?' hl':''),'data-i':i},L.tgt);
+      const g=el('g',{class:'tgt'+(hl?' hl':''),'data-i':i,opacity:dimSel?0.28:1},L.tgt);
       el('circle',{cx:t.x,cy:t.y,r:0.27,class:'halo'},g);
       if(t.reach) el('circle',{cx:t.x,cy:t.y,r:0.1,fill:COL[r.resp],stroke:col,'stroke-width':0.035},g);
       else el('path',{d:cross,stroke:col,'stroke-width':0.05},g);
-      respBadge(g,t,r.resp,!t.reach);
+      respBadge(g,t,r.resp,!t.reach||dimSel);
       if(choose){
         // наведение подсвечивает без перерисовки: иначе щелчок теряется
         g.addEventListener('click',()=>chooseRow(i));
@@ -921,12 +968,16 @@ function chooseRow(i){
   else playShot(r.type,r.dir);
 }
 // удар в любую точку половины соперника: тип удара — тот из возможных отсюда, чья обычная глубина ближе всего
-function customShot(hitter,c,p){
+// допустимая дальность выбранного удара, метров от сетки: дальше или ближе он не долетит или не получится
+const SEL_RANGE={smash:[2.5,6.4],kill:[1.0,4.5],drop:[0.5,3.0],clear:[4.0,6.68],lift:[4.0,6.68],flick:[4.5,5.94],drive:[2.5,6.68],push:[1.8,4.5],net:[0.4,1.5],block:[0.4,2.2],serve:[1.98,3.0]};
+function customShot(hitter,c,p,sel){
   const s=sideOf(teamOf(hitter)), d=-s*p.y;
   if(d<0.25) return null;
   const x=clamp(p.x,-C.HW+0.02,C.HW-0.02), depth=clamp(d,0.4,C.HL-0.02);
   let type=null,bd=1e9;
-  for(const r of repertoire(hitter,c,S.filters)){const dd=Math.abs(SHOT[r.type].depth-depth);if(dd<bd){bd=dd;type=r.type;}}
+  if(sel) type=sel;
+  else for(const r of repertoire(hitter,c,S.filters)){const dd=Math.abs(SHOT[r.type].depth-depth);if(dd<bd){bd=dd;type=r.type;}}
+  if(sel){const [lo,hi]=SEL_RANGE[sel]; if(depth<lo-1e-9||depth>hi+1e-9) return {bad:true,type:sel,name:shotTypeName(sel,Math.abs(c.y)),x,y:p.y};}
   let dir;
   if(type==='serve'||type==='flick') dir=Math.abs(x)>1.2?'cross':'mid';
   else {const sd=Math.abs(c.x)<0.3?(c.x>=0?1:-1):Math.sign(c.x), k=x*sd; dir=k>0.6?'line':k<-0.6?'cross':'mid';}
@@ -934,13 +985,20 @@ function customShot(hitter,c,p){
 }
 function previewAt(p){
   const src=S.anim?{h:S.next.R,c:S.next.c2,pos:S.next.pos}:{h:S.holder,c:S.contact,pos:S.pos};
-  const cs=customShot(src.h,src.c,p); if(!cs) return null;
+  const cs=customShot(src.h,src.c,p,S.anim||S.mode!=='play'?null:S.sel); if(!cs) return null;
+  if(cs.bad) return cs;
   cs.row=evalTeam(src.pos,other(teamOf(src.h)),[{type:cs.type,dir:cs.dir,w:1,shot:cs.shot}]).rows[0];
   return cs;
 }
 function drawPreview(pv,neutral){
   L.prev.innerHTML='';
   if(!pv) return;
+  if(pv.bad){ // выбранный удар туда не долетит: красный крестик и подпись
+    const c=0.2;
+    el('path',{d:`M${pv.x-c},${pv.y-c} L${pv.x+c},${pv.y+c} M${pv.x-c},${pv.y+c} L${pv.x+c},${pv.y-c}`,stroke:'#ef4444','stroke-width':0.09,'stroke-linecap':'round'},L.prev);
+    const lb=el('text',{x:clamp(pv.x,-1.3,1.3).toFixed(3),y:(pv.y+(pv.y<0?-0.4:0.62)).toFixed(3),'text-anchor':'middle','font-size':0.26,'font-weight':700,fill:'#fca5a5',stroke:'#0b1220','stroke-width':0.05,'paint-order':'stroke'},L.prev);
+    lb.textContent=tx().selNo(pv.name); return;
+  }
   const r=pv.row, sh=pv.shot, t=targetOf(r), col=statusColor(r.bm);
   if(neutral){ // в тесте до проверки: только куда летит, без подсказки, успевают ли
     el('polyline',{points:sh.samples.map(q=>q.x.toFixed(3)+','+q.y.toFixed(3)).join(' '),fill:'none',stroke:'#fde68a','stroke-width':0.05,opacity:0.85},L.prev);
@@ -976,7 +1034,7 @@ function startShDrag(ev){
       // без притягивания к точкам: волан летит ровно туда, где его отпустили
       S.shDrag.pv=previewAt(p); drawPreview(S.shDrag.pv,S.mode==='quiz');
       // волан над точкой удара — подсвечиваем её и строку в таблице; притягивания нет
-      setHL(S.shDrag.pv?nearestTarget(p,0.35):null); drawSidePath();
+      setHL(S.shDrag.pv&&!S.shDrag.pv.bad?nearestTarget(p,0.35):null); drawSidePath();
       if(S.mode==='quiz'&&!S.shDrag.pv) drawQuizAim();
     }
     S.dirty=true;
@@ -987,7 +1045,7 @@ function startShDrag(ev){
     S.shDrag=null;S.highlight=null;markRow(null);
     if(S.mode==='quiz'){if(pv){S.quiz.pick=pv;S.quiz.needPick=false;S.lastPhase={shot:pv.shot,trails:null};}drawQuizAim();drawSidePath();updatePanel();S.dirty=true;return;}
     if(i!=null){L.prev.innerHTML='';chooseRow(i);}
-    else if(pv) chooseCustom(pv);
+    else if(pv&&!pv.bad) chooseCustom(pv);
     else {L.prev.innerHTML='';drawFan();drawSidePath();}
     S.dirty=true;
   };
@@ -1027,7 +1085,7 @@ function drawForm(){
 }
 function drawSidePath(){
   let sh=null;
-  if(S.shDrag&&S.shDrag.pv) sh=S.shDrag.pv.shot;
+  if(S.shDrag&&S.shDrag.pv&&S.shDrag.pv.shot) sh=S.shDrag.pv.shot;
   else if(S.anim) sh=S.anim.ph.shot;
   else if(S.highlight!=null&&curRows()&&curRows()[S.highlight]) sh=curRows()[S.highlight].shot;
   else if(S.lastPhase&&S.lastPhase.shot) sh=S.lastPhase.shot;
@@ -1084,7 +1142,9 @@ function drawDynamic(){
 // ---------- анимация ----------
 function playShot(type,dir,o={}){
   if(S.anim||!S.holder||S.over) return;
+  finishTween();
   S.history.push(snapshot());
+  S.sel=null;
   const shot=o.shot||makeShot(S.holder,S.contact,type,dir);
   const ph=planPhase(S.pos,shot,{filters:S.filters,hitterTo:o.hitterTo,late:o.late});
   S.highlight=null;S.locked=null;S.paused=false;S.next=null;
@@ -1160,6 +1220,7 @@ function setBanner(t){const b=$('banner');if(!t){b.style.display='none';return;}
 function loop(now){
   try{
     if(S.anim){stepAnim(now);S.dirty=true;}
+    stepTween(now);
     if(S.dirty){drawDynamic();S.dirty=false;}
   }catch(e){console.error(e);S.anim=null;S.dirty=false;}
   requestAnimationFrame(loop);
@@ -1177,6 +1238,7 @@ let dragRaf=null;
 function startDrag(ev,id){
   if(!canDragId(id)) return;
   ev.preventDefault();
+  finishTween();
   S.dragging=id; S.auto=false; S.paused=false;
   const g=L.pl[id].g; g.setPointerCapture(ev.pointerId);
   const move=e=>{
@@ -1223,7 +1285,7 @@ const TX={
   band_lbl:'На какой высоте бьющий встречает волан:', band_high:'сверху', band_mid:'на уровне груди', band_low:'снизу',
   auto:'Авторозыгрыш', stop:'Стоп', pause:'Пауза', resume:'Продолжить', back:'Назад', reset:'Сначала', relax:'Поставить пару как надо',
   who_takes:'Наиболее вероятное развитие событий',
-  play_hint:'Большой волан у бьющего можно перетащить в любое место на половине соперника. Подробности — во вкладке «Справка».',
+  play_hint:'Большой волан у бьющего можно перетащить в любое место на половине соперника; тип удара — «Авто» или любой из кнопок над кортом. Подробности — во вкладке «Справка».',
   ls_exit:'К списку уроков', ls_next:'Дальше', ls_again:'Повторить шаг',
   qz_check:'Проверить', qz_retry:'Повторить', qz_next:'Следующий тест',
   qzNum:(i,n)=>`Тест ${i} из ${n}`,
@@ -1276,6 +1338,11 @@ const TX={
   tblWait:'Волан в полёте. Нажмите «Пауза» — здесь появятся удары следующего бьющего.',
   tblHead:t=>`<th>Удар</th><th>Часто</th><th>Берёт (${TX.ru.team[t].nom})</th>`,
   tblNobody:'никто',
+  sel_lbl:'Удар:', selAuto:'Авто',
+  selNo:n=>`${n} туда не долетит`,
+  selWhere:['встаёт у сетки','встаёт в середине корта','отходит назад'],
+  selTail:{def:'пара встаёт для защиты',att:'пара остаётся в атаке'},
+  selPrep:(who,sh,where,tail)=>`${who} готовится к «${sh}»: ${where}${tail?', '+tail:''}.`,
   tblHint:'Нажмите на строку — удар будет сыгран; наведите мышь — на корте подсветится его траектория. Точка в строке — успевает ли защита: <span style="color:var(--ok)">успевает</span>, <span style="color:var(--warn)">впритык</span>, <span style="color:var(--bad)">нет</span>.',
   bannerLost:w=>`Очко ${TX.ru.team[w].dat}: никто не успел к волану`,
   lsDone:'Урок окончен.', lsStep:(a,b)=>`шаг ${a} из ${b}`,
@@ -1308,7 +1375,7 @@ const TX={
   band_lbl:'Height at which the hitter meets the shuttle:', band_high:'overhead', band_mid:'chest height', band_low:'low',
   auto:'Auto rally', stop:'Stop', pause:'Pause', resume:'Resume', back:'Back', reset:'Start over', relax:'Best positions',
   who_takes:'Most likely course of play',
-  play_hint:'The big shuttle at the hitter can be dragged anywhere on the opponent’s half. More details are in the “Help” tab.',
+  play_hint:'The big shuttle at the hitter can be dragged anywhere on the opponent’s half; the shot type is “Auto” or any button above the court. More details are in the “Help” tab.',
   ls_exit:'Back to lessons', ls_next:'Next', ls_again:'Repeat step',
   qz_check:'Check', qz_retry:'Try again', qz_next:'Next test',
   qzNum:(i,n)=>`Test ${i} of ${n}`,
@@ -1361,6 +1428,11 @@ const TX={
   tblWait:'The shuttle is in flight. Press “Pause” — the next hitter’s shots will appear here.',
   tblHead:t=>`<th>Shot</th><th>How often</th><th>Taken by (${TX.en.team[t].nom})</th>`,
   tblNobody:'nobody',
+  sel_lbl:'Shot:', selAuto:'Auto',
+  selNo:n=>`${n} won’t reach there`,
+  selWhere:['steps up to the net','stands mid-court','drops back'],
+  selTail:{def:'the pair sets up to defend',att:'the pair stays in attack'},
+  selPrep:(who,sh,where,tail)=>`${who} gets ready for the ${sh}: ${where}${tail?', '+tail:''}.`,
   tblHint:'Tap a row to play that shot; point the mouse at it to highlight its path on the court. The dot in a row shows whether the defence gets there: <span style="color:var(--ok)">yes</span>, <span style="color:var(--warn)">just</span>, <span style="color:var(--bad)">no</span>.',
   bannerLost:w=>`Point to ${TX.en.team[w].dat}: nobody reached the shuttle`,
   lsDone:'End of lesson.', lsStep:(a,b)=>`step ${a} of ${b}`,
@@ -1393,7 +1465,7 @@ const TX={
   band_lbl:'Ketinggian saat pemukul menyambut kok:', band_high:'di atas kepala', band_mid:'setinggi dada', band_low:'rendah',
   auto:'Reli otomatis', stop:'Berhenti', pause:'Jeda', resume:'Lanjutkan', back:'Kembali', reset:'Ulang dari awal', relax:'Posisi terbaik',
   who_takes:'Perkembangan yang paling mungkin',
-  play_hint:'Kok besar di pemukul bisa diseret ke mana saja di sisi lawan. Keterangan lengkap ada di tab “Bantuan”.',
+  play_hint:'Kok besar di pemukul bisa diseret ke mana saja di sisi lawan; jenis pukulan: “Auto” atau tombol mana pun di atas lapangan. Keterangan lengkap ada di tab “Bantuan”.',
   ls_exit:'Ke daftar pelajaran', ls_next:'Lanjut', ls_again:'Ulangi langkah',
   qz_check:'Periksa', qz_retry:'Ulangi', qz_next:'Tes berikutnya',
   qzNum:(i,n)=>`Tes ${i} dari ${n}`,
@@ -1446,6 +1518,11 @@ const TX={
   tblWait:'Kok sedang melayang. Tekan “Jeda” — pukulan pemukul berikutnya akan muncul di sini.',
   tblHead:t=>`<th>Pukulan</th><th>Seberapa sering</th><th>Diambil (${TX.id.team[t].nom})</th>`,
   tblNobody:'tidak ada',
+  sel_lbl:'Pukulan:', selAuto:'Auto',
+  selNo:n=>`${n} tidak sampai ke sana`,
+  selWhere:['maju ke net','berdiri di tengah lapangan','mundur ke belakang'],
+  selTail:{def:'pasangan bersiap bertahan',att:'pasangan tetap menyerang'},
+  selPrep:(who,sh,where,tail)=>`${who} bersiap untuk ${sh}: ${where}${tail?', '+tail:''}.`,
   tblHint:'Ketuk sebuah baris untuk memainkan pukulan itu; arahkan mouse untuk menyorot lintasannya di lapangan. Titik di baris menunjukkan apakah pertahanan sempat: <span style="color:var(--ok)">sempat</span>, <span style="color:var(--warn)">pas-pasan</span>, <span style="color:var(--bad)">tidak</span>.',
   bannerLost:w=>`Poin untuk ${TX.id.team[w].dat}: tidak ada yang sempat ke kok`,
   lsDone:'Pelajaran selesai.', lsStep:(a,b)=>`langkah ${a} dari ${b}`,
@@ -1554,14 +1631,28 @@ function playCardHTML(){
     const wt=waitingTeam();
     head=T.stReady(`<b style="color:${COL[S.holder]}">${nm(S.holder)}</b>`,situationText(),wt,Math.round(S.ev.cover*100),T.form[formationOf(S.pos,wt)])+(S.paused?`<br><b>${T.stHold}</b>`:'');
   }
+  if(S.sel&&!S.anim&&!S.over&&S.holder){
+    const hp=partnerOf(S.holder), pp=S.tween?S.tween.to:S.pos[hp], dp=Math.abs(pp.y);
+    const name=(LANG==='ru'?(S.sel==='lift'&&Math.abs(S.contact.y)>=2.4?SHOT_DAT.clear:SHOT_DAT[S.sel]):shotTypeName(S.sel,Math.abs(S.contact.y))).toLowerCase();
+    const tail=isUp(S.sel)?T.selTail.def:(S.sel==='smash'||S.sel==='kill')?T.selTail.att:'';
+    head+=`<br>`+T.selPrep(`<b style="color:${COL[hp]}">${nm(hp)}</b>`,name,T.selWhere[dp<2.4?0:dp<3.4?1:2],tail);
+  }
   let body='';
   if(!S.anim&&!S.over&&(!d||d.kind==='ready')) body=readyTips();
   else if(d&&d.kind==='phase') body=describePhase(d.d,true);
   else if(d&&d.kind==='drag') body=describeDrag(d.id);
   return `<p>${head}</p>`+body;
 }
+function renderSel(){
+  const box=$('shotsel'); box.hidden=S.mode!=='play';
+  if(S.mode!=='play') return;
+  const T=tx(), can=!!(!S.anim&&!S.over&&S.holder), types=S.holder&&S.contact?selTypes():[], D=S.contact?Math.abs(S.contact.y):0;
+  const h=`<span class="lbl">${T.sel_lbl}</span>`+[['',T.selAuto]].concat(types.map(t=>[t,shotTypeName(t,D)])).map(([t,n])=>`<button data-t="${t}" class="${(S.sel||'')===t?'on':''}"${can?'':' disabled'}>${n}</button>`).join('');
+  if(box.dataset.h!==h){box.dataset.h=h;box.innerHTML=h;}
+}
 function updatePanel(busy){
   const mode=S.mode, T=tx();
+  renderSel();
   if(mode==='play'){
     for(const b of document.querySelectorAll('#pl-band button')){b.classList.toggle('on',b.dataset.band===S.band);b.disabled=!!(S.anim||S.over||!S.holder);}
     $('pl-comment').innerHTML=playCardHTML();
@@ -1969,7 +2060,7 @@ function updateQuizPanel(){
 
 // ---------- режимы ----------
 function setMode(m){
-  S.anim=null;S.mode=m;S.auto=false;S.highlight=null;S.paused=false;S.queued=null;S.next=null;S.shDrag=null;L.prev.innerHTML='';
+  S.anim=null;S.sel=null;S.tween=null;S.mode=m;S.auto=false;S.highlight=null;S.paused=false;S.queued=null;S.next=null;S.shDrag=null;L.prev.innerHTML='';
   $('stage-ctl').hidden=m!=='play';
   for(const b of document.querySelectorAll('#tabs button')) b.classList.toggle('on',b.dataset.mode===m);
   for(const k of ['play','lessons','quiz','help']) $('m-'+k).hidden=k!==m;
@@ -1989,6 +2080,7 @@ function bindUI(){
     arrangeHolderPartner();arrangeWaiting(false);recomputeIdeal();recomputeEval();S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();
   };
   const toggleAuto=()=>{S.auto=!S.auto;if(S.auto){if(S.paused)resumeGame();else autoStep();}else if(S.paused&&!S.anim)S.paused=false;updatePanel(!!S.anim);};
+  $('shotsel').onclick=e=>{const b=e.target.closest('button[data-t]');if(b&&!b.disabled){S.auto=false;setSel(b.dataset.t||null);}};
   $('sc-auto').onclick=toggleAuto;
   $('sc-pause').onclick=togglePause;
   $('pl-back').onclick=()=>{if(S.anim||!S.history.length)return;S.auto=false;restore(S.history.pop());};

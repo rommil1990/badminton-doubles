@@ -27,3 +27,14 @@ ready('r1',{x:-1.1,y:-3.2,h:1.35},'Red midcourt chest height');
 ready('r1',{x:-1.5,y:-3.8,h:0.6},'Red defending low mid (after our smash)');
 ready('r1',{x:0.5,y:-3.0,h:2.6},'Red overhead midcourt');
 ready('r1',{x:-0.3,y:-2.15,h:1.1,serve:true},'Red serve');
+
+// Запланированный удар: партнёр бьющего готовится именно к нему.
+{
+  const c={x:1.3,y:-5.1,h:2.7}, body={x:c.x,y:c.y-0.38};
+  const dep=(plan)=>Math.abs(E.holderPartner('r1',body,c,null,undefined,plan).y);
+  const dSmash=dep({type:'smash',dir:'line'}), dClear=dep({type:'clear',dir:'line'}), dAuto=dep(null);
+  console.log(`\n== Planned shot, red r1 overhead from the back: partner r2 depth: smash ${dSmash.toFixed(2)} m, clear ${dClear.toFixed(2)} m, auto ${dAuto.toFixed(2)} m`);
+  if(!(dClear>dSmash+1.0)){console.log('FAIL: with a planned clear the partner must stand clearly farther from the net than with a planned smash');process.exit(1);}
+  if(Math.abs(dAuto-dSmash)>0.01){console.log('FAIL: without a plan the partner must stay where the typical reply (smash) puts them');process.exit(1);}
+  console.log('planned-shot check ok');
+}

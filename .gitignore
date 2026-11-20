@@ -1,3 +1,5 @@
 .KATE/
 .DS_Store
 __pycache__/
+/video/
+__pycache__/

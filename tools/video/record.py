@@ -4,9 +4,10 @@
 import os, sys, json, time, glob, shutil, math
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from scenario import SCENES
+from cfg import TMP, LANG
 from playwright.sync_api import sync_playwright
 URL="file://"+os.path.abspath(os.path.join(os.path.dirname(__file__),"..","..","docs","index.html"))
-TMP="/tmp/badm-video"; RAW=TMP+"/raw"
+RAW=TMP+"/raw"
 W,H,BAND=1280,800,72   # кадр; нижняя полоса под субтитры
 GAP_PHRASE,GAP_SCENE=0.35,0.7
 DURS={int(k):v for k,v in json.load(open(TMP+"/durations.json")).items()}
@@ -72,9 +73,11 @@ def tabs_hover(c):
     for i in range(4):
         c.goto("#tabs button",i,0.5); c.sleep(0.35)
 def lang_switch(c):
-    c.click("#panel .langsw button[data-lang=en]"); c.until(.5)
-    c.click("#panel .langsw button[data-lang=id]"); c.until(.75)
-    c.click("#panel .langsw button[data-lang=ru]")
+    # switch through the other languages and finish on the video language
+    seq=[l for l in ("ru","en") if l!=LANG]+["id",LANG]
+    for i,l in enumerate(seq):
+        c.click("#panel .langsw button[data-lang=%s]"%l)
+        if i<len(seq)-1: c.until((.5,.75)[i])
 def to_card(c): c.goto("#pl-comment",dur=1.0)
 def table_cols(c):
     c.goto("#pl-table th",0,0.8); c.until(.35); c.goto("#pl-table th",1,1.2); 
@@ -148,7 +151,8 @@ def main():
     tl=[]; errs=[]
     with sync_playwright() as p:
         br=p.chromium.launch(headless=True,channel="chrome")
-        ctx=br.new_context(viewport={"width":W,"height":H},locale="ru-RU",record_video_dir=RAW,record_video_size={"width":W,"height":H})
+        ctx=br.new_context(viewport={"width":W,"height":H},locale="ru-RU" if LANG=="ru" else "en-US",record_video_dir=RAW,record_video_size={"width":W,"height":H})
+        ctx.add_init_script("try{localStorage.setItem('badm-lang','%s')}catch(e){}"%LANG)
         ctx.add_init_script(INIT)
         pg=ctx.new_page(); T0=time.time()
         pg.on("pageerror",lambda e:errs.append(str(e)))

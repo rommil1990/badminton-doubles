@@ -52,3 +52,7 @@ SCENES = [
   ("Вот и всё. Откройте вкладку «Игра», потяните волан и посмотрите, как двигается пара. Удачи на корте!", "finish"),
  ]),
 ]
+
+import os
+if os.environ.get("VIDEO_LANG","ru")=="en":
+    from scenario_en import SCENES  # noqa: F811

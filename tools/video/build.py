@@ -1,7 +1,8 @@
 # Сборка: webm + озвучка по таймлайну -> MP4 (H.264 + AAC, 30 к/с).
 import json, subprocess, os, sys
-TMP="/tmp/badm-video"; OUT="/Users/rommil/KATE/бадминтон-приложуха/video/kak-polzovatsya.mp4"
-OFFSET=float(sys.argv[1]) if len(sys.argv)>1 else -0.2   # сдвиг звука относительно видео, сек
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from cfg import TMP, OUT, LANG
+OFFSET=float(sys.argv[1]) if len(sys.argv)>1 else (-0.2 if LANG=='ru' else -0.45)   # сдвиг звука относительно видео, сек
 tl=json.load(open(TMP+"/timeline.json")); os.makedirs(os.path.dirname(OUT),exist_ok=True)
 ins=[]; flt=[]
 for i,t in enumerate(tl["timeline"]):

@@ -438,14 +438,18 @@ function makeShot(hitter,c,type,dir,o={}){
   if(P.v0){T=P.Ld/P.v0*(Math.exp(dist/P.Ld)-1); spOf=u=>Math.min(1,P.Ld*Math.log(1+P.v0*u*T/P.Ld)/dist);}
   else {T=P.T*clamp(Math.pow(dist/P.ref,0.6),0.7,1.35); spOf=u=>P.a*(1-(1-u)*(1-u))+(1-P.a)*u;}
   const N=40, samples=[], hit=[];
+  const pt=(u,k)=>{const sp=spOf(u), h=Math.max(0,c.h*(1-sp)+b*shape(sp));return {x:lerp(c.x,land.x,sp),y:lerp(c.y,land.y,sp),h,t:u*T,k,q:quality(h)};};
+  const canHit=q=>{const dr=-s*q.y;return dr>=0.3&&q.h>=PH.HMIN&&q.h<=PH.HMAX&&Math.abs(q.x)<=C.HW+0.5&&dr<=C.HL+0.8;};
   for(let k=0;k<=N;k++){
-    const u=k/N, sp=spOf(u), ww=wf(sp);
-    const x=lerp(c.x,land.x,sp), y=lerp(c.y,land.y,sp);
-    const h=Math.max(0,c.h*(1-sp)+b*shape(sp));
-    const dr=-s*y;
-    const q={x,y,h,t:u*T,k,q:quality(h)};
+    const q=pt(k/N,k), pr=samples[k-1];
+    // в конце высокого удара волан падает круто: за один шаг — на метр. Добавляем промежуточные точки,
+    // иначе принимающий «проскакивает» высоту удара сверху (2,1–2,6 м) и бьёт с уровня груди
+    if(pr&&Math.abs(q.h-pr.h)>0.15&&Math.min(q.h,pr.h)<=PH.HMAX){
+      const m=Math.ceil(Math.abs(q.h-pr.h)/0.12);
+      for(let i=1;i<m;i++){const r=pt((k-1+i/m)/N,k-1); if(canHit(r)) hit.push(r);}
+    }
     samples.push(q);
-    if(dr>=0.3&&h>=PH.HMIN&&h<=PH.HMAX&&Math.abs(x)<=C.HW+0.5&&dr<=C.HL+0.8) hit.push(q);
+    if(canHit(q)) hit.push(q);
   }
   const custom=(o.landX!=null||o.depth!=null)?{landX:o.landX,depth:o.depth}:null;
   return {hitter,team,recv:other(team),type,dir,from:{x:c.x,y:c.y,h:c.h},land,T,samples,hit,rx:P.rx||0,custom,get name(){return shotName(type,dir,Math.abs(c.y));}};
@@ -630,6 +634,11 @@ function planPhase(pos,shot,o={}){
   let R=null,ri=null;
   for(const id of MATES[O]){const r=pVal(pos[id].x,pos[id].y,sO,shot); if(!ri||r.v>ri.v){ri=r;R=id;}}
   if(o.forceResp){R=o.forceResp;ri=pVal(pos[R].x,pos[R].y,sO,shot);}
+  // успел под высокий волан — бьёт сверху, пока волан выше 2,1 м, и может атаковать, а не ждёт, пока тот опустится до груди
+  if(!o.late&&ri&&ri.j>=0&&shot.hit[ri.j].h<2.1){
+    const p=pos[R];
+    for(let j=ri.j-1;j>=0;j--){const q=shot.hit[j]; if(q.h<2.1) continue; const m=q.t-(reachTime(p.x,p.y,sO,q.x,q.y,q.h)+shot.rx); if(m>=0){ri={...ri,j,m};break;}}
+  }
   if(o.late&&ri&&ri.j>=0){ // сценарий: принимающий опаздывает и берёт волан уже низко
     const p=pos[R];
     for(let j=ri.j;j<shot.hit.length;j++){const q=shot.hit[j];const m=q.t-(reachTime(p.x,p.y,sO,q.x,q.y,q.h)+shot.rx);if(q.h<0.75&&m>=0){ri={...ri,j,m};break;}}

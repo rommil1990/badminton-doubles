@@ -27,10 +27,6 @@ button.prim{background:#075985;border-color:#0ea5e9}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
 .status{font-size:13.5px}
 .status b{font-weight:650}
-.shots{display:flex;flex-direction:column;gap:6px;margin:8px 0}
-.shotrow{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.shotrow .nm{width:112px;color:var(--mut);font-size:12.5px}
-.shotrow button{padding:5px 8px;font-size:12.5px;display:flex;align-items:center;gap:5px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
 .comment{font-size:13.5px}
 .comment p{margin:0 0 7px}
@@ -43,6 +39,7 @@ th{color:var(--mut);font-weight:500}
 tr.hl td{background:rgba(253,230,138,.16)}
 tr.hl td:first-child{box-shadow:inset 3px 0 0 #fde68a;font-weight:700;color:#fde68a}
 tbody tr{cursor:pointer}
+tbody tr td .dot{margin-right:6px}
 details{margin:10px 0}
 summary{cursor:pointer;color:#bcd0e3;font-weight:600;margin-bottom:6px}
 label.chk{display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;font-size:13px;cursor:pointer}
@@ -61,6 +58,8 @@ label.chk{display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;f
 .qz-grid button.dim{opacity:.3}
 .qz-prog{font-size:12.5px;color:var(--mut)}
 .qz-prog a{color:#93c5fd;cursor:pointer;text-decoration:underline}
+.basics h2{font-size:16px;margin:18px 0 2px;color:#e6f1fb;border-bottom:1px solid var(--line);padding-bottom:3px}
+.basics h2:first-child{margin-top:4px}
 .basics h3{font-size:14.5px;margin:14px 0 4px;color:#cfe3f5}
 .basics p,.basics li{font-size:13.5px}
 .basics ul{padding-left:18px;margin:4px 0}
@@ -70,6 +69,7 @@ label.chk{display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;f
   #stage{height:72vh;flex:none;padding:2px}
   #panel{width:100%;border-left:0;border-top:1px solid var(--line)}
   #stage .stage-lang{display:flex}
+  #panel .langsw{display:none}
 }
 svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .pl{cursor:grab}
@@ -104,27 +104,16 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <button data-mode="play" class="on" data-i18n="tab_play"></button>
       <button data-mode="lessons" data-i18n="tab_lessons"></button>
       <button data-mode="quiz" data-i18n="tab_quiz"></button>
-      <button data-mode="basics" data-i18n="tab_basics"></button>
-      <button data-mode="faq" data-i18n="tab_faq"></button>
+      <button data-mode="help" data-i18n="tab_help"></button>
     </nav>
 
     <section id="m-play">
-      <div class="card status" id="pl-status"></div>
-      <div class="lbl" data-i18n="band_lbl"></div>
-      <div class="row" id="pl-band" style="margin-top:4px">
-        <button data-band="high" data-i18n="band_high"></button><button data-band="mid" data-i18n="band_mid"></button><button data-band="low" data-i18n="band_low"></button>
-      </div>
-      <div class="lbl" data-i18n="shots_lbl"></div>
-      <div id="pl-shots" class="shots"></div>
+      <div class="card comment" id="pl-comment"></div>
       <div class="row">
-        <button id="pl-rand" data-i18n="rand"></button>
-        <button id="pl-auto"></button>
-        <button id="pl-pause"></button>
         <button id="pl-back" data-i18n="back"></button>
         <button id="pl-reset" data-i18n="reset"></button>
         <button id="pl-relax" data-i18n="relax"></button>
       </div>
-      <div class="card comment" id="pl-comment"></div>
       <details open><summary data-i18n="who_takes"></summary><div id="pl-table"></div></details>
       <p class="hint" data-i18n="play_hint"></p>
     </section>
@@ -149,8 +138,9 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <div class="qz-grid" id="qz-grid"></div>
     </section>
 
-    <section id="m-basics" hidden class="basics">
+    <section id="m-help" hidden class="basics">
      <div data-lang-block="ru">
+      <h2>Основы</h2>
       <h3>Два строя пары</h3>
       <ul>
         <li><b>«Спереди-сзади» — атака.</b> Задний бьёт сверху (смэш, укороченный), передний стоит у линии подачи с поднятой ракеткой и добивает всё короткое.</li>
@@ -180,8 +170,30 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <p>Позиции не взяты из шаблона. Для каждого удара, который может сыграть соперник из этой точки, считается траектория волана и время полёта. Программа перебирает точки корта и ставит пару так, чтобы она успевала к как можно большему числу ударов и брала волан как можно выше — высокий волан можно бить вниз.</p>
       <p>Модель игрока: реакция около 0,2 с, бег вперёд и вбок около 3,6 м/с, назад медленнее (около 2,5 м/с), досягаемость ракеткой около 1 м, в выпаде больше. Скорости ударов — любительский уровень. Это упрощение: в реальной игре решают ещё хват, рука (левша или правша) и привычки соперника.</p>
       <p>Строй «бок о бок» получается из расчёта сам. Строй «спереди-сзади», когда соперник берёт волан снизу, задан правилом атаки, а точки внутри строя рассчитываются.</p>
+      <h2>Вопросы и ответы</h2>
+      <h3>Что это за приложение?</h3>
+      <p>Тренажёр перемещений в парном бадминтоне. Корт виден сверху: синие внизу, красные вверху. После каждого удара видно, кто берёт волан и куда должны встать оба игрока пары.</p>
+      <h3>Как двигать игроков?</h3>
+      <p>Перетащите любого игрока пальцем или мышью. Двигаете игрока пары, которая ждёт удара, — партнёр сам перейдёт в лучшую точку. Двигаете игрока с воланом — меняется место, откуда бьёт соперник.</p>
+      <h3>Как выбрать, куда полетит волан?</h3>
+      <p>Линии на корте — удары, которые может сыграть бьющий. Нажмите на строку в таблице «Наиболее вероятное развитие событий» или на точку на конце линии — удар полетит туда. Или перетащите большой волан у бьющего в любое место на половине соперника: удар подберётся сам по глубине: к сетке — укороченный, в середину — смэш, к задней линии — высоко-далёкий. Сразу видно траекторию и кто успевает. Если защитник успевает, он перехватывает волан раньше: до перехвата линия сплошная, дальше пунктир до вашей точки.</p>
+      <h3>Что значат цвета и номера у точек?</h3>
+      <p>Зелёная линия — защита успевает, жёлтая — впритык, красная — не успевает. Номер и цвет кружка у точки — какой игрок должен брать волан.</p>
+      <h3>Что за таблица «Наиболее вероятное развитие событий»?</h3>
+      <p>Это все удары, которые может сыграть бьющий из этой точки: как часто их играют, кто из защиты должен брать волан или что никто не успевает. Цветная точка в строке — успевает ли защита: зелёная — успевает, жёлтая — впритык, красная — нет. Нажмите на строку — этот удар будет сыгран. Если навести мышь на строку, на корте подсветится траектория этого удара. И наоборот: когда тянете большой волан и наводите его на точку удара, строка этого удара подсвечивается, а уберёте волан с точки — подсветка пропадёт. Если нажать «Пауза», пока волан летит, в таблице будут удары для следующего бьющего — их тоже можно играть нажатием на строку.</p>
+      <h3>Как работают «Авторозыгрыш» и «Пауза»?</h3>
+      <p>«Авторозыгрыш» играет сам: удары выбираются случайно, самые частые и опасные — чаще. «Пауза» останавливает картинку в любой момент, даже когда волан в полёте. В паузе нажмите на строку таблицы или на точку — так выбирается следующий удар. «Продолжить» — розыгрыш идёт дальше. Обе кнопки — под кортом.</p>
+      <h3>Что ещё показано на корте?</h3>
+      <p>Пунктирный кружок — лучшая точка для игрока, если он успеет до неё добежать. Цветные зоны — какую часть корта закрывает каждый игрок. Стрелки — как игроки переместились после удара. Справа — вид сбоку: на какой высоте летит волан. На телефоне он по умолчанию скрыт, чтобы корт был шире: включите «Вид сбоку (высота)» в «Настройках» внизу. Остальное лишнее там же можно выключить.</p>
+      <h3>Что делают остальные кнопки?</h3>
+      <p>«Назад» отменяет последний удар, «Сначала» возвращает начальную ситуацию, «Поставить пару как надо» ставит всех в лучшие точки. Высота, на которой бьющий встречает волан («сверху / на уровне груди / снизу»), выбирается в «Настройках» внизу: от неё зависят возможные удары.</p>
+      <h3>Что в других вкладках?</h3>
+      <p>«Уроки» — пошаговые разборы типовых розыгрышей. «Тест» — задания четырёх видов, их переключают кнопки сверху: расставить пару, которая ждёт удара; найти место партнёру того, кто взял волан; расставить сразу партнёра и обоих соперников; выбрать, куда бить, в атаке или из защиты, — перетащив большой волан. «Проверить» покажет оценку и лучший вариант по расчёту, «Повторить» — та же ситуация заново. Всего 100 пронумерованных тестов, каждый всегда один и тот же. Квадратики под заданием показывают результат: зелёная галочка — 85 баллов и больше, жёлтая — от 55, красная — меньше. Нажмите на квадратик, чтобы пройти тест заново; «Следующий тест» ведёт к следующему, ещё не пройденному на зелёный. Результаты хранятся в этом браузере.</p>
+      <h3>Как сменить язык и скорость?</h3>
+      <p>Язык — кнопки RU / EN / ID вверху. Скорость анимации — в «Настройках» внизу.</p>
      </div>
      <div data-lang-block="en">
+      <h2>Basics</h2>
       <h3>The two formations</h3>
       <ul>
         <li><b>Front-and-back — attack.</b> The rear player hits from above (smash, drop); the front player stands at the service line with the racket up and finishes everything short.</li>
@@ -211,8 +223,30 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <p>Positions are not taken from a template. For every shot the opponent can play from that spot, the app computes the shuttle's path and flight time. It then searches the court for the spots from which the pair reaches as many shots as possible and takes the shuttle as high as possible — a high shuttle can be hit down.</p>
       <p>Player model: reaction about 0.2 s, running forward and sideways about 3.6 m/s, backwards slower (about 2.5 m/s), racket reach about 1 m, more in a lunge. Shot speeds are club level. This is a simplification: in a real game grip, handedness and the opponents' habits matter too.</p>
       <p>The side-by-side formation comes out of the calculation by itself. Front-and-back when the opponent takes the shuttle from below is set by the attacking rule, and the spots inside the formation are calculated.</p>
+      <h2>Questions and answers</h2>
+      <h3>What is this app?</h3>
+      <p>A movement trainer for badminton doubles. The court is seen from above: Blue at the bottom, Red at the top. After every shot you see who takes the shuttle and where both players of the pair should stand.</p>
+      <h3>How do I move the players?</h3>
+      <p>Drag any player with a finger or the mouse. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player with the shuttle — that changes where the opponent hits from.</p>
+      <h3>How do I choose where the shuttle goes?</h3>
+      <p>The lines on the court are the shots the hitter can play. Tap a row of the “Most likely course of play” table or the dot at the end of a line — the shot goes there. Or drag the big shuttle at the hitter anywhere on the opponent's half: the shot is picked by depth: near the net — a drop, mid-court — a smash, at the back line — a clear. You see its path and who gets there at once. If a defender gets there, they take the shuttle earlier: the line is solid up to that point and dashed on to your spot.</p>
+      <h3>What do the colours and numbers at the dots mean?</h3>
+      <p>Green line: the defence gets there; yellow: only just; red: too late. The number and colour of the circle at a dot show which player should take the shuttle.</p>
+      <h3>What is the “Most likely course of play” table?</h3>
+      <p>All the shots the hitter can play from this spot: how often they are played, which defender should take the shuttle, or that nobody gets there. The coloured dot in a row shows whether the defence gets there: green — yes, yellow — only just, red — no. Tap a row — that shot is played. Point the mouse at a row and that shot’s path is highlighted on the court. It works the other way too: drag the big shuttle onto a shot’s dot and that shot’s row lights up; move it off the dot and the highlight goes. If you press “Pause” while the shuttle is flying, the table shows the shots for the next hitter — tap a row to play one of them.</p>
+      <h3>How do “Auto rally” and “Pause” work?</h3>
+      <p>“Auto rally” plays by itself: shots are picked at random, the most common and dangerous ones more often. “Pause” freezes the picture at any moment, even with the shuttle in the air. While paused, tap a table row or a dot to choose the next shot. “Resume” carries the rally on. Both buttons are under the court.</p>
+      <h3>What else is shown on the court?</h3>
+      <p>Dashed circle: the best spot for a player, if there is time to get there. Coloured zones: the part of the court each player covers. Arrows: how the players moved after the shot. On the right, the side view shows how high the shuttle flies. On a phone it is hidden by default so the court is wider: switch on “Side view (height)” in “Settings” at the bottom. Anything else you don't need can be switched off there too.</p>
+      <h3>What do the other buttons do?</h3>
+      <p>“Back” undoes the last shot, “Start over” returns to the starting situation, “Best positions” puts everyone on their best spots. The height at which the hitter meets the shuttle (“overhead / chest height / low”) is set in “Settings” at the bottom; the possible shots depend on it.</p>
+      <h3>What is in the other tabs?</h3>
+      <p>“Lessons”: step-by-step walkthroughs of typical rallies. “Quiz”: four kinds of tasks, switched with the buttons at the top — place the pair waiting for the shot; find the spot for the partner of the player who took the shuttle; place the partner and both opponents at once; choose where to hit, in attack or from defence, by dragging the big shuttle. “Check” shows your score and the best option by calculation; “Try again” repeats the same situation. There are 100 numbered tests, each always the same. The squares under the task show your results: a green tick — 85 points or more, yellow — from 55, red — less. Tap a square to take that test again; “Next test” goes to the next one not yet passed green. Results are kept in this browser.</p>
+      <h3>How do I change the language or the speed?</h3>
+      <p>Language: the RU / EN / ID buttons at the top. Animation speed: in “Settings” at the bottom.</p>
      </div>
      <div data-lang-block="id">
+      <h2>Dasar</h2>
       <h3>Dua formasi pasangan</h3>
       <ul>
         <li><b>Depan-belakang — menyerang.</b> Pemain belakang memukul dari atas (smes, dropshot); pemain depan berdiri di garis servis dengan raket terangkat dan menyelesaikan semua bola pendek.</li>
@@ -242,79 +276,35 @@ svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
       <p>Posisi tidak diambil dari templat. Untuk setiap pukulan yang bisa dimainkan lawan dari titik itu, aplikasi menghitung lintasan kok dan waktu terbangnya. Lalu aplikasi mencari titik-titik di lapangan tempat pasangan sempat menjangkau sebanyak mungkin pukulan dan mengambil kok setinggi mungkin — kok yang tinggi bisa dipukul ke bawah.</p>
       <p>Model pemain: reaksi sekitar 0,2 detik, lari ke depan dan ke samping sekitar 3,6 m/detik, ke belakang lebih lambat (sekitar 2,5 m/detik), jangkauan raket sekitar 1 m, lebih jauh saat lunge. Kecepatan pukulan setara pemain klub. Ini penyederhanaan: dalam permainan nyata cara memegang raket, tangan kidal atau kanan, dan kebiasaan lawan juga berpengaruh.</p>
       <p>Formasi sejajar muncul sendiri dari perhitungan. Formasi depan-belakang ketika lawan mengambil kok dari bawah ditetapkan oleh aturan menyerang, sedangkan titik-titik di dalam formasi dihitung.</p>
-     </div>
-    </section>
-
-    <section id="m-faq" hidden class="basics">
-     <div data-lang-block="ru">
-      <h3>Что это за приложение?</h3>
-      <p>Тренажёр перемещений в парном бадминтоне. Корт виден сверху: синие внизу, красные вверху. После каждого удара видно, кто берёт волан и куда должны встать оба игрока пары.</p>
-      <h3>Как двигать игроков?</h3>
-      <p>Перетащите любого игрока пальцем или мышью. Двигаете игрока пары, которая ждёт удара, — партнёр сам перейдёт в лучшую точку. Двигаете игрока с воланом — меняется место, откуда бьёт соперник.</p>
-      <h3>Как выбрать, куда полетит волан?</h3>
-      <p>Линии на корте — удары, которые может сыграть бьющий. Нажмите на точку на конце линии — удар полетит туда. Или перетащите большой волан у бьющего в любое место на половине соперника: удар подберётся сам по глубине: к сетке — укороченный, в середину — смэш, к задней линии — высоко-далёкий. Сразу видно траекторию и кто успевает. Если защитник успевает, он перехватывает волан раньше: до перехвата линия сплошная, дальше пунктир до вашей точки. Удар можно выбрать и кнопкой в списке справа (на телефоне — под кортом).</p>
-      <h3>Что значат цвета и номера у точек?</h3>
-      <p>Зелёная линия — защита успевает, жёлтая — впритык, красная — не успевает. Номер и цвет кружка у точки — какой игрок должен брать волан.</p>
-      <h3>Что за таблица «Наиболее вероятное развитие событий»?</h3>
-      <p>Это все удары, которые может сыграть бьющий из этой точки: как часто их играют, кто из защиты должен брать волан или что никто не успевает. Нажмите на строку — на корте подсветится траектория этого удара. И наоборот: когда тянете волан и наводите его на точку удара, строка этого удара в таблице подсвечивается, а уберёте волан с точки — подсветка пропадёт.</p>
-      <h3>Как работают «Авторозыгрыш» и «Пауза»?</h3>
-      <p>«Авторозыгрыш» играет сам: удары выбираются случайно, самые частые и опасные — чаще. «Пауза» останавливает картинку в любой момент, даже когда волан в полёте. В паузе нажмите на точку — так выбирается следующий удар. «Продолжить» — розыгрыш идёт дальше. Обе кнопки есть и под кортом.</p>
-      <h3>Что ещё показано на корте?</h3>
-      <p>Пунктирный кружок — лучшая точка для игрока, если он успеет до неё добежать. Цветные зоны — какую часть корта закрывает каждый игрок. Стрелки — как игроки переместились после удара. Справа — вид сбоку: на какой высоте летит волан. Лишнее можно выключить в «Настройках» внизу.</p>
-      <h3>Что делают остальные кнопки?</h3>
-      <p>«сверху / на уровне груди / снизу» — на какой высоте бьющий встречает волан, от этого зависят возможные удары. «Случайный удар» — один удар наугад. «Назад» отменяет последний удар, «Сначала» возвращает начальную ситуацию, «Авторасстановка» ставит всех в лучшие точки.</p>
-      <h3>Что в других вкладках?</h3>
-      <p>«Уроки» — пошаговые разборы типовых розыгрышей. «Тест» — задания четырёх видов, их переключают кнопки сверху: расставить пару, которая ждёт удара; найти место партнёру того, кто взял волан; расставить сразу партнёра и обоих соперников; выбрать, куда бить, в атаке или из защиты, — перетащив большой волан. «Проверить» покажет оценку и лучший вариант по расчёту, «Повторить» — та же ситуация заново. Всего 100 пронумерованных тестов, каждый всегда один и тот же. Квадратики под заданием показывают результат: зелёная галочка — 85 баллов и больше, жёлтая — от 55, красная — меньше. Нажмите на квадратик, чтобы пройти тест заново; «Следующий тест» ведёт к следующему, ещё не пройденному на зелёный. Результаты хранятся в этом браузере. «Основы» — короткая теория: строи, кто какой удар берёт, как считаются позиции.</p>
-      <h3>Как сменить язык и скорость?</h3>
-      <p>Язык — кнопки RU / EN / ID вверху. Скорость анимации — в «Настройках» внизу.</p>
-     </div>
-     <div data-lang-block="en">
-      <h3>What is this app?</h3>
-      <p>A movement trainer for badminton doubles. The court is seen from above: Blue at the bottom, Red at the top. After every shot you see who takes the shuttle and where both players of the pair should stand.</p>
-      <h3>How do I move the players?</h3>
-      <p>Drag any player with a finger or the mouse. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player with the shuttle — that changes where the opponent hits from.</p>
-      <h3>How do I choose where the shuttle goes?</h3>
-      <p>The lines on the court are the shots the hitter can play. Tap the dot at the end of a line — the shot goes there. Or drag the big shuttle at the hitter anywhere on the opponent's half: the shot is picked by depth: near the net — a drop, mid-court — a smash, at the back line — a clear. You see its path and who gets there at once. If a defender gets there, they take the shuttle earlier: the line is solid up to that point and dashed on to your spot. You can also pick a shot from the list on the right (on a phone — below the court).</p>
-      <h3>What do the colours and numbers at the dots mean?</h3>
-      <p>Green line: the defence gets there; yellow: only just; red: too late. The number and colour of the circle at a dot show which player should take the shuttle.</p>
-      <h3>What is the “Most likely course of play” table?</h3>
-      <p>All the shots the hitter can play from this spot: how often they are played, which defender should take the shuttle, or that nobody gets there. Tap a row to highlight that shot’s path on the court. It works the other way too: drag the shuttle onto a shot’s dot and that shot’s row lights up in the table; move it off the dot and the highlight goes.</p>
-      <h3>How do “Auto rally” and “Pause” work?</h3>
-      <p>“Auto rally” plays by itself: shots are picked at random, the most common and dangerous ones more often. “Pause” freezes the picture at any moment, even with the shuttle in the air. While paused, tap a dot to choose the next shot. “Resume” carries the rally on. Both buttons are also under the court.</p>
-      <h3>What else is shown on the court?</h3>
-      <p>Dashed circle: the best spot for a player, if there is time to get there. Coloured zones: the part of the court each player covers. Arrows: how the players moved after the shot. On the right, the side view shows how high the shuttle flies. Anything you don't need can be switched off in “Settings” at the bottom.</p>
-      <h3>What do the other buttons do?</h3>
-      <p>“overhead / chest height / low” sets the height at which the hitter meets the shuttle; the possible shots depend on it. “Random shot” plays one shot at random. “Back” undoes the last shot, “Start over” returns to the starting situation, “Auto positions” puts everyone on their best spots.</p>
-      <h3>What is in the other tabs?</h3>
-      <p>“Lessons”: step-by-step walkthroughs of typical rallies. “Quiz”: four kinds of tasks, switched with the buttons at the top — place the pair waiting for the shot; find the spot for the partner of the player who took the shuttle; place the partner and both opponents at once; choose where to hit, in attack or from defence, by dragging the big shuttle. “Check” shows your score and the best option by calculation; “Try again” repeats the same situation. There are 100 numbered tests, each always the same. The squares under the task show your results: a green tick — 85 points or more, yellow — from 55, red — less. Tap a square to take that test again; “Next test” goes to the next one not yet passed green. Results are kept in this browser. “Basics”: a short theory — formations, who takes which shot, how positions are calculated.</p>
-      <h3>How do I change the language or the speed?</h3>
-      <p>Language: the RU / EN / ID buttons at the top. Animation speed: in “Settings” at the bottom.</p>
-     </div>
-     <div data-lang-block="id">
+      <h2>Pertanyaan dan jawaban</h2>
       <h3>Aplikasi apa ini?</h3>
       <p>Pelatih gerakan untuk bulu tangkis ganda. Lapangan terlihat dari atas: Biru di bawah, Merah di atas. Setelah setiap pukulan terlihat siapa yang mengambil kok dan di mana kedua pemain pasangan harus berdiri.</p>
       <h3>Bagaimana cara memindahkan pemain?</h3>
       <p>Seret pemain mana pun dengan jari atau mouse. Seret pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Seret pemain yang memegang kok — tempat lawan memukul akan berubah.</p>
       <h3>Bagaimana memilih ke mana kok terbang?</h3>
-      <p>Garis di lapangan adalah pukulan yang bisa dimainkan pemukul. Ketuk titik di ujung garis — pukulan akan diarahkan ke situ. Atau seret kok besar di pemukul ke mana saja di sisi lawan: jenis pukulan dipilih menurut kedalaman: dekat net — dropshot, tengah — smes, garis belakang — lob atas. Lintasan dan siapa yang sempat langsung terlihat. Jika pemain bertahan sempat, ia mengambil kok lebih awal: garis utuh sampai titik itu, lalu putus-putus sampai titik Anda. Pukulan juga bisa dipilih dari daftar di kanan (di ponsel — di bawah lapangan).</p>
+      <p>Garis di lapangan adalah pukulan yang bisa dimainkan pemukul. Ketuk sebuah baris di tabel “Perkembangan yang paling mungkin” atau titik di ujung garis — pukulan akan diarahkan ke situ. Atau seret kok besar di pemukul ke mana saja di sisi lawan: jenis pukulan dipilih menurut kedalaman: dekat net — dropshot, tengah — smes, garis belakang — lob atas. Lintasan dan siapa yang sempat langsung terlihat. Jika pemain bertahan sempat, ia mengambil kok lebih awal: garis utuh sampai titik itu, lalu putus-putus sampai titik Anda.</p>
       <h3>Apa arti warna dan nomor di titik?</h3>
       <p>Garis hijau: pertahanan sempat; kuning: pas-pasan; merah: terlambat. Nomor dan warna lingkaran di dekat titik menunjukkan pemain mana yang harus mengambil kok.</p>
       <h3>Apa itu tabel “Perkembangan yang paling mungkin”?</h3>
-      <p>Semua pukulan yang bisa dimainkan pemukul dari titik ini: seberapa sering dimainkan, pemain bertahan mana yang harus mengambil kok, atau bahwa tidak ada yang sempat. Ketuk sebuah baris untuk menyorot lintasan pukulan itu di lapangan. Sebaliknya juga bisa: seret kok ke titik sebuah pukulan, dan baris pukulan itu di tabel akan menyala; geser kok keluar dari titik, sorotannya hilang.</p>
+      <p>Semua pukulan yang bisa dimainkan pemukul dari titik ini: seberapa sering dimainkan, pemain bertahan mana yang harus mengambil kok, atau bahwa tidak ada yang sempat. Titik berwarna di baris menunjukkan apakah pertahanan sempat: hijau — sempat, kuning — pas-pasan, merah — tidak. Ketuk sebuah baris — pukulan itu dimainkan. Arahkan mouse ke baris, dan lintasan pukulan itu disorot di lapangan. Sebaliknya juga bisa: seret kok besar ke titik sebuah pukulan, dan barisnya akan menyala; geser kok keluar dari titik, sorotannya hilang. Jika Anda menekan “Jeda” saat kok melayang, tabel menampilkan pukulan untuk pemukul berikutnya — ketuk barisnya untuk memainkannya.</p>
       <h3>Bagaimana “Reli otomatis” dan “Jeda” bekerja?</h3>
-      <p>“Reli otomatis” bermain sendiri: pukulan dipilih acak, yang paling sering dan berbahaya lebih sering muncul. “Jeda” membekukan gambar kapan saja, bahkan saat kok di udara. Saat dijeda, ketuk sebuah titik untuk memilih pukulan berikutnya. “Lanjutkan” meneruskan reli. Kedua tombol juga ada di bawah lapangan.</p>
+      <p>“Reli otomatis” bermain sendiri: pukulan dipilih acak, yang paling sering dan berbahaya lebih sering muncul. “Jeda” membekukan gambar kapan saja, bahkan saat kok di udara. Saat dijeda, ketuk sebuah baris tabel atau titik untuk memilih pukulan berikutnya. “Lanjutkan” meneruskan reli. Kedua tombol ada di bawah lapangan.</p>
       <h3>Apa lagi yang terlihat di lapangan?</h3>
-      <p>Lingkaran putus-putus: titik terbaik bagi pemain, jika sempat berlari ke sana. Zona berwarna: bagian lapangan yang dijaga tiap pemain. Panah: bagaimana pemain bergerak setelah pukulan. Di kanan, tampak samping menunjukkan ketinggian kok. Yang tidak perlu bisa dimatikan di “Pengaturan” di bawah.</p>
+      <p>Lingkaran putus-putus: titik terbaik bagi pemain, jika sempat berlari ke sana. Zona berwarna: bagian lapangan yang dijaga tiap pemain. Panah: bagaimana pemain bergerak setelah pukulan. Di kanan, tampak samping menunjukkan ketinggian kok. Di ponsel tampilan ini disembunyikan secara bawaan agar lapangan lebih lebar: nyalakan “Tampak samping (ketinggian)” di “Pengaturan” di bawah. Yang lain yang tidak perlu juga bisa dimatikan di sana.</p>
       <h3>Apa fungsi tombol lainnya?</h3>
-      <p>“di atas kepala / setinggi dada / rendah” menentukan ketinggian saat pemukul menyambut kok; pukulan yang mungkin bergantung padanya. “Pukulan acak” memainkan satu pukulan secara acak. “Kembali” membatalkan pukulan terakhir, “Ulang dari awal” kembali ke situasi awal, “Posisi otomatis” menempatkan semua pemain di titik terbaik.</p>
+      <p>“Kembali” membatalkan pukulan terakhir, “Ulang dari awal” kembali ke situasi awal, “Posisi terbaik” menempatkan semua pemain di titik terbaik. Ketinggian saat pemukul menyambut kok (“di atas kepala / setinggi dada / rendah”) diatur di “Pengaturan” di bawah; pukulan yang mungkin bergantung padanya.</p>
       <h3>Apa isi tab lainnya?</h3>
-      <p>“Pelajaran”: pembahasan langkah demi langkah reli yang khas. “Kuis”: empat jenis tugas, dipilih dengan tombol di atas — atur pasangan yang menunggu pukulan; cari posisi rekan pemain yang mengambil kok; atur rekan dan kedua lawan sekaligus; pilih ke mana memukul, saat menyerang atau bertahan, dengan menyeret kok besar. “Periksa” menampilkan nilai dan pilihan terbaik menurut perhitungan; “Ulangi” mengulang situasi yang sama. Ada 100 tes bernomor, masing-masing selalu sama. Kotak di bawah tugas menunjukkan hasil Anda: centang hijau — 85 poin atau lebih, kuning — mulai 55, merah — kurang. Ketuk kotak untuk mengulang tes itu; “Tes berikutnya” membuka tes berikutnya yang belum hijau. Hasil disimpan di browser ini. “Dasar”: teori singkat — formasi, siapa mengambil pukulan apa, bagaimana posisi dihitung.</p>
+      <p>“Pelajaran”: pembahasan langkah demi langkah reli yang khas. “Kuis”: empat jenis tugas, dipilih dengan tombol di atas — atur pasangan yang menunggu pukulan; cari posisi rekan pemain yang mengambil kok; atur rekan dan kedua lawan sekaligus; pilih ke mana memukul, saat menyerang atau bertahan, dengan menyeret kok besar. “Periksa” menampilkan nilai dan pilihan terbaik menurut perhitungan; “Ulangi” mengulang situasi yang sama. Ada 100 tes bernomor, masing-masing selalu sama. Kotak di bawah tugas menunjukkan hasil Anda: centang hijau — 85 poin atau lebih, kuning — mulai 55, merah — kurang. Ketuk kotak untuk mengulang tes itu; “Tes berikutnya” membuka tes berikutnya yang belum hijau. Hasil disimpan di browser ini.</p>
       <h3>Bagaimana mengganti bahasa atau kecepatan?</h3>
       <p>Bahasa: tombol RU / EN / ID di atas. Kecepatan animasi: di “Pengaturan” di bawah.</p>
      </div>
     </section>
 
     <details id="settings"><summary data-i18n="settings"></summary>
+      <div class="lbl" data-i18n="band_lbl"></div>
+      <div class="row" id="pl-band" style="margin-top:4px">
+        <button data-band="high" data-i18n="band_high"></button><button data-band="mid" data-i18n="band_mid"></button><button data-band="low" data-i18n="band_low"></button>
+      </div>
       <div class="lbl" data-i18n="filters_lbl"></div>
       <div id="st-filters"></div>
       <div class="lbl" style="margin-top:8px" data-i18n="layers_lbl"></div>
@@ -667,7 +657,7 @@ const SIDE_X0=4.15, SIDE_K=0.38;
 const S={
   mode:'play',pos:null,holder:null,contact:null,incoming:null,band:'high',locked:null,ideal:null,
   filters:{smash:true,drop:true,high:true,drive:true,push:true,net:true},
-  layers:{fan:true,zones:true,ghosts:true,trails:true,side:true},speed:0.5,
+  layers:{fan:true,zones:true,ghosts:true,trails:true,side:!window.matchMedia('(max-width: 860px)').matches},speed:0.5,
   anim:null,history:[],auto:false,over:null,lastPhase:null,highlight:null,ev:null,rep:null,
   lesson:null,quiz:null,desc:null,dragging:null,dirty:true,
   paused:false,queued:null,next:null,shDrag:null
@@ -1229,19 +1219,18 @@ const TX={
  ru:{
   title:'Парный бадминтон — тренажёр перемещений',
   h1:'Парный бадминтон', sub:'как двигаться паре на корте при разных ударах соперника',
-  tab_play:'Игра', tab_lessons:'Уроки', tab_quiz:'Тест', tab_basics:'Основы', tab_faq:'ЧаВо',
+  tab_play:'Игра', tab_lessons:'Уроки', tab_quiz:'Тест', tab_help:'Справка',
   band_lbl:'На какой высоте бьющий встречает волан:', band_high:'сверху', band_mid:'на уровне груди', band_low:'снизу',
-  shots_lbl:'Сыграть удар (точка — успевает ли защита: <span style="color:var(--ok)">успевает</span>, <span style="color:var(--warn)">впритык</span>, <span style="color:var(--bad)">нет</span>):',
-  rand:'Случайный удар', auto:'Авторозыгрыш', stop:'Стоп', pause:'Пауза', resume:'Продолжить', back:'Назад', reset:'Сначала', relax:'Авторасстановка',
+  auto:'Авторозыгрыш', stop:'Стоп', pause:'Пауза', resume:'Продолжить', back:'Назад', reset:'Сначала', relax:'Поставить пару как надо',
   who_takes:'Наиболее вероятное развитие событий',
-  play_hint:'Точки на концах линий — куда можно ударить: нажмите на любую. Большой волан у бьющего можно перетащить в любое место на половине соперника — удар полетит туда. «Пауза» останавливает розыгрыш в любой момент — можно рассмотреть расстановку и самому выбрать следующий удар. Пунктирный кружок — лучшая точка, если успеть до неё добежать. Тяните игрока той пары, которая ждёт удара, — партнёр сам займёт лучшую точку. Тяните игрока с воланом — поменяется, откуда бьёт соперник. Нажмите на строку таблицы — увидите траекторию удара.',
+  play_hint:'Большой волан у бьющего можно перетащить в любое место на половине соперника. Подробности — во вкладке «Справка».',
   ls_exit:'К списку уроков', ls_next:'Дальше', ls_again:'Повторить шаг',
   qz_check:'Проверить', qz_retry:'Повторить', qz_next:'Следующий тест',
   qzNum:(i,n)=>`Тест ${i} из ${n}`,
   qzProg:(d,n,g,y,r)=>`Пройдено ${d} из ${n}: <span style="color:#4ade80">✓ ${g}</span> · <span style="color:#facc15">✓ ${y}</span> · <span style="color:#f87171">✓ ${r}</span>. Нажмите на квадратик, чтобы пройти тест заново.`,
   qzReset:'сбросить', qzResetAsk:'Стереть все результаты тестов?', qzBest:s=>`лучший результат: ${s}`,
   settings:'Настройки', filters_lbl:'Какие удары может играть соперник:', layers_lbl:'Что показывать на корте:',
-  ly_fan:'веер ударов', ly_zones:'зоны игроков', ly_ghosts:'лучшие точки', ly_trails:'следы перемещений', ly_side:'вид сбоку',
+  ly_fan:'веер ударов', ly_zones:'зоны игроков', ly_ghosts:'лучшие точки', ly_trails:'следы перемещений', ly_side:'Вид сбоку (высота)',
   speed_lbl:'Скорость анимации:',
   n_b1:'Синий 1', n_b2:'Синий 2', n_r1:'Красный 1', n_r2:'Красный 2',
   acc:{b1:'Синего 1',b2:'Синего 2',r1:'Красного 1',r2:'Красного 2'},
@@ -1280,14 +1269,14 @@ const TX={
   nobody:l=>`Никто не успевает к: ${l}.`,
   stOver:w=>`Розыгрыш окончен: очко <b>${TX.ru.team[w].dat}</b>. Нажмите «Сначала», «Назад» или «Авторозыгрыш».`,
   stFly:s=>`Летит: <b>${s}</b>…`,
-  stPaused:(s,n)=>`Пауза: летит <b>${s}</b>.`+(n?'<br>Выберите, куда пойдёт следующий удар: нажмите на точку на конце линии или перетащите большой волан в любое место. Или нажмите «Продолжить».':''),
-  stHold:'Пауза. Нажмите на точку на конце линии или перетащите большой волан в любое место на половине соперника — туда и полетит удар. «Продолжить» — розыгрыш пойдёт дальше сам.',
-  stReady:(n,sit,t,p)=>`Бьёт ${n} — ${sit}.<br>Ждут удара: <b>${TX.ru.team[t].nom}</b>, к ударам успевают на <b>${p}%</b>.`,
+  stPaused:(s,n)=>`Пауза: летит <b>${s}</b>.`+(n?'<br>Выберите следующий удар: нажмите на строку таблицы или на точку на конце линии, либо перетащите большой волан в любое место. Или нажмите «Продолжить».':''),
+  stHold:'Пауза. Нажмите на строку таблицы или на точку на конце линии либо перетащите большой волан в любое место на половине соперника — туда и полетит удар. «Продолжить» — розыгрыш пойдёт дальше сам.',
+  stReady:(n,sit,t,p,f)=>`Бьёт ${n} — ${sit}.<br>Ждут удара: <b>${TX.ru.team[t].nom}</b>, стоят ${f}; к ударам успевают на <b>${p}%</b>.`,
   btnTitle:(s,m)=>s,
-  tblWait:'Таблица появится, когда волан будет у бьющего.',
+  tblWait:'Волан в полёте. Нажмите «Пауза» — здесь появятся удары следующего бьющего.',
   tblHead:t=>`<th>Удар</th><th>Часто</th><th>Берёт (${TX.ru.team[t].nom})</th>`,
   tblNobody:'никто',
-  tblHint:'Нажмите на строку — на корте подсветится траектория этого удара.',
+  tblHint:'Нажмите на строку — удар будет сыгран; наведите мышь — на корте подсветится его траектория. Точка в строке — успевает ли защита: <span style="color:var(--ok)">успевает</span>, <span style="color:var(--warn)">впритык</span>, <span style="color:var(--bad)">нет</span>.',
   bannerLost:w=>`Очко ${TX.ru.team[w].dat}: никто не успел к волану`,
   lsDone:'Урок окончен.', lsStep:(a,b)=>`шаг ${a} из ${b}`,
   qzTask:(n,sit,wt)=>`${n} сейчас бьёт ${sit}. Поставьте обоих ${TX.ru.team[wt].gen} туда, где им лучше всего ждать удар, и нажмите «Проверить».`,
@@ -1315,19 +1304,18 @@ const TX={
  en:{
   title:'Badminton doubles — movement trainer',
   h1:'Badminton doubles', sub:'how a pair should move on court against different shots',
-  tab_play:'Play', tab_lessons:'Lessons', tab_quiz:'Quiz', tab_basics:'Basics', tab_faq:'FAQ',
+  tab_play:'Play', tab_lessons:'Lessons', tab_quiz:'Quiz', tab_help:'Help',
   band_lbl:'Height at which the hitter meets the shuttle:', band_high:'overhead', band_mid:'chest height', band_low:'low',
-  shots_lbl:'Play a shot (dot — can the defence get there: <span style="color:var(--ok)">yes</span>, <span style="color:var(--warn)">just</span>, <span style="color:var(--bad)">no</span>):',
-  rand:'Random shot', auto:'Auto rally', stop:'Stop', pause:'Pause', resume:'Resume', back:'Back', reset:'Start over', relax:'Auto positions',
+  auto:'Auto rally', stop:'Stop', pause:'Pause', resume:'Resume', back:'Back', reset:'Start over', relax:'Best positions',
   who_takes:'Most likely course of play',
-  play_hint:'The dots at the ends of the lines mark where the shot can go: tap one. The big shuttle at the hitter can be dragged anywhere on the opponent’s half — the shot goes there. “Pause” stops the rally at any moment — look at the positions and choose the next shot yourself. Dashed circle — the best spot, if there is time to get there. Drag a player of the pair waiting for the shot — the partner moves to the best spot by itself. Drag the player holding the shuttle to change where the opponent hits from. Tap a table row to see the shot\'s path.',
+  play_hint:'The big shuttle at the hitter can be dragged anywhere on the opponent’s half. More details are in the “Help” tab.',
   ls_exit:'Back to lessons', ls_next:'Next', ls_again:'Repeat step',
   qz_check:'Check', qz_retry:'Try again', qz_next:'Next test',
   qzNum:(i,n)=>`Test ${i} of ${n}`,
   qzProg:(d,n,g,y,r)=>`Done ${d} of ${n}: <span style="color:#4ade80">✓ ${g}</span> · <span style="color:#facc15">✓ ${y}</span> · <span style="color:#f87171">✓ ${r}</span>. Tap a square to take that test again.`,
   qzReset:'reset', qzResetAsk:'Erase all quiz results?', qzBest:s=>`best result: ${s}`,
   settings:'Settings', filters_lbl:'Shots the opponent may play:', layers_lbl:'Show on court:',
-  ly_fan:'shot fan', ly_zones:'player zones', ly_ghosts:'best spots', ly_trails:'movement trails', ly_side:'side view',
+  ly_fan:'shot fan', ly_zones:'player zones', ly_ghosts:'best spots', ly_trails:'movement trails', ly_side:'Side view (height)',
   speed_lbl:'Animation speed:',
   n_b1:'Blue 1', n_b2:'Blue 2', n_r1:'Red 1', n_r2:'Red 2',
   acc:{b1:'Blue 1',b2:'Blue 2',r1:'Red 1',r2:'Red 2'},
@@ -1366,14 +1354,14 @@ const TX={
   nobody:l=>`Nobody reaches: ${l}.`,
   stOver:w=>`Rally over: point to <b>${TX.en.team[w].dat}</b>. Press “Start over”, “Back” or “Auto rally”.`,
   stFly:s=>`In flight: <b>${s}</b>…`,
-  stPaused:(s,n)=>`Paused: <b>${s}</b> in flight.`+(n?'<br>Choose where the next shot goes: tap a dot at the end of a line or drag the big shuttle anywhere. Or press “Resume”.':''),
-  stHold:'Paused. Tap a dot at the end of a line or drag the big shuttle anywhere on the opponent’s half — the shot goes there. “Resume” lets the rally carry on by itself.',
-  stReady:(n,sit,t,p)=>`${n} is hitting — ${sit}.<br>Waiting: <b>${TX.en.team[t].nom}</b>, they reach <b>${p}%</b> of the shots.`,
+  stPaused:(s,n)=>`Paused: <b>${s}</b> in flight.`+(n?'<br>Choose the next shot: tap a table row or a dot at the end of a line, or drag the big shuttle anywhere. Or press “Resume”.':''),
+  stHold:'Paused. Tap a table row or a dot at the end of a line, or drag the big shuttle anywhere on the opponent’s half — the shot goes there. “Resume” lets the rally carry on by itself.',
+  stReady:(n,sit,t,p,f)=>`${n} is hitting — ${sit}.<br>Waiting: <b>${TX.en.team[t].nom}</b>, standing ${f}; they reach <b>${p}%</b> of the shots.`,
   btnTitle:(s,m)=>s,
-  tblWait:'The table appears when a player has the shuttle.',
+  tblWait:'The shuttle is in flight. Press “Pause” — the next hitter’s shots will appear here.',
   tblHead:t=>`<th>Shot</th><th>How often</th><th>Taken by (${TX.en.team[t].nom})</th>`,
   tblNobody:'nobody',
-  tblHint:'Tap a row to highlight that shot’s path on the court.',
+  tblHint:'Tap a row to play that shot; point the mouse at it to highlight its path on the court. The dot in a row shows whether the defence gets there: <span style="color:var(--ok)">yes</span>, <span style="color:var(--warn)">just</span>, <span style="color:var(--bad)">no</span>.',
   bannerLost:w=>`Point to ${TX.en.team[w].dat}: nobody reached the shuttle`,
   lsDone:'End of lesson.', lsStep:(a,b)=>`step ${a} of ${b}`,
   qzTask:(n,sit,wt)=>`${n} is about to hit ${sit}. Place both ${TX.en.team[wt].cap} players where they should wait for the shot and press “Check”.`,
@@ -1401,19 +1389,18 @@ const TX={
  id:{
   title:'Bulu tangkis ganda — latihan pergerakan',
   h1:'Bulu tangkis ganda', sub:'cara pasangan bergerak di lapangan menghadapi berbagai pukulan lawan',
-  tab_play:'Main', tab_lessons:'Pelajaran', tab_quiz:'Kuis', tab_basics:'Dasar', tab_faq:'FAQ',
+  tab_play:'Main', tab_lessons:'Pelajaran', tab_quiz:'Kuis', tab_help:'Bantuan',
   band_lbl:'Ketinggian saat pemukul menyambut kok:', band_high:'di atas kepala', band_mid:'setinggi dada', band_low:'rendah',
-  shots_lbl:'Mainkan pukulan (titik — apakah pertahanan sempat: <span style="color:var(--ok)">sempat</span>, <span style="color:var(--warn)">pas-pasan</span>, <span style="color:var(--bad)">tidak</span>):',
-  rand:'Pukulan acak', auto:'Reli otomatis', stop:'Berhenti', pause:'Jeda', resume:'Lanjutkan', back:'Kembali', reset:'Ulang dari awal', relax:'Posisi otomatis',
+  auto:'Reli otomatis', stop:'Berhenti', pause:'Jeda', resume:'Lanjutkan', back:'Kembali', reset:'Ulang dari awal', relax:'Posisi terbaik',
   who_takes:'Perkembangan yang paling mungkin',
-  play_hint:'Titik di ujung garis menandai ke mana pukulan bisa diarahkan: ketuk salah satunya. Kok besar di pemukul bisa diseret ke mana saja di sisi lawan — pukulan akan diarahkan ke situ. “Jeda” menghentikan reli kapan saja — lihat posisi pemain dan pilih sendiri pukulan berikutnya. Lingkaran putus-putus — titik terbaik, jika sempat berlari ke sana. Geser pemain dari pasangan yang menunggu pukulan — rekannya akan pindah sendiri ke titik terbaik. Geser pemain yang memegang kok untuk mengubah dari mana lawan memukul. Ketuk baris tabel untuk melihat lintasan pukulan.',
+  play_hint:'Kok besar di pemukul bisa diseret ke mana saja di sisi lawan. Keterangan lengkap ada di tab “Bantuan”.',
   ls_exit:'Ke daftar pelajaran', ls_next:'Lanjut', ls_again:'Ulangi langkah',
   qz_check:'Periksa', qz_retry:'Ulangi', qz_next:'Tes berikutnya',
   qzNum:(i,n)=>`Tes ${i} dari ${n}`,
   qzProg:(d,n,g,y,r)=>`Selesai ${d} dari ${n}: <span style="color:#4ade80">✓ ${g}</span> · <span style="color:#facc15">✓ ${y}</span> · <span style="color:#f87171">✓ ${r}</span>. Ketuk kotak untuk mengulang tes itu.`,
   qzReset:'hapus', qzResetAsk:'Hapus semua hasil kuis?', qzBest:s=>`hasil terbaik: ${s}`,
   settings:'Pengaturan', filters_lbl:'Pukulan yang boleh dimainkan lawan:', layers_lbl:'Tampilkan di lapangan:',
-  ly_fan:'kipas pukulan', ly_zones:'zona pemain', ly_ghosts:'titik terbaik', ly_trails:'jejak gerakan', ly_side:'tampak samping',
+  ly_fan:'kipas pukulan', ly_zones:'zona pemain', ly_ghosts:'titik terbaik', ly_trails:'jejak gerakan', ly_side:'Tampak samping (ketinggian)',
   speed_lbl:'Kecepatan animasi:',
   n_b1:'Biru 1', n_b2:'Biru 2', n_r1:'Merah 1', n_r2:'Merah 2',
   acc:{b1:'Biru 1',b2:'Biru 2',r1:'Merah 1',r2:'Merah 2'},
@@ -1452,14 +1439,14 @@ const TX={
   nobody:l=>`Tidak ada yang sempat ke: ${l}.`,
   stOver:w=>`Reli selesai: poin untuk <b>${TX.id.team[w].dat}</b>. Tekan “Ulang dari awal”, “Kembali” atau “Reli otomatis”.`,
   stFly:s=>`Sedang melayang: <b>${s}</b>…`,
-  stPaused:(s,n)=>`Dijeda: <b>${s}</b> sedang melayang.`+(n?'<br>Pilih ke mana pukulan berikutnya: ketuk titik di ujung garis atau seret kok besar ke mana saja. Atau tekan “Lanjutkan”.':''),
-  stHold:'Dijeda. Ketuk titik di ujung garis atau seret kok besar ke mana saja di sisi lawan — pukulan akan diarahkan ke situ. “Lanjutkan” — reli berjalan sendiri lagi.',
-  stReady:(n,sit,t,p)=>`${n} memukul — ${sit}.<br>Menunggu: <b>${TX.id.team[t].nom}</b>, mereka sempat ke <b>${p}%</b> pukulan.`,
+  stPaused:(s,n)=>`Dijeda: <b>${s}</b> sedang melayang.`+(n?'<br>Pilih pukulan berikutnya: ketuk baris tabel atau titik di ujung garis, atau seret kok besar ke mana saja. Atau tekan “Lanjutkan”.':''),
+  stHold:'Dijeda. Ketuk baris tabel atau titik di ujung garis, atau seret kok besar ke mana saja di sisi lawan — pukulan akan diarahkan ke situ. “Lanjutkan” — reli berjalan sendiri lagi.',
+  stReady:(n,sit,t,p,f)=>`${n} memukul — ${sit}.<br>Menunggu: <b>${TX.id.team[t].nom}</b>, berdiri ${f}; mereka sempat ke <b>${p}%</b> pukulan.`,
   btnTitle:(s,m)=>s,
-  tblWait:'Tabel muncul saat ada pemain yang memegang kok.',
+  tblWait:'Kok sedang melayang. Tekan “Jeda” — pukulan pemukul berikutnya akan muncul di sini.',
   tblHead:t=>`<th>Pukulan</th><th>Seberapa sering</th><th>Diambil (${TX.id.team[t].nom})</th>`,
   tblNobody:'tidak ada',
-  tblHint:'Ketuk sebuah baris untuk menyorot lintasan pukulan itu di lapangan.',
+  tblHint:'Ketuk sebuah baris untuk memainkan pukulan itu; arahkan mouse untuk menyorot lintasannya di lapangan. Titik di baris menunjukkan apakah pertahanan sempat: <span style="color:var(--ok)">sempat</span>, <span style="color:var(--warn)">pas-pasan</span>, <span style="color:var(--bad)">tidak</span>.',
   bannerLost:w=>`Poin untuk ${TX.id.team[w].dat}: tidak ada yang sempat ke kok`,
   lsDone:'Pelajaran selesai.', lsStep:(a,b)=>`langkah ${a} dari ${b}`,
   qzTask:(n,sit,wt)=>`${n} akan memukul ${sit}. Tempatkan kedua pemain ${TX.id.team[wt].cap} di posisi terbaik untuk menunggu pukulan, lalu tekan “Periksa”.`,
@@ -1507,15 +1494,15 @@ function phaseDesc(ph){
   return {hitter:sh.hitter,type:sh.type,dir:sh.dir,team:sh.team,recv:sh.recv,fromY:sh.from.y,lost:ph.lost,R:ph.R,margin:ph.margin,h:ph.c2?ph.c2.h:0,
     fb:formationOf(ph.newPos,'blue'),fr:formationOf(ph.newPos,'red')};
 }
-function describePhase(d){
+function describePhase(d,compact){
   const T=tx(), out=[];
   const sh={type:d.type,dir:d.dir,from:{y:d.fromY},name:shotName(d.type,d.dir,Math.abs(d.fromY))};
   out.push(`<p><b>${nm(d.hitter)}</b>: ${shotLow(sh)}.</p>`);
   if(d.lost) out.push(`<p class="res">${T.lost(d.recv,d.team)}</p>`);
-  else out.push(`<p class="res">${T.take(`<b style="color:${COL[d.R]}">${nm(d.R)}</b>`,fmt(d.margin),num(d.h,1))}</p>`);
+  else if(!compact) out.push(`<p class="res">${T.take(`<b style="color:${COL[d.R]}">${nm(d.R)}</b>`,fmt(d.margin),num(d.h,1))}</p>`);
   out.push(`<p class="tip">${T.tipRecv[d.type]}</p>`);
   out.push(`<p class="tip">${tipHit(sh)}</p>`);
-  out.push(`<p class="res">${T.forms(T.form[d.fb],T.form[d.fr])}</p>`);
+  if(!compact) out.push(`<p class="res">${T.forms(T.form[d.fb],T.form[d.fr])}</p>`);
   return out.join('');
 }
 function situationText(){
@@ -1527,8 +1514,13 @@ function situationText(){
 function describeReady(){
   if(!S.ev) return '';
   const T=tx(), wt=waitingTeam(), f=formationOf(S.pos,wt);
+  return `<p>${T.ready(nm(S.holder),situationText(),tm(wt,'cap'),T.form[f])}</p>`+readyTips();
+}
+function readyTips(){
+  if(!S.ev) return '';
+  const T=tx();
   const worst=[...S.ev.rows].sort((a,b)=>a.bm-b.bm)[0];
-  let t=`<p>${T.ready(nm(S.holder),situationText(),tm(wt,'cap'),T.form[f])}</p>`;
+  let t='';
   const miss=S.ev.rows.filter(r=>r.bm<0);
   if(miss.length) t+=`<p class="tip">${T.miss(listShots(miss))}</p>`;
   else t+=`<p class="tip">${T.allOk(shotLow(worst.shot),fmt(worst.bm))}</p>`;
@@ -1552,63 +1544,56 @@ function commentHTML(){
 }
 
 // ---------- панель «Игра» ----------
+// одна карточка: сверху — что происходит, ниже — разбор удара или подсказка для расстановки
+function playCardHTML(){
+  const T=tx(), d=S.desc;
+  let head='';
+  if(S.over) head=T.stOver(S.over.winner);
+  else if(S.anim) head=S.paused?T.stPaused(shotLow(S.anim.ph.shot),!!S.next):T.stFly(shotLow(S.anim.ph.shot));
+  else if(S.holder&&S.ev){
+    const wt=waitingTeam();
+    head=T.stReady(`<b style="color:${COL[S.holder]}">${nm(S.holder)}</b>`,situationText(),wt,Math.round(S.ev.cover*100),T.form[formationOf(S.pos,wt)])+(S.paused?`<br><b>${T.stHold}</b>`:'');
+  }
+  let body='';
+  if(!S.anim&&!S.over&&(!d||d.kind==='ready')) body=readyTips();
+  else if(d&&d.kind==='phase') body=describePhase(d.d,true);
+  else if(d&&d.kind==='drag') body=describeDrag(d.id);
+  return `<p>${head}</p>`+body;
+}
 function updatePanel(busy){
   const mode=S.mode, T=tx();
   if(mode==='play'){
-    const st=$('pl-status');
-    if(S.over) st.innerHTML=T.stOver(S.over.winner);
-    else if(S.anim) st.innerHTML=S.paused?T.stPaused(shotLow(S.anim.ph.shot),!!S.next):T.stFly(shotLow(S.anim.ph.shot));
-    else if(S.holder){
-      const wt=waitingTeam();
-      st.innerHTML=T.stReady(`<b style="color:${COL[S.holder]}">${nm(S.holder)}</b>`,situationText(),wt,Math.round(S.ev.cover*100))+(S.paused?`<br><b>${T.stHold}</b>`:'');
-    }
     for(const b of document.querySelectorAll('#pl-band button')){b.classList.toggle('on',b.dataset.band===S.band);b.disabled=!!(S.anim||S.over||!S.holder);}
-    renderShotButtons($('pl-shots'),busy);
-    $('pl-comment').innerHTML=commentHTML();
+    $('pl-comment').innerHTML=playCardHTML();
     renderTable($('pl-table'));
     $('pl-back').disabled=!S.history.length||!!S.anim;
-    $('pl-rand').disabled=!!(S.anim||S.over);
-    for(const b of [$('pl-auto'),$('sc-auto')]){b.classList.toggle('on',S.auto);b.textContent=S.auto?T.stop:T.auto;}
-    for(const b of [$('pl-pause'),$('sc-pause')]){b.classList.toggle('on',S.paused);b.textContent=S.paused?T.resume:T.pause;b.disabled=!(S.anim||S.auto||S.paused);}
+    $('sc-auto').classList.toggle('on',S.auto);$('sc-auto').textContent=S.auto?T.stop:T.auto;
+    $('sc-pause').classList.toggle('on',S.paused);$('sc-pause').textContent=S.paused?T.resume:T.pause;$('sc-pause').disabled=!(S.anim||S.auto||S.paused);
     $('pl-relax').disabled=!!(S.anim||S.over);
   } else if(mode==='lessons') updateLessonPanel();
   else if(mode==='quiz') updateQuizPanel();
 }
-function renderShotButtons(box,busy){
-  box.innerHTML='';
-  if(!S.ev||S.over) return;
-  const groups=new Map();
-  S.ev.rows.forEach((r,i)=>{if(!groups.has(r.type))groups.set(r.type,[]);groups.get(r.type).push([r,i]);});
-  for(const [type,list] of groups){
-    const row=document.createElement('div');row.className='shotrow';
-    const nme=document.createElement('span');nme.className='nm';nme.textContent=shotTypeName(type,Math.abs(S.contact.y));row.appendChild(nme);
-    for(const [r,i] of list){
-      const b=document.createElement('button');
-      const dn=(type==='serve'||type==='flick')?SDIR_N[LANG][r.dir]:DIR_N[LANG][r.dir];
-      b.innerHTML=`<i class="dot" style="background:${statusColor(r.bm)}"></i>${dn}`;
-      b.title=tx().btnTitle(r.shot.name,fmt(r.bm));
-      b.disabled=!!(S.anim||busy);
-      b.onclick=()=>{S.auto=false;playShot(r.type,r.dir);};
-      b.onmouseenter=()=>{S.highlight=i;drawFan();drawSidePath();renderTable($('pl-table'));};
-      b.onmouseleave=()=>{S.highlight=null;drawFan();drawSidePath();renderTable($('pl-table'));};
-      row.appendChild(b);
-    }
-    box.appendChild(row);
-  }
-}
+// таблица: удары, которые сейчас можно сыграть (волан у бьющего или пауза в полёте); нажатие на строку играет удар
 function renderTable(box){
   if(!box) return;
   const T=tx();
-  if(!S.ev||S.over||S.anim){box.innerHTML=`<p class="hint">${T.tblWait}</p>`;return;}
-  const wt=waitingTeam();
+  const rows=canChoose()?curRows():null;
+  if(!rows||S.over){box.innerHTML=`<p class="hint">${T.tblWait}</p>`;return;}
+  const wt=S.anim?other(teamOf(S.next.R)):waitingTeam();
   let h=`<table><thead><tr>${T.tblHead(wt)}</tr></thead><tbody>`;
-  S.ev.rows.forEach((r,i)=>{
-    h+=`<tr data-i="${i}" class="${S.highlight===i?'hl':''}"><td>${r.shot.name}</td><td>${Math.round(r.w*100)}%</td>`+
+  rows.forEach((r,i)=>{
+    h+=`<tr data-i="${i}" class="${S.highlight===i?'hl':''}"><td><i class="dot" style="background:${statusColor(r.bm)}"></i>${r.shot.name}</td><td>${Math.round(r.w*100)}%</td>`+
        `<td>${r.bm>=0?`<i class="dot" style="background:${COL[r.resp]}"></i> ${nm(r.resp)}`:`<span style="color:#fca5a5">${T.tblNobody}</span>`}</td></tr>`;
   });
   h+=`</tbody></table><p class="hint">${T.tblHint}</p>`;
   box.innerHTML=h;
-  for(const tr of box.querySelectorAll('tbody tr')) tr.onclick=()=>{const i=+tr.dataset.i;S.highlight=S.highlight===i?null:i;drawFan();drawSidePath();renderTable(box);};
+  for(const tr of box.querySelectorAll('tbody tr')){
+    const i=+tr.dataset.i;
+    // наведение подсвечивает без перерисовки таблицы: иначе щелчок теряется
+    tr.onmouseenter=()=>{if(S.shDrag||!canChoose())return;S.highlight=i;drawFan();drawSidePath();markRow(i);};
+    tr.onmouseleave=()=>{if(S.shDrag||S.highlight!==i)return;S.highlight=null;drawFan();drawSidePath();markRow(null);};
+    tr.onclick=()=>{if(!canChoose())return;S.auto=false;chooseRow(i);};
+  }
 }
 
 // ---------- авторозыгрыш ----------
@@ -1987,7 +1972,7 @@ function setMode(m){
   S.anim=null;S.mode=m;S.auto=false;S.highlight=null;S.paused=false;S.queued=null;S.next=null;S.shDrag=null;L.prev.innerHTML='';
   $('stage-ctl').hidden=m!=='play';
   for(const b of document.querySelectorAll('#tabs button')) b.classList.toggle('on',b.dataset.mode===m);
-  for(const k of ['play','lessons','quiz','basics','faq']) $('m-'+k).hidden=k!==m;
+  for(const k of ['play','lessons','quiz','help']) $('m-'+k).hidden=k!==m;
   setBanner('');
   if(m==='play'){defaultStart();}
   else if(m==='lessons'){S.lesson=null;$('ls-list').hidden=false;$('ls-run').hidden=true;defaultStart();S.desc=null;}
@@ -2003,10 +1988,9 @@ function bindUI(){
     S.band=b.dataset.band;S.contact={...S.contact,h:BAND_H[S.band]};delete S.contact.serve;S.incoming=null;S.lastPhase=null;
     arrangeHolderPartner();arrangeWaiting(false);recomputeIdeal();recomputeEval();S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();
   };
-  $('pl-rand').onclick=()=>{if(S.anim||S.over)return;S.auto=false;const r=weightedPick(visibleRows(S.ev.rows));playShot(r.type,r.dir);};
   const toggleAuto=()=>{S.auto=!S.auto;if(S.auto){if(S.paused)resumeGame();else autoStep();}else if(S.paused&&!S.anim)S.paused=false;updatePanel(!!S.anim);};
-  $('pl-auto').onclick=toggleAuto;$('sc-auto').onclick=toggleAuto;
-  $('pl-pause').onclick=togglePause;$('sc-pause').onclick=togglePause;
+  $('sc-auto').onclick=toggleAuto;
+  $('sc-pause').onclick=togglePause;
   $('pl-back').onclick=()=>{if(S.anim||!S.history.length)return;S.auto=false;restore(S.history.pop());};
   $('pl-reset').onclick=()=>{if(S.anim)return;S.auto=false;defaultStart();drawStatic();updatePanel();};
   $('pl-relax').onclick=()=>{if(S.anim||S.over)return;S.locked=null;arrangeWaiting(false);arrangeHolderPartner();recomputeIdeal();recomputeEval();S.desc={kind:'ready'};drawStatic();S.dirty=true;updatePanel();};
@@ -2045,6 +2029,7 @@ function setLang(l){
   const nl=(navigator.language||'ru').toLowerCase();
   LANG=(l&&TX[l])?l:(nl.startsWith('ru')?'ru':nl.startsWith('id')||nl.startsWith('in')?'id':'en');})();
 for(const b of document.querySelectorAll('.langsw button')) b.onclick=()=>setLang(b.dataset.lang);
+for(const i of document.querySelectorAll('[data-layer]')) i.checked=!!S.layers[i.dataset.layer];
 buildCourt();bindUI();applyLang();defaultStart();drawStatic();updatePanel();requestAnimationFrame(loop);
 </script>
 </body>

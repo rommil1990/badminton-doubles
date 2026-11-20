@@ -15,7 +15,7 @@ with sync_playwright() as p:
         bad=sorted(set(m.group(0) for m in re.finditer(r'\S*[А-Яа-яЁё]\S*',t)))
         print(f"[{tag}] cyrillic left:", bad[:15])
     cyr("play-ready")
-    pg.click("#pl-shots .shotrow button >> nth=0"); pg.wait_for_timeout(3500)
+    pg.click("#pl-table tbody tr >> nth=0"); pg.wait_for_timeout(3500)
     cyr("play-after-shot"); print("EN comment:", pg.inner_text("#pl-comment")[:400])
     pg.screenshot(path=out+"/en-1-play.png")
     # drag
@@ -36,10 +36,10 @@ with sync_playwright() as p:
     pg.click("#qz-check"); pg.wait_for_timeout(400)
     cyr("quiz"); print("EN quiz:", pg.inner_text("#qz-result")[:300])
     pg.screenshot(path=out+"/en-3-quiz.png")
-    pg.click("#tabs button[data-mode=basics]"); pg.wait_for_timeout(300)
+    pg.click("#tabs button[data-mode=help]"); pg.wait_for_timeout(300)
     pg.evaluate("()=>document.getElementById('settings').open=true")
-    cyr("basics+settings")
-    pg.screenshot(path=out+"/en-4-basics.png", full_page=True)
+    cyr("help+settings")
+    pg.screenshot(path=out+"/en-4-help.png", full_page=True)
     # reload: language remembered
     pg.reload(); pg.wait_for_timeout(600); print("after reload lang:", pg.evaluate("LANG"))
     br.close()

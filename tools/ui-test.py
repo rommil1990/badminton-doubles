@@ -14,9 +14,9 @@ with sync_playwright() as p:
     pg.on("pageerror", lambda e: (errs.append(("pageerror", str(e))), print("PAGEERROR", e, flush=True)))
     pg.goto(url); pg.wait_for_timeout(800)
     pg.screenshot(path=f"{out}/01-start.png")
-    print("status:", pg.inner_text("#pl-status"))
+    print("card:", pg.inner_text("#pl-comment"))
     # сыграть смэш по линии
-    pg.click("#pl-shots .shotrow button >> nth=0"); pg.wait_for_timeout(500)
+    pg.click("#pl-table tbody tr >> nth=0"); pg.wait_for_timeout(500)
     pg.screenshot(path=f"{out}/02-mid-anim.png")
     pg.wait_for_timeout(2500)
     pg.screenshot(path=f"{out}/03-after.png")
@@ -25,7 +25,7 @@ with sync_playwright() as p:
     box = pg.evaluate("""()=>{const g=document.querySelector('.pl[data-id="b1"]').getBoundingClientRect();return [g.x+g.width/2,g.y+g.height/2]}""")
     print("b1 at", box)
     # авторозыгрыш несколько секунд
-    pg.click("#pl-auto"); pg.wait_for_timeout(9000); pg.click("#pl-auto"); pg.wait_for_timeout(2500)
+    pg.click("#sc-auto"); pg.wait_for_timeout(9000); pg.click("#sc-auto"); pg.wait_for_timeout(2500)
     pg.screenshot(path=f"{out}/04-auto.png")
     # уроки
     pg.click("#tabs button[data-mode=lessons]"); pg.wait_for_timeout(500)
